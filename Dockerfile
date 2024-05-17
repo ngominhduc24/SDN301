@@ -11,4 +11,5 @@ COPY . .
 EXPOSE 9999
 
 # Define the command to run the app
-CMD ["npm", "start-prod"]
+CMD ["node", "./src/bin/www"]
+    
