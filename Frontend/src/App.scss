@@ -1,0 +1,136 @@
+@import "./assets/fonts/icon-font/style.css";
+
+:root {
+  --color-primary: #01638d;
+  --color-blue-dark: #059669;
+  --color-green-500: #10b981;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --text-primary: #4a4a4a;
+  --text-white: #fff;
+  --color-blue: #154398;
+}
+
+.ant-form-item-explain-error {
+  color: #f5222d;
+  font-size: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.app {
+  width: 100%;
+  height: 100vh;
+  background-color: #fafaff;
+  display: flex;
+  flex-direction: row;
+}
+
+.action {
+  width: 80vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-bottom: 1px solid #aaa;
+}
+
+.addItemContainer {
+  height: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid #aaa;
+}
+
+.image-delete {
+  cursor: pointer;
+}
+
+.image-delete svg {
+  width: 20px;
+  height: 20px;
+}
+
+.filterItemContainer {
+  height: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.addItemText {
+  display: block;
+  margin-right: 20px;
+}
+
+.addItemInput {
+  height: 30px;
+  margin-right: 20px;
+}
+
+.addInputButton {
+  width: 60px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.displayListContainer {
+  border-left: 1px solid #aaa;
+  height: 80%;
+  width: 20vw;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+
+.displayListContainerEmpty {
+  border-left: 1px solid #aaa;
+  height: 100%;
+  width: 20vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.listItem {
+  display: block;
+  width: 100%;
+}
+
+.resetContainer {
+  border-left: 1px solid #aaa;
+  height: 20%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.displayListContainerMain {
+  width: 20%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.ant-upload-list-text .ant-upload-list-item {
+  svg path {
+    fill: #0958d9;
+  }
+
+  color: #0958d9;
+}
+
+.ant-input-disabled, :where(.css-dev-only-do-not-override-14wwjjs).ant-input[disabled],
+.ant-select-disabled:where(.css-dev-only-do-not-override-14wwjjs).ant-select:not(.ant-select-customize-input) .ant-select-selector,
+.ant-select-disabled:where(.css-dev-only-do-not-override-14wwjjs).ant-select:not(.ant-select-customize-input) .ant-select-selector > .ant-select-selection-search-input,
+.ant-picker.ant-picker-disabled {
+  background-color: #f0f0f0 !important;
+  color: #333;
+  // font-weight: 600 !important;
+}

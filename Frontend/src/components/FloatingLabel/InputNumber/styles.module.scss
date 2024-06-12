@@ -1,0 +1,67 @@
+@mixin setLabel($colorLabel) {
+  top: -0.4em;
+  font-size: 12px !important;
+  z-index: 3;
+  color: $colorLabel;
+}
+
+.fieldWrapper {
+  display: block;
+  position: relative;
+  background: #ffffff;
+
+  .formControl {
+    height: 40px;
+    z-index: 2;
+    box-shadow: none !important;
+    background-color: transparent !important;
+
+    div[class*='ant-input-number-handler-wrap'] {
+      border-radius: 0 8px 8px 0;
+    }
+  }
+
+  input {
+    z-index: 3;
+  }
+
+  label {
+    position: absolute;
+    cursor: text;
+    font-size: 16px !important;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+    top: 1em;
+    left: 0.75rem;
+    z-index: 1;
+    line-height: 10px;
+    padding: 0 1px;
+    color: #868e96;
+    background-color: transparent;
+
+    .redStar {
+      color: red;
+      margin-left: 5px;
+    }
+
+    &::after {
+      content: ' ';
+      display: block;
+      position: absolute;
+      background: #fff;
+      height: 1px;
+      top: 50%;
+      left: -0.1em;
+      right: -0.2em;
+      z-index: -1;
+    }
+  }
+
+  .labelFocus {
+    @include setLabel(#0d99ff);
+  }
+
+  .selectHasValue {
+    @include setLabel(#222d4b);
+  }
+}

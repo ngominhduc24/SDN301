@@ -1,0 +1,32 @@
+.cardWrapper {
+  background: #ffffff;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  padding: 10px;
+  column-gap: 16px;
+  max-width: 400px;
+  height: calc(100% - 50px);
+  padding-right: 28px;
+  align-items: center;
+}
+
+.img {
+  border-radius: 50%;
+}
+
+.info {
+  color: #222d4b;
+  display: grid;
+  flex-direction: column;
+
+  .name {
+    font-weight: bold;
+  }
+
+  .position {
+    font-size: 12px;
+    line-height: 16px;
+    color: #868e96;
+  }
+}

@@ -1,0 +1,28 @@
+.titleFlexStart {
+  [class*='ant-modal-header'] {
+     justify-content: flex-start !important;
+   }
+ }
+
+ .checkbox {
+  color: #FFFFFF !important;
+  font-weight: normal;
+  font-size: 14px !important;
+  line-height: 19px !important;
+}
+
+.wapper {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 40px;
+  margin-bottom: 70px;
+}
+
+.formItem {
+  width: 300px;
+}
+
+.itemRemember {
+  margin-right: 116px !important;
+}

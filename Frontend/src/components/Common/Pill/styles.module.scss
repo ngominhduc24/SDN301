@@ -1,0 +1,15 @@
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 29px;
+  width: 29px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+.tooltipPill {
+  max-width: 400px
+}

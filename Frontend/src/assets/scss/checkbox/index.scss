@@ -1,0 +1,10 @@
+.checkbox-more-line {
+    .ant-checkbox-checked::after {
+        border: none!important;
+    }
+    span {
+
+        align-self: flex-start;
+        margin-top: 3px;
+    }
+}

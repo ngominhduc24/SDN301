@@ -1,0 +1,76 @@
+.leftFlex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.leftFlexGreen {
+  color: #0d99ff;
+}
+
+.leftFlexBlue {
+  color: #448aff;
+}
+
+.btnSync {
+  font-size: 25px;
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+.btnGreen svg path {
+  stroke: #0d99ff;
+}
+.circleReset {
+  animation: circleReset 1.2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes circleReset {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@-o-keyframes circleReset {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@-moz-keyframes circleReset {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes circleReset {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.errorSync {
+  margin-right: 6px;
+  svg {
+    height: 16px;
+    width: 16px;
+  }
+}
+
+.tooltip {
+  max-width: 400px !important;
+}

@@ -1,0 +1,119 @@
+// Khai báo kích thước tương ứng với màn hình thiết bị
+
+$XS:     480px;   
+$SM:     768px;  
+$MD:    1024px;   
+$XL:   1170px;     
+
+// media queries
+
+@mixin Responsive($canvas) {
+  //Lớn hơn mobile
+  @if $canvas == XS {
+   @media only screen and (min-width: $XS) { @content; } 
+  }
+  @else if $canvas == SM {
+   @media only screen and (min-width: $SM) { @content; } 
+  }
+  @else if $canvas == MD {
+   @media only screen and (min-width: $MD) { @content; } 
+  }
+  @else if $canvas == XL {
+   @media only screen and (min-width: $XL) { @content; } 
+  }
+  //Mobile
+  @else if $canvas == MB {
+   @media only screen and (max-width: $XS) { @content; } 
+  }
+}
+.title-type-1 {
+    color: #134197;
+    font-family: "Inter Bold", sans-serif;
+    border-bottom: 1px solid #ebebeb;
+    position: relative;
+    font-weight: 700;
+    padding: 8px 0;
+    margin-bottom: 8px;
+    
+  @include Responsive(XS) {
+		// Code here
+    font-size: 24px;
+	}
+  @include Responsive(MB) {
+		// Code here
+    font-size: 16px;
+    padding-left: 2px!important;
+    padding-bottom: 12px!important;
+	}
+}
+
+.title-type-1::after {
+    content: "";
+    width: 80px;
+    height: 4px;
+    background-image: -webkit-linear-gradient(0deg,
+            rgb(21, 67, 152) 0%,
+            rgb(238, 29, 35) 100%);
+    position: absolute;
+    left: 40px;
+    bottom: -2px;
+    margin: 0 0 0 -40px;
+}
+
+.title-type-1-admin {
+    font-size: 24px;
+    color: #134197;
+    font-family: "Inter Bold", sans-serif;
+    padding: 12px 0;
+    border-bottom: 1px solid #ebebeb;
+    position: relative;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.title-type-2 {
+    font-size: 24px;
+    color: #134197;
+    font-family: "Inter Bold", sans-serif;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ebebeb;
+    font-weight: 700;
+    position: relative;
+}
+
+.title-type-2::after {
+    content: "";
+    width: 80px;
+    height: 4px;
+    background-image: -webkit-linear-gradient(
+      0deg,
+      rgb(21, 67, 152) 0%,
+      rgb(238, 29, 35) 100%
+    );
+    position: absolute;
+    left: 40px;
+    bottom: -2px;
+    margin: 0 0 0 -40px;
+  }
+  .no-wrap{
+    white-space: nowrap;
+  }
+
+  .link-cus{
+    font-weight: bold;
+    
+  }
+  .link-cus:hover{
+    color: #0d99ff;
+    text-decoration: underline;
+  }
+
+  .title-page {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-primary);
+    // font-family: 'Roboto';
+  }
+  .text-uppercase {
+    text-transform: uppercase;
+  }

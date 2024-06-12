@@ -1,0 +1,17 @@
+.historyModal {
+  thead[class*='ant-table-thead'] tr > th {
+    background: #ffffff;
+    color: #1574f6;
+    font-weight: 600;
+  }
+  margin-bottom: 20px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.padding {
+  padding-bottom: -15 !important;
+}

@@ -1,0 +1,66 @@
+@import "antd/dist/reset.css";
+// @import 'antd/dist/antd.css';
+@import "split-pane-react/esm/themes/default.css";
+@import "./color/color.scss";
+@import "./flexBox/flex_box.scss";
+@import "./fontSize/font_size.scss";
+@import "./fontWeight/font_weight.scss";
+@import "./lineNumber/line_number.scss";
+@import "./rotate/rotate.scss";
+@import "./title/title.scss";
+@import "./margin/margin.scss";
+@import "./margin/margin_bottom.scss";
+@import "./margin/margin_left.scss";
+@import "./margin/margin_right.scss";
+@import "./margin/margin_top.scss";
+@import "./padding/padding.scss";
+@import "./padding/padding_bottom.scss";
+@import "./padding/padding_left.scss";
+@import "./padding/padding_right.scss";
+@import "./padding/padding_top.scss";
+@import "./height/height.scss";
+@import "./width/width.scss";
+@import "./background/background.scss";
+@import "./text/text.scss";
+@import "./button/button.scss";
+@import "./fontFamily/index.scss";
+@import "./lineHeight/index.scss";
+@import "./checkbox";
+@import "./upload/";
+@import "./custom-antd";
+
+body {
+  font-weight: 400;
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    box-shadow: unset;
+    margin: 5px 0px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #c5ced9;
+    border-radius: 30px;
+  }
+}
+
+.site-layout-content {
+  min-height: 280px;
+  padding: 24px;
+  background: #fff;
+}
+
+.w-90 {
+  width: 90%;
+}
+
+// .ant-layout {
+//   min-height: 100vh;
+// }

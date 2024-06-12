@@ -48,9 +48,6 @@ export const CellListContent = styled.div`
 `
 
 export const TableCustomStyled = styled.div`
-  .ant-table-thead th.ant-table-column-has-sorters:hover {
-    background: ${props => (props.isPrimary ? "linear-gradient(to right,#FF7854 0%,#FF5079 100%)" : "#E4EFFE")};
-  }
   .ant-table-column-sorter-inner {
     svg path {
       fill: rgba(243, 246, 249, 0.5);
@@ -76,42 +73,7 @@ export const TableCustomStyled = styled.div`
   .ant-spin-nested-loading {
     /* height: 100%; */
   }
-  .ant-table-thead {
-    .ant-table-cell {
-      background: ${props => (props.isPrimary ? "linear-gradient(to right,#FF7854 0%,#FF5079 100%)" : "#E4EFFE")};
-      color: ${props => (props.isPrimary ? "#fff" : "#212529")};
-      font-size: 13px;
-      .anticon,
-      .anticon {
-        svg path {
-          fill: ${props => (props.isPrimary ? "#fff" : "#212529")};
-        }
-      }
-    }
-  }
-  .ant-table-tbody > tr {
-    /* height: 48px; */
-  }
-  .ant-table.ant-table-bordered
-    > .ant-table-container
-    > .ant-table-header
-    > table
-    > thead
-    > tr
-    > th {
-    border-right: 1px solid #f0f0f0;
-    /* border-right: unset; */
-  }
-  .ant-table-container table > thead > tr:first-child th:first-child {
-    border-top-left-radius: 4px;
-  }
-  .ant-table-container table > thead > tr:first-child th:nth-last-child(2) {
-    /* border-top-right-radius: 4px; */
-    /* border-right: 0px solid #f0f0f0 !important; */
-  }
-  .ant-table-container table > thead > tr:first-child th:last-child {
-    border-top-right-radius: 4px;
-  }
+
   .ant-table-thead > tr > th {
     text-align: center;
     padding: 4px 8px;
@@ -124,49 +86,31 @@ export const TableCustomStyled = styled.div`
   .ant-table-body {
     overflow: auto auto !important;
     transition: all linear 0.2s;
-    /* height: 100%; */
     &::-webkit-scrollbar {
       width: 5px;
       height: 5px;
+      background-color: #fff !important;
     }
-
     &::-webkit-scrollbar-thumb {
       background-color: #c5ced9;
       border-radius: 12px;
+      background-color: #fff !important;
     }
-  }
-  .ant-table-body {
-    /* overflow: hidden !important; */
-    &::-webkit-scrollbar {
-      /* width: 10px; */
-      /* background-color: #fff !important; */
-    }
-
     /* Track */
     &::-webkit-scrollbar-track {
       /* background: #f1f1f1; */
-      /* background-color: #fff !important; */
-    }
-
-    /* Handle */
-    &::-webkit-scrollbar-thumb {
-      /* background: #888; */
-      /* background-color: #fff !important; */
+      background-color: #fff !important;
     }
   }
 
   .ant-table-body:hover {
-    /* overflow: auto !important; */
     &::-webkit-scrollbar {
-      /* width: 10px; */
       background-color: #fff !important;
     }
-
     /* Track */
     &::-webkit-scrollbar-track {
       background: #f1f1f1 !important;
     }
-
     /* Handle */
     &::-webkit-scrollbar-thumb {
       background: #ddd !important;
@@ -175,18 +119,6 @@ export const TableCustomStyled = styled.div`
 
   .ant-table-cell-scrollbar:not([rowspan]) {
     box-shadow: none;
-  }
-  td.ant-table-cell {
-    padding: 8px !important;
-    /* border-right: unset !important; */
-  }
-  td.ant-table-cell.ant-table-selection-column {
-    padding: 0 !important;
-  }
-  .ant-table-placeholder {
-    .ant-table-cell {
-      /* border-bottom: none !important; */
-    }
   }
   .ant-table-row {
     cursor: pointer;
@@ -210,7 +142,4 @@ export const TableCustomStyled = styled.div`
       border-right: 0px !important;
     }
   }
-  /* .ant-table-pagination {
-    display: ${props => (props.showPagination ? "flex" : "none")};
-  } */
 `

@@ -1,0 +1,34 @@
+@import 'public/styles/mixins';
+.rowTable {
+  td {
+    background-color: white;
+  }
+}
+.tableApprovedWec {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 24px;
+
+  div[class*='ant-table'] thead tr th {
+    background-color: #bbdefb;
+    color: #222d4b;
+    font-weight: bold;
+    line-height: 20px;
+  }
+
+  tr > th,
+  tr > td {
+    height: 60px;
+    padding: 0 16px;
+  }
+
+  div[class*='ant-table-wrapper'] {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    box-shadow: unset;
+  }
+
+  div[class*='ant-table-body'] {
+    @include scroll-page();
+  }
+}

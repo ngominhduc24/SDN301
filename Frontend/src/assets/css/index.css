@@ -1,0 +1,43 @@
+
+/* margin right */
+.mr-0 {
+    margin-right: 4px !important;
+}
+
+
+/* margin left */
+.ml-0 {
+    margin-left: 5px !important;
+}
+
+
+
+/* margin top */
+.mt-0 {
+    margin-top: 0px !important;
+}
+
+
+/* margin bottom */
+.mb-0 {
+    margin-bottom: 0px !important;
+}
+
+
+
+/* padding */
+.p-0 {
+    padding: 0px !important;
+}
+
+.p-16 {
+    padding: 16px !important;
+}
+
+.pr-16 {
+    padding-right: 16px !important;
+}
+
+.pl-16 {
+    padding-left: 16px !important;
+  }

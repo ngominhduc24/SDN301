@@ -1,0 +1,51 @@
+deploy-fe-dev:
+  script:
+    - echo "Start build dev"
+    - rm -rf node_modules
+    - rm -f yarn.lock
+    - npm cache clear --force
+    - export NODE_OPTIONS=--openssl-legacy-provider
+    - npm install --force
+    - CI='' npm run build
+    - echo "End build dev"
+    - find /home/ubuntu/HTM/02.FE/* -type f -not -name 'config.js' -delete
+    - rsync -r --exclude 'config.js' ./build/* /home/ubuntu/HTM/02.FE
+  only:
+    - dev
+  tags:
+    - linux
+  when: always
+# deploy-fe-product:
+#   script:
+#     - echo "Start build dev"
+#     - node -v
+#     - rm -rf node_modules
+#     - rm -f yarn.lock
+#     - npm cache clear --force
+#     - npm install --force
+#     - CI='' npm run build
+#     - echo "End build dev"
+#     - find /home/publish/DVC/02.FE/* -type f -not -name 'config.js' -delete
+#     - rsync -r --exclude 'config.js' ./build/* /home/publish/DVC/02.FE
+#   only:
+#     - main
+#   tags:
+#     - product
+#   when: always
+
+# deploy-fe-product-plus:
+#   script:
+#     - echo "Start build dev"
+#     - rm -rf node_modules
+#     - rm -f yarn.lock
+#     - npm cache clear --force
+#     - npm install --force
+#     - CI='' npm run build
+#     - echo "End build dev"
+#     - find /home/ubuntu/DVC/02.FE/* -type f -not -name 'config.js' -delete
+#     - rsync -r --exclude 'config.js' ./build/* /home/ubuntu/DVC/02.FE
+#   only:
+#     - main
+#   tags:
+#     - product-plus
+#   when: always

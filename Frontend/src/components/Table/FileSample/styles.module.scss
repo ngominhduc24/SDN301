@@ -1,0 +1,11 @@
+@import 'public/styles/mixins';
+
+.left {
+  overflow: unset;
+  height: 100%;
+  border-radius: 8px;
+  grid-row: 2 / span 2;
+  .tableWec {
+    height: calc(100% - 80px);
+  }
+}

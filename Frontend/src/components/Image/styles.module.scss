@@ -1,0 +1,38 @@
+.imageCnt {
+  height: 168px;
+  width: 270px;
+  background: #ced4da;
+  border-radius: 8px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.textUpload {
+  width: 100%;
+  height: 40px;
+  background: #222d4b;
+  opacity: 0.5;
+  line-height: 19px;
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0px 0px 8px 8px;
+  position: absolute;
+  bottom: 0;
+}
+
+.avatar {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.removeImg {
+  position: absolute;
+  right: 0;
+  padding-top: 5px;
+  padding-right: 5px;
+}

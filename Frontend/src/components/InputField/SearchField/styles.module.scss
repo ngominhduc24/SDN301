@@ -1,0 +1,37 @@
+.search {
+  border: 1px solid #868e96;
+  box-sizing: border-box;
+  border-radius: 8px;
+}
+
+.iconSearch svg {
+  cursor: pointer;
+}
+
+.rawSearch {
+  display: flex;
+  height: 40px;
+  align-items: center;
+
+  .searchField {
+    width: 610px;
+    margin-right: 16px;
+    border: none !important;
+    span[class*='ant-input-affix-wrapper'] {
+      border: 1px solid #c5ced9 !important;
+      height: 40px;
+      border-radius: 12px !important;
+    }
+
+    span[class*='ant-select-selection-search-input'] {
+      border: 1px solid #c5ced9;
+    }
+    input {
+      background-color: transparent;
+      font-size: 14px;
+    }
+    svg path {
+      fill: #626262;
+    }
+  }
+}

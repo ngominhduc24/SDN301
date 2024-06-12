@@ -1,0 +1,35 @@
+.truncateOneLine {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.truncateMultiline {
+  width: fit-content;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  padding-right: 16px;
+}
+
+.showFull {
+  padding-right: 16px;
+}
+
+.tooltipContent::before {
+  content: '';
+  display: block;
+}
+
+.buttonReadMore {
+  position: absolute;
+  top: 4px;
+  right: 0;
+}
+
+.buttonReadMoreRevert {
+  transform: rotate(180deg);
+}

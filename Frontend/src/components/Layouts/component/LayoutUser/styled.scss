@@ -1,0 +1,12 @@
+
+.ant-menu .ant-menu-item {
+    overflow: initial;
+    position: relative;
+    .ant-badge {
+      position: unset;
+    }
+  }
+
+  .socket .ant-badge-count {
+    transform: translate(-40%, 55%) !important;
+  }

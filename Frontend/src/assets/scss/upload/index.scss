@@ -1,0 +1,95 @@
+
+.upfile-doc {
+    box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    padding: 8px;
+    .btn-upfile-wrapper {
+      position: absolute;
+      top: -14px;
+      right: -14px;
+      z-index: 400;
+      .btn-upfile {
+        border: none !important;
+        padding: 2px;
+        border-radius: 100%;
+        margin: 0;
+        min-width: 0;
+        div div span svg {
+          width: 26px;
+          height: 26px;
+        }
+      }
+    }
+    .ant-upload.ant-upload-drag .ant-upload-btn {
+      background: #fff;
+
+      border-radius: 8px;
+    }
+    .upfile-text {
+      font-size: 32px;
+      font-weight: bold;
+      color: #7174a0;
+    }
+    .div-sign div {
+      text-align: center;
+    }
+    .ant-upload-wrapper {
+      position: relative;
+    }
+
+    .ant-upload.ant-upload-drag {
+      height: 98px;
+    }
+  
+    .ant-upload-list {
+      position: absolute;
+      flex-direction: column;
+      width: 98%;
+      top: 5px;
+      left: 5px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      /* flex-wrap: wrap; */
+      max-height: 90px;
+      overflow: hidden auto;
+      padding: 0px 8px 8px 8px;
+      margin-right: 5px;
+      .ant-upload-list-item {
+        box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        padding: 15px 10px;
+        margin-right: 12px;
+        .ant-upload-icon {
+          display: none;
+        }
+        .ant-upload-list-item-name {
+          color: #5f96de;
+        }
+        .ant-upload-list-item-name{
+            width: 140px;
+        }
+        .ant-upload-list-item-actions {
+        //   display: none;
+
+          .ant-upload-list-item-action {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            background: #4096ff;
+            border-radius: 100%;
+            height: 22px;
+            width: 22px;
+            span svg {
+              width: 14px;
+              height: 14px;
+              fill: #fff;
+            }
+          }
+        }
+        :hover .ant-upload-list-item-actions {
+          display: block !important;
+        }
+      }
+    }
+  }

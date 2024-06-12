@@ -1,0 +1,35 @@
+.titleFlexStart {
+  [class*='ant-modal-header'] {
+     justify-content: flex-start !important;
+   }
+ }
+ 
+ .wapper {
+   display: flex;
+   column-gap: 24px;
+ }
+
+ .title {
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 22px;
+  margin-bottom: 16px;
+ }
+ 
+ .info {
+  margin-top: 32px;
+  margin-bottom: 100px;
+ }
+
+ .linkInfo {
+   color: #F7941E;
+   &:hover {
+    color: #F7941E
+   }
+ }
+
+ .detail {
+  display: grid;
+  grid-template-columns: 97px 1fr;
+  row-gap: 16px;
+ }

@@ -1,0 +1,76 @@
+@mixin setLabel($colorLabel) {
+  top: -0.4em;
+  font-size: 12px !important;
+  z-index: 3;
+  color: $colorLabel;
+}
+
+.fieldWrapper {
+  display: block;
+  position: relative;
+  border-radius: 8px;
+  .ant-select-selector
+    .ant-select-selection-item
+    .ant-select-selection-item-remove {
+    display: none;
+  }
+  [class='ant-select-selector'] {
+    border-radius: 8px !important;
+    // border: 1px solid #c5ced9 !important;
+    height: 40px;
+    padding: 0 11px;
+    background-color: transparent !important;
+  }
+
+  input {
+    z-index: 3;
+  }
+
+  label {
+    position: absolute;
+    cursor: text;
+    font-size: 14px !important;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+    top: 1em;
+    left: 0.75rem;
+    z-index: 0;
+    line-height: 10px;
+    padding: 0 1px;
+    color: #868e96;
+    background-color: transparent;
+
+    &::after {
+      content: ' ';
+      display: block;
+      position: absolute;
+      height: 1px;
+      top: 50%;
+      left: -0.1em;
+      right: -0.2em;
+      z-index: -1;
+    }
+  }
+
+  .labelFocus {
+    @include setLabel(#0d99ff);
+  }
+
+  .selectHasValue {
+    @include setLabel(#222d4b);
+  }
+
+  div[class*='ant-tree-select'] {
+    border-radius: 8px;
+
+    div[class*='ant-select-selector'] {
+      min-height: 40px !important;
+      align-items: center;
+    }
+
+    div[class*='ant-select-focused'] {
+      background-color: #fff;
+    }
+  }
+}
+

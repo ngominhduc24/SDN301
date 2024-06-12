@@ -1,79 +1,48 @@
-// import { Col, Row } from "antd"
-// import { FooterContainerStyled, FooterStyled } from "./styled"
-// import { Link } from "react-router-dom"
+import { Divider } from "antd"
+import { FooterStyled } from "./styled"
+const Footer = () => {
+  return (
+    <FooterStyled>
+      <Divider className="m-0" />
+      {/* <div className="bg-footer p-30">
+        <Row>
+          <Col xl={3}></Col>
+          <Col xl={9}>
+            <div className="white mb-10">
+              <span className="fw-600">Cơ quan chủ quản:</span> Cục sở hữu trí
+              tuệ
+            </div>
+            <div className="white">
+              <span className="fw-600 mb-10">Địa chỉ:</span> 384-386, đường
+              Nguyễn Trãi, quận Thanh Xuân, Thành phố Hà Nội.
+            </div>
+            <div className="white mb-10 mt-10">
+              <span className="fw-600">Tổng đài:</span> (024) 3858 3069
+            </div>
+          </Col>
+          <Col xl={9}>
+            <div className="fw-500 white mb-10">
+              <span>
+                Giấy phép thiết lập Website số 55/GP-BC do Cục Báo chí - Bộ Văn
+                hoá Thông tin cấp ngày 04/05/2005
+              </span>
+            </div>
+            <div className="white mb-10">
+              <span className="fw-600">Email:</span> vietnamipo@ipvietnam.gov.vn
+            </div>
+            <div className="fw-500 white mb-10">
+              Ghi rõ nguồn từ "IP VIETNAM" khi phát hành lại thông tin từ Cổng
+              thông tin điện tử này
+            </div>
+          </Col>
+          <Col xl={3}></Col>
+        </Row>
+      </div> */}
+      {/* <div className="footer-last p-10 d-flex-center">
+        <div className="text-center white">© HỆ THÔNG HỌP THÔNG MINH</div>
+      </div> */}
+    </FooterStyled>
+  )
+}
 
-// const Footer = () => {
-//   return (
-//     <FooterContainerStyled>
-//       <FooterStyled>
-//         <Row gutter={[16, 16]}>
-//           <Col span={6}>
-//             <p className="text-matte fs-18 mb-18">Bộ sưu tập</p>
-//             <p className="mb-10">
-//               <Link to={'/genres'}>Thể loại</Link>
-//             </p>
-//             <p className="mb-12">
-//               <Link>Ngôn ngữ</Link>
-//             </p>
-//             <p className="mb-10">
-//               <Link to={'/authors'}>Tác giả</Link>
-//             </p>
-//           </Col>
-//           <Col span={6}>
-//             <p className="text-matte fs-18 mb-18">Cộng đồng</p>
-//             <p className="mb-10">
-//               <Link>Bài viết</Link>
-//             </p>
-//             <p className="mb-10">
-//               <Link>Phỏng vấn tác giả</Link>
-//             </p>
-//             <p className="mb-10">
-//               <Link>Bản tin</Link>
-//             </p>
-//           </Col>
-//           <Col span={6}>
-//             <p className="text-matte fs-18 mb-18">Công ty</p>
-//             <p className="mb-10">
-//               <Link>Dịch vụ tác giả</Link>
-//             </p>
-//             <p className="mb-10">
-//               <Link>Hỏi đáp / Liên hệ</Link>
-//             </p>
-//             <p className="mb-10">
-//               <Link>Khả năng tiếp cận</Link>
-//             </p>
-//           </Col>
-
-//           <Col span={6}>
-//             <p className="text-matte fs-18 mb-18">Theo dõi thông tin</p>
-//             <p className="mb-10">
-//               <Link>Facebook</Link>
-//             </p>
-//             <p className="mb-10">
-//               <Link>Twitter</Link>
-//             </p>
-//             <p className="mb-12">
-//               <Link>Instagram</Link>
-//             </p>
-//           </Col>
-//         </Row>
-//         <hr></hr>
-//         <div className="d-flex-sb">
-//           <div className="d-flex-sb">
-//             <img style={{ width: '20px', height: '20px' }} src="Lire Le Logo Du Livre _ Vecteur Premium (1).png" alt="" />
-//             <span className="text-matte">
-//               © 2024 Advertical Media LLC. All Rights Reserved.
-//             </span>
-//           </div>
-//           <div>
-//             <Link className="text-matte">Term</Link>
-//             <span className="text-matte">-</span>
-//             <Link className="text-matte">Privacy</Link>
-//           </div>
-//         </div>
-//       </FooterStyled>
-//     </FooterContainerStyled>
-//   )
-// }
-
-// export default Footer
+export default Footer

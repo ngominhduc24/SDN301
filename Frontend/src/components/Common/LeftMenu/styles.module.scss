@@ -1,0 +1,259 @@
+.sideWrapper {
+  background: #ffffff !important;
+  border-right: 1px solid #ced4da;
+
+  .menuSidebar {
+    margin: 10px;
+    width: unset;
+    border-right: none;
+    height: 100%;
+    background-color: #ffffff;
+    overflow: hidden auto;
+    margin-right: 5px;
+    padding-right: 5px;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #c5ced9;
+      border-radius: 30px;
+    }
+    .sideBarSubMenuItem {
+      & > div {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        border-radius: 8px;
+      }
+
+      .lineSubMenu {
+        position: absolute;
+        border: 1px dashed #e0e0e0;
+        height: 85%;
+        left: 23px;
+        top: 8px;
+      }
+
+      &[class*="ant-menu-submenu-open"] {
+        .iconMenu {
+          transform: rotate(-180deg);
+        }
+      }
+    }
+    .layoutLeftMenu {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .titleSideBar {
+      font-size: 16px;
+      line-height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+
+      .dotSubItem {
+        margin-left: 20px;
+        margin-right: 8px;
+      }
+
+      .iconMenu {
+        transform: rotate(0deg);
+      }
+    }
+
+    .sideBarItem {
+      span[class*="ant-menu-item-icon"] {
+        min-width: unset;
+        margin-right: 0 !important;
+      }
+      padding-left: 12px !important;
+      display: flex;
+      text-align: center;
+      align-items: center;
+
+      .badgeCount {
+        // position: absolute;
+        // top: 10px;
+        // right: 16px;
+        margin-right: 0 !important;
+      }
+
+      .titleWrapper {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .badgeCollapsed {
+        right: 0;
+        top: 0;
+      }
+
+      .subMenuItem {
+        height: 44px;
+        width: 85%;
+        border-radius: 8px;
+        margin-bottom: 4px;
+        margin-top: 4px;
+        padding-left: 15px;
+      }
+    }
+
+    .sideBarSubMenuItem {
+      margin-bottom: 8px;
+      .settingViolet svg path {
+        stroke: #bb6bd9;
+      }
+    }
+  }
+}
+
+.iconMenu {
+  margin-left: 22px;
+}
+
+.document {
+  font-size: 16px;
+  line-height: 22px;
+  text-decoration-line: underline;
+  color: #0d99ff !important;
+  margin-left: 0;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+.affix {
+  width: 250px;
+  min-width: 250px;
+
+  & > div {
+    height: 100%;
+    .sideWrapperClose {
+      position: absolute;
+      z-index: 1000;
+      max-width: 64px !important;
+      min-width: 64px !important;
+      width: 64px !important;
+      transition: 0.3s all ease;
+
+      ul[class*="ant-menu-sub"] {
+        display: none;
+      }
+    }
+
+    .sideWrapperCloseCollapse:hover {
+      box-shadow: 0 3px 8px rgb(0 0 0 / 8%);
+      max-width: 250px !important;
+      min-width: 250px !important;
+      width: 250px !important;
+      transition: 0.3s all ease;
+
+      .badgeCountSubMenu {
+        display: none;
+      }
+
+      .document {
+        margin-left: 10px;
+        visibility: unset;
+        width: auto;
+        height: auto;
+        transition: visibility 0.2s, width 0.2s, height 0.2s, margin-left 0.2s;
+      }
+
+      @media screen and (max-width: 1506px) {
+        max-width: 250px !important;
+        min-width: 250px !important;
+        width: 250px !important;
+      }
+
+      ul[class*="ant-menu-sub"] {
+        display: block;
+      }
+      ul[class*="ant-menu-hidden"] {
+        display: none !important;
+      }
+
+      li[class*="side-bar-collapsed-selected"]
+        div[class*="ant-menu-submenu-title"] {
+        background: transparent !important;
+      }
+    }
+  }
+}
+
+.iconFaq {
+  position: absolute !important;
+  bottom: 29px;
+  border: 1px solid #0d99ff;
+  box-sizing: border-box;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff !important;
+  width: calc(100% + -16px) !important;
+  height: 44px;
+  transition: width 0.2s;
+  left: 8px;
+}
+
+.iconFaqBottom {
+  bottom: 30px;
+
+  .document {
+    margin-left: 10px;
+    visibility: unset;
+    width: auto;
+    height: auto;
+    transition: visibility 0.2s, width 0.2s, height 0.2s;
+  }
+}
+
+.subMenuItemPopup {
+  border-radius: 8px;
+}
+
+.badge {
+  margin-right: 16px !important;
+  sup[class*="ant-badge-count"] {
+    background-color: #f15a22;
+    box-shadow: none;
+    padding: 0 5px 1px 5px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid white;
+
+    p[class*="ant-scroll-number-only-unit"] {
+      font-size: 11px;
+      line-height: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+.badgeCountSubMenu {
+  position: absolute !important;
+  top: 0;
+  left: 25px;
+}
+
+.badgeHide {
+  display: none;
+}
+
+.affixClose {
+  width: 0px !important;
+  min-width: 0px !important;
+}
+
+.tooltipMenu {
+  max-width: 300px !important;
+}

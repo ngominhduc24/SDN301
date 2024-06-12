@@ -1,0 +1,349 @@
+.buttonWrapper {
+  border-radius  : 6px;
+  display        : flex !important;
+  align-items    : center;
+  font-weight    : 500;
+  line-height    : 10px;
+  justify-content: center;
+  height         : 37px !important;
+
+  .name {
+    font-weight: 700;
+    line-height: 14px;
+  }
+
+  .icon {
+    svg {
+      height: 18px;
+      width : 18px;
+    }
+  }
+
+  .iconLarge svg {
+    height: 18px;
+    width : 18px;
+  }
+}
+
+.disable-btn {
+  border: 2px solid #8e8e93 !important;
+  span {
+    color: #8e8e93 !important;
+    svg line {
+      stroke: #8e8e93 !important;
+    }
+    svg g path {
+      fill: #8e8e93 !important;
+    }
+  }
+}
+
+.disable {
+  box-shadow: none !important;
+  cursor    : not-allowed;
+
+  &:not(.icon svg path) {
+    opacity: 0.7;
+  }
+
+  .icon svg path {
+    &[fill] {
+      fill: #ced4da;
+    }
+
+    &[stroke] {
+      stroke: #ced4da;
+    }
+  }
+}
+
+@mixin btntype($backgroundColor,
+  $borderColor,
+  $color,
+  $hoverBackground,
+  $hoverBorderColor,
+  $hoverColor) {
+  background  : $backgroundColor !important;
+  border-color: $borderColor !important;
+  color       : $color !important;
+
+  &:hover,
+  &:focus {
+    // opacity: 0.8;
+    background: $hoverBackground !important;
+    border-color: $hoverBorderColor !important;
+    color: $hoverColor !important;
+    span {
+      color: $hoverColor !important;
+    }
+  }
+  span {
+    color: $color !important;
+  }
+}
+
+.linear {
+  @include btntype(linear-gradient(90deg, #154398 0%, #ed1117 100%),
+    #ffffff,
+    #ffffff,
+    linear-gradient(90deg, #154398 0%, #ed1117 100%),
+    #ffffff,
+    #ffffff);
+}
+.greenLeaves {
+  @include btntype(#7fca27,
+    #ffffff,
+    #ffffff,
+  #ffffff,
+    #ffffff,
+    #ffffff);
+      &:hover {
+          background: #9acf1c !important;
+          color: #ffffff !important;
+      
+          div span {
+            // color: #154398 !important;
+          }
+      
+          svg path {
+            // fill: #154398;
+            // stroke: #154398;
+          }
+        }
+}
+
+.primary {
+  @include btntype(#01638D, #01638D, #ffffff, #01638D, #81D9FF, #ffffff);
+
+  svg path {
+    stroke: #ffffff;
+    fill: #ffffff;
+  }
+  & {
+    border: 2px solid;
+  }
+  &:hover,
+  &:focus {
+    border: 2px solid;
+    // svg path {
+    //   stroke: #01638D;
+    // }
+  }
+}
+.primary-no-hover {
+  @include btntype(#01638D, #01638D, #ffffff, #01638D, #01638D, #ffffff);
+}
+.disable-style {
+  @include btntype( rgba(242, 242, 242, 0.9), rgba(142, 142, 147, 1), rgba(142, 142, 147, 1), rgba(242, 242, 242, 0.9), rgba(142, 142, 147, 1), rgba(142, 142, 147, 1),);
+
+    // svg path {
+    //   stroke: rgba(142, 142, 147, 1);
+    // }
+    svg line {
+      stroke: rgb(128, 128, 133) !important;
+    }
+    svg g path {
+      fill: rgb(128, 128, 133) !important;
+      stroke: rgb(128, 128, 133) !important;
+    }
+}
+
+.yellow {
+  @include btntype(#ffd800, #ffd800, #172b4d, #ffd800, #ffd800, #172b4d);
+}
+
+.secondary {
+  @include btntype(#b6bcc4, #b6bcc4, #ffffff, #b6bcc4, #b6bcc4, #ffffff);
+  font-weight: 700 !important;
+}
+
+.closeVND {
+  @include btntype(#777779, #777779, #ffffff, #777779, #777779, #ffffff);
+}
+
+.green {
+  @include btntype(#0D9D57, #0D9D57, #fff, #0D9D57, #0D9D57, #fff);
+}
+
+.third {
+  @include btntype(#ffffff, #01638D, #01638D, rgba(1, 99, 141, 0.08), #01638D, #01638D);
+  svg path {
+    fill: #01638D;
+  }
+}
+.red-style {
+  @include btntype(#ffffff, #d63939, #d63939, rgba(206, 49, 53, 0.08), #d63939, #d63939);
+}
+.green-style {
+  @include btntype(#ffffff, #0D9D57, #0D9D57, rgba(13, 157, 87, 0.08), #0D9D57, #0D9D57);
+}
+.red-st {
+  @include btntype(#ffffff, #d63939, #d63939, #abb2b8, #abb2b8, #ffffff);
+
+  &:hover,
+  &:focus {
+    svg path {
+      stroke: white;
+    }
+  }
+}
+.gray-style {
+  @include btntype(#F1F3F5, #F1F3F5, #3E4554,#CCCCCC, #CCCCCC, #3E4554);
+}
+
+.third-st {
+  @include btntype(#ffffff, #154398, #154398, #0e8cf1, #0e8cf1, #ffffff);
+
+  &:hover,
+  &:focus {
+    svg path {
+      stroke: white;
+    }
+  }
+}
+
+.fourth {
+  @include btntype(#2c2c35, #c4c4c4, #c4c4c4, #2c2c35, #c4c4c4, #c4c4c4);
+}
+
+.fifth {
+  @include btntype(#ffffff, #8b8a92, #8b8a92, #ffffff, #8b8a92, #8b8a92);
+}
+
+.orange {
+  @include btntype(#f7941e, #f7941e, #ffffff, #f7941e, #f7941e, #ffffff);
+}
+
+.back {
+  @include btntype(#f0f0f0, #505050, #505050, #f0f0f0, #505050, #505050);
+}
+
+.gray {
+  @include btntype(#f2f2f2, #f2f2f2, #070707, #f2f2f2, #154398, #154398);
+
+  .icon svg {
+    height: 24px;
+    width : 24px;
+  }
+
+  height: 40px !important;
+}
+
+.primaryFilter {
+  @include btntype(#0d99ff, #0d99ff, #ffffff, #0d99ff, #0d99ff, #ffffff);
+
+  .icon svg {
+    height: 24px;
+    width : 24px;
+  }
+
+  height: 40px !important;
+  width : 40px !important;
+}
+
+.dark {
+  @include btntype(#757575, #757575, #ffffff, #757575, #757575, #ffffff);
+}
+
+.primary-sm {
+  @include btntype(#d3f7ff, #d3f7ff, #0d99ff, #d3f7ff, #d3f7ff, #0d99ff);
+}
+
+.danger {
+  @include btntype(#ffffff, #e50500, #e50500, #e50500, #e50500, #ffffff);
+
+  &:hover {
+    background: #e50500 !important;
+    color     : #fff !important;
+
+    div span {
+      color: #fff !important;
+    }
+
+    svg path {
+      fill  : #154398;
+      stroke: #fff;
+    }
+
+    svg path {
+      fill: white;
+    }
+  }
+}
+
+.red {
+  @include btntype(#e50500, #fff, #fff, #e50500, #e50500, #fff);
+
+  &:hover {
+    svg path {
+      fill: e50500;
+    }
+  }
+}
+
+.svg-24 {
+  .icon svg {
+    height: 24px;
+    width : 24px;
+  }
+}
+
+.svg-18 {
+  border-radius   : 50% !important;
+  border          : none !important;
+  background-color: transparent !important;
+  box-shadow      : none !important;
+  height          : 32px !important;
+  width           : 32px !important;
+  min-width       : 32px !important;
+  padding-left    : 4px;
+
+  .icon svg {
+    height: 18px;
+    width : 18px;
+  }
+
+  &:hover {
+    background: #cff4e1 !important;
+  }
+
+  &.zoomIn svg {
+    animation-name    : zoomIn;
+    animation-duration: 0.5s;
+  }
+}
+
+.btn-circle {
+  border-radius   : 50% !important;
+  border          : none !important;
+  background-color: white;
+  box-shadow      : none !important;
+  height          : 30px !important;
+  width           : 30px !important;
+  box-shadow      : 0px 2px 5px rgba(187, 199, 208, 0.5);
+  min-width       : 20px !important;
+
+  .icon svg {
+    height: 20px;
+    width : 20px;
+  }
+
+  // &:hover {
+  //   background: #cff4e1 !important;
+  // }
+  &.zoomIn svg {
+    animation-name    : zoomIn;
+    animation-duration: 0.5s;
+  }
+}
+
+.minWidth {
+  min-width: 84px;
+}
+
+@keyframes zoomIn {
+  from {
+    width : 0px;
+    height: 0px;
+  }
+}

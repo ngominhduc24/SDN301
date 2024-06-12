@@ -1,0 +1,79 @@
+.fieldWrapper {
+  display: block;
+  position: relative;
+  border-radius: 8px;
+
+  .formControl {
+    height: 37px;
+    display: flex;
+    width: 100%;
+    line-height: 1.25;
+    color: #222d4b;
+    background-image: none;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border-radius: 8px;
+    z-index: 2;
+    font-size: 14px;
+    box-shadow: none !important;
+
+    &:focus {
+      color: #222d4b;
+      border-color: #0d99ff;
+      outline: 0;
+      background-color: #fff !important;
+    }
+
+    &:placeholder-shown:not(:focus) + * {
+      font-size: 14px;
+      line-height: 19px;
+      color: #868e96 !important;
+      top: 0.6em;
+      z-index: 3;
+    }
+
+    &:focus + label {
+      color: #0d99ff;
+      z-index: 3;
+    }
+
+    &:hover + label {
+      color: #0d99ff;
+      z-index: 3;
+    }
+
+    div[class="ant-input-number-input-wrap"] {
+      width: 100%;
+    }
+  }
+
+  label {
+    position: absolute;
+    cursor: text;
+    font-size: 12px;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+    top: -0.4em;
+    left: 0.75rem;
+    z-index: 3;
+    line-height: 10px;
+    padding: 0 1px;
+    color: #222d4b;
+
+    .redStar {
+      color: red;
+      margin-left: 5px;
+    }
+
+    &::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      height: 4px;
+      top: 50%;
+      left: -0.1em;
+      right: -0.2em;
+      z-index: -1;
+    }
+  }
+}

@@ -1,0 +1,13 @@
+.noteStatus {
+  display: flex;
+  align-items: center;
+  margin-left: 30px;
+
+  .box {
+    height: 23px;
+    width: 40px;
+    border: 1px solid #ABB9D0;
+    box-sizing: border-box;
+    margin-right: 12px;
+  }
+}

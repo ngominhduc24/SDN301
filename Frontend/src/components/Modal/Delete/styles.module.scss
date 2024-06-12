@@ -1,0 +1,25 @@
+.trashCan {
+  margin-top: 8px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+
+  svg {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+.textContent {
+  margin: 0 14px 32px;
+  font-size: 14px;
+  line-height: 19px;
+  text-align: center;
+  color: #222d4b;
+  display: grid;
+  row-gap: 16px;
+}
+
+.btnCancel {
+  margin-right: 8px;
+}
