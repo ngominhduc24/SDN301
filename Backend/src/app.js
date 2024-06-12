@@ -6,7 +6,7 @@ var logger = require("morgan");
 var cors = require("cors");
 var indexRouter = require("./routes/index");
 const setupSwagger = require('./config/swagger');
-var connect =  require("./config/mongodb.config.js");
+var connectMongoDB =  require("./config/mongodb.config.js");
 
 var app = express();
 
@@ -24,7 +24,7 @@ app.use("/", indexRouter);
 setupSwagger(app);
 
 // Connect mongo DB
-connect()
+connectMongoDB()
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
