@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const User = require('../models/user');
 const hashPassword = require('../utils/security');
+const tokenUtils = require('../utils/jwt-handle');
+
 class AuthenService {
     // Authentication login service
     async Login(req, res) {
@@ -13,11 +15,12 @@ class AuthenService {
             if (!user) {
                 throw new Error('Email or password is incorrect');
             }
+            const access_token = tokenUtils.accessToken({
+                id: user._id,
+                role: user.role,
+              })
 
-            // Generate a random token
-            const randomToken = crypto.randomBytes(23).toString('hex');
-
-            const result = { token: randomToken };
+            const result = { token: access_token };
             return result;
         } catch (error) {
             throw error;
