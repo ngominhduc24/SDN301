@@ -8,6 +8,8 @@ var indexRouter = require("./routes/index");
 var userRouter = require("./routes/user.router");
 const setupSwagger = require('./config/swagger');
 var connectMongoDB =  require("./config/mongodb.config.js");
+const shopRouter = require("./routes/shop.router.js");
+const warehouseRouter = require("./routes/warehouse.router.js");
 
 var app = express();
 
@@ -23,6 +25,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use("/", indexRouter);
 app.use("/api", userRouter);
+app.use("/api/shop", shopRouter);
+app.use("/api/warehouse", warehouseRouter);
 setupSwagger(app);
 
 // Connect mongo DB
@@ -41,7 +45,12 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error");
+  res.send({
+    status: err.status || 500,
+    message: err.message,
+  });
 });
+
+
 
 module.exports = app;
