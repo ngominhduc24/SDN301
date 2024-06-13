@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 class AuthenService {
     // Authentication login service
-    async Login(req, res, next) {
+    async Login(req, res) {
         const { email, password } = req.body;
         try {
             const randomToken = crypto.randomBytes(23).toString('hex');
