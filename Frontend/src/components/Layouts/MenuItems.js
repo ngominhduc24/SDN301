@@ -24,6 +24,69 @@ const MenuItemBreadcrumb = () => {
 
 export default MenuItemBreadcrumb
 
+export const MenuItemTopAdmin = [
+  // {
+  //   label: "Trang chủ",
+  //   key: ROUTER.HOME,
+  //   icon: <HomeOutlined />,
+  // },
+  // {
+  //   label: "Hỏi đáp",
+  //   key: ROUTER.QUESTION,
+  //   disabled: false,
+  // },
+  {
+    key: "subkey2",
+    label: "Danh mục",
+    icon: <SvgIcon name="menu5" />,
+    tabid: [13, 14, 15, 16, 17, 18, 19],
+    children: [
+      {
+        key: ROUTER.CAN_BO,
+        label: "Cán bộ - Phân quyền",
+        // icon: <SvgIcon name="menu14" />,
+        tabid: [13],
+      },
+      {
+        key: ROUTER.QUAN_LY_PHAN_QUYEN,
+        label: "Phân quyền",
+        tabid: [14],
+      },
+
+      {
+        key: ROUTER.DIA_DIEM,
+        label: "Địa điểm",
+        tabid: [15],
+      },
+      {
+        key: ROUTER.HAU_CAN_DICH_VU_KHAC,
+        label: "Hậu cần - Dịch vụ khác",
+        tabid: [16],
+      },
+      // {
+      //   key: ROUTER.UY_BAN,
+      //   label: "Ủy ban",
+      //   tabid: [1],
+      // },
+      {
+        key: ROUTER.GOP_Y_TAI_LIEU,
+        label: "Góp ý tài liệu",
+        tabid: [17],
+      },
+      {
+        key: ROUTER.NHOM_TAI_LIEU,
+        label: "Nhóm tài liệu",
+        // icon: <SvgIcon name="menu21" />,
+        tabid: [18],
+      },
+      {
+        key: ROUTER.KET_LUAN_HOP_MAU,
+        label: "KLH mẫu",
+        tabid: [19],
+      },
+    ],
+  },
+]
 export const MenuItemAdmin = () => {
   return [
     {

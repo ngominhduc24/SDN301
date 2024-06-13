@@ -123,7 +123,6 @@ const LoginPage = () => {
                 <Row gutter={[16, 16]} justify="center" align="middle">
                   <Col lg={10} md={12} sm={20} xs={20}>
                     <div className="d-flex flex-column justify-content-center h-100">
-                      <div className="text-center mb-30"></div>
                       <div className="text-center mb-30">
                         <div
                           style={{

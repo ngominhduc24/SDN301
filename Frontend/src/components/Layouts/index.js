@@ -19,7 +19,11 @@ import LayoutAdminCommon from "../Common/LayoutAdmin"
 import Footer from "../Footer"
 import SvgIcon from "../SvgIcon"
 import BreadcrumbHome from "./BreadcrumbHome/BreadcrumbHome"
-import MenuItemBreadcrumb, { MenuItemAdmin, MenuItemUser } from "./MenuItems"
+import MenuItemBreadcrumb, {
+  MenuItemAdmin,
+  MenuItemTopAdmin,
+  MenuItemUser,
+} from "./MenuItems"
 import ChangePasswordModal from "./component/ChangePassword/ChangePasswordModal"
 import LayoutAdmin from "./component/LayoutAdmin"
 import LayoutUser from "./component/LayoutUser"
@@ -302,27 +306,7 @@ const MainLayout = ({ children, isAdmin }) => {
                           </div>
                         </span>
                       </span>
-                      {!isTablet && (
-                        <CustomMenuStyled>
-                          {/* <Menu
-                            onClick={key => onClickMenu(key)}
-                            selectedKeys={selectedKey}
-                            mode="horizontal"
-                            items={
-                              !!isAdmin
-                                ? !!MenuItemTopAdmin?.length
-                                  ? MenuItemTopAdmin?.filter(x =>
-                                      hasPermission(x?.tabid, [...listTabs]),
-                                    ).map(i => ({
-                                      ...i,
-                                      children: setShowListMenu(i?.children),
-                                    }))
-                                  : undefined
-                                : []
-                            }
-                          /> */}
-                        </CustomMenuStyled>
-                      )}
+                      {!isTablet && <CustomMenuStyled></CustomMenuStyled>}
                     </Col>
                     <Col style={{ width: "auto" }}>
                       <Row
