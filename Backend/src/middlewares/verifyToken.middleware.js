@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const { PRIVATE_KEY } = process.env;
 
 const verifyToken = asyncHandler(async (req, res, next) => {
-    const token = req.headers.Authorization;
+    const token = req.headers.authorization;
     if (token) {
         const accessToken = token.split(" ")[1];
         try {
