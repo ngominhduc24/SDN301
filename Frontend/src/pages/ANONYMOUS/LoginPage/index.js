@@ -1,7 +1,7 @@
 import { Checkbox, Col, Divider, Form, Input, Row } from "antd"
 import { useContext, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
-import { useNavigate } from "react-router-dom"
+import { Router, useNavigate } from "react-router-dom"
 import Button from "src/components/MyButton/Button"
 import STORAGE, { getStorage, setStorage } from "src/lib/storage"
 import { StoreContext } from "src/lib/store"
@@ -16,11 +16,6 @@ import {
 import ROUTER from "src/router"
 import AuthService from "src/services/AuthService"
 import { StyleLoginPage } from "./styled"
-import {
-  ACCOUNT_TYPE_ADMIN,
-  ACCOUNT_TYPE_DAI_DIEN,
-  ACCOUNT_TYPE_KH,
-} from "src/constants/constants"
 import { hasPermission } from "src/lib/utils"
 import { MenuItemAdmin, MenuItemUser } from "src/components/Layouts/MenuItems"
 import { setOpenChangePassModal } from "src/redux/loginModal"
@@ -80,28 +75,29 @@ const LoginPage = () => {
       const values = await form.validateFields()
       const res = await AuthService.login({ ...values })
       const decodedToken = jwtDecode(res?.token)
-      console.log(decodedToken)
-      console.log(res)
-      // if (res?.isOk) {
-      setStorage(STORAGE.TOKEN, res?.Object?.Token)
-      setStorage(STORAGE.USER_INFO, decodedToken?.payload)
-      dispatch(setUserInfo(decodedToken?.payload))
+      setStorage(STORAGE.TOKEN, res?.token)
+      setStorage(STORAGE.USER_INFO, decodedToken.payload)
+      console.log("Dispatching user info:", decodedToken.payload)
+      dispatch(setUserInfo(decodedToken.payload))
       setRouterBeforeLogin(undefined)
-      console.log(decodedToken)
-      loginSuccess(decodedToken?.payload)
-      // }
+      loginSuccess(decodedToken.payload)
     } finally {
       setLoading(false)
     }
   }
+
   const loginSuccess = data => {
     if (routerBeforeLogin) navigate(routerBeforeLogin)
 
     if (data?.role === "ADMIN") {
-      // comeStartPage(true)
       dispatch(setIsAdmin(true))
-    } else {
-      // comeStartPage(false)
+      navigate(ROUTER.DASHBOARD)
+    } else if (data?.role === "STAFF") {
+      navigate(ROUTER.STAFF_DASHBOARD)
+    } else if (data?.role === "MANAGER") {
+      navigate(ROUTER.MANAGER_MANAGE_STAFF)
+    } else if (data?.role === "WAREHOUSE MANAGER") {
+      navigate(ROUTER.WAREHOUSE_MANAGER_DASHBOARD)
     }
     if (data?.IsFirstLogin) {
       dispatch(setOpenChangePassModal(true))

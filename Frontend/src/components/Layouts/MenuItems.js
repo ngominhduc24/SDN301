@@ -1,6 +1,10 @@
 import ROUTER from "src/router"
 import SvgIcon from "../SvgIcon"
 import { useSelector } from "react-redux"
+import STORAGE, { clearStorage, getStorage, setStorage } from "src/lib/storage"
+
+const role = getStorage(STORAGE.USER_INFO)
+
 const MenuItemBreadcrumb = () => {
   return [
     {
@@ -24,69 +28,6 @@ const MenuItemBreadcrumb = () => {
 
 export default MenuItemBreadcrumb
 
-export const MenuItemTopAdmin = [
-  // {
-  //   label: "Trang chủ",
-  //   key: ROUTER.HOME,
-  //   icon: <HomeOutlined />,
-  // },
-  // {
-  //   label: "Hỏi đáp",
-  //   key: ROUTER.QUESTION,
-  //   disabled: false,
-  // },
-  {
-    key: "subkey2",
-    label: "Danh mục",
-    icon: <SvgIcon name="menu5" />,
-    tabid: [13, 14, 15, 16, 17, 18, 19],
-    children: [
-      {
-        key: ROUTER.CAN_BO,
-        label: "Cán bộ - Phân quyền",
-        // icon: <SvgIcon name="menu14" />,
-        tabid: [13],
-      },
-      {
-        key: ROUTER.QUAN_LY_PHAN_QUYEN,
-        label: "Phân quyền",
-        tabid: [14],
-      },
-
-      {
-        key: ROUTER.DIA_DIEM,
-        label: "Địa điểm",
-        tabid: [15],
-      },
-      {
-        key: ROUTER.HAU_CAN_DICH_VU_KHAC,
-        label: "Hậu cần - Dịch vụ khác",
-        tabid: [16],
-      },
-      // {
-      //   key: ROUTER.UY_BAN,
-      //   label: "Ủy ban",
-      //   tabid: [1],
-      // },
-      {
-        key: ROUTER.GOP_Y_TAI_LIEU,
-        label: "Góp ý tài liệu",
-        tabid: [17],
-      },
-      {
-        key: ROUTER.NHOM_TAI_LIEU,
-        label: "Nhóm tài liệu",
-        // icon: <SvgIcon name="menu21" />,
-        tabid: [18],
-      },
-      {
-        key: ROUTER.KET_LUAN_HOP_MAU,
-        label: "KLH mẫu",
-        tabid: [19],
-      },
-    ],
-  },
-]
 export const MenuItemAdmin = () => {
   return [
     {
@@ -105,11 +46,6 @@ export const MenuItemAdmin = () => {
           key: ROUTER.MANAGE_PRODUCTS,
           label: "Manage Products",
           tabid: [2],
-        },
-        {
-          key: ROUTER.SO_DO_PHONG_HOP,
-          label: "Manage Orders",
-          tabid: [3],
         },
       ],
     },
@@ -136,11 +72,6 @@ export const MenuItemAdmin = () => {
           label: "Manage Store",
           tabid: [6],
         },
-        {
-          key: ROUTER.MANAGE_STORE,
-          label: "Store",
-          tabid: [7],
-        },
       ],
     },
     {
@@ -154,30 +85,55 @@ export const MenuItemAdmin = () => {
           label: "Manage Warehouse",
           tabid: [8],
         },
-        {
-          key: ROUTER.MANAGE_WAREHOUSE,
-          label: "Warehouse",
-          tabid: [9],
-        },
       ],
     },
     {
       key: "subkey4",
       label: "Administrator",
       icon: <SvgIcon name="menu17" />,
-      tabid: [10, 11],
+      tabid: [10],
       children: [
         {
           key: ROUTER.MANAGE_USER,
           label: "Manage User",
           tabid: [10],
         },
+      ],
+    },
+  ]
+}
+export const MenuItemManager = () => {
+  return [
+    {
+      key: ROUTER.DASHBOARD,
+      label: "Dashboard",
+      icon: <SvgIcon name="dashboard" />,
+      tabid: [1],
+    },
+    {
+      key: "subkey1",
+      label: "Products",
+      icon: <SvgIcon name="product" />,
+      tabid: [2, 3],
+      children: [
         {
-          key: ROUTER.MANAGE_USER,
-          label: "User",
-          tabid: [11],
+          key: ROUTER.MANAGE_PRODUCTS,
+          label: "Manage Products",
+          tabid: [2],
         },
       ],
+    },
+    {
+      key: ROUTER.DASHBOARD,
+      label: "Report",
+      icon: <SvgIcon name="menu5" />,
+      tabid: [4],
+    },
+    {
+      key: ROUTER.DASHBOARD,
+      label: "Download History",
+      icon: <SvgIcon name="dowload-export" />,
+      tabid: [5],
     },
     {
       key: "subkey5",
@@ -197,18 +153,114 @@ export const MenuItemAdmin = () => {
         },
       ],
     },
+  ]
+}
+export const MenuItemWarehouseManager = () => {
+  return [
     {
-      key: "subkey6",
+      key: ROUTER.WAREHOUSE_MANAGER_DASHBOARD,
+      label: "Dashboard",
+      icon: <SvgIcon name="dashboard" />,
+      tabid: [1],
+    },
+    {
+      key: "subkey1",
+      label: "Products",
+      icon: <SvgIcon name="product" />,
+      tabid: [2],
+      children: [
+        {
+          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_PRODUCT,
+          label: "Manage Products",
+          tabid: [2],
+        },
+      ],
+    },
+    {
+      key: ROUTER.WAREHOUSE_MANAGER_DASHBOARD,
+      label: "Report",
+      icon: <SvgIcon name="menu5" />,
+      tabid: [4],
+    },
+    {
+      key: ROUTER.WAREHOUSE_MANAGER_DASHBOARD,
+      label: "Download History",
+      icon: <SvgIcon name="dowload-export" />,
+      tabid: [5],
+    },
+    {
+      key: "subkey2",
+      label: "Store",
+      icon: <SvgIcon name="store" />,
+      tabid: [6],
+      children: [
+        {
+          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_STORE,
+          label: "Manage Store",
+          tabid: [6],
+        },
+      ],
+    },
+    {
+      key: "subkey2",
+      label: "Store",
+      icon: <SvgIcon name="store" />,
+      tabid: [7],
+      children: [
+        {
+          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_WAREHOUSE,
+          label: "Manage Store",
+          tabid: [7],
+        },
+      ],
+    },
+    {
+      key: "subkey3",
       label: "Warehouse Mananer",
       icon: <SvgIcon name="menu14" />,
-      tabid: [14],
+      tabid: [8],
       children: [
         {
           key: ROUTER.WAREHOUSE_MANAGER_MANAGE_INVOICE,
           label: "Manage Invoice",
-          tabid: [14],
+          tabid: [8],
         },
       ],
+    },
+  ]
+}
+export const MenuItemStaff = () => {
+  return [
+    {
+      key: ROUTER.STAFF_DASHBOARD,
+      label: "Dashboard",
+      icon: <SvgIcon name="dashboard" />,
+      tabid: [1],
+    },
+    {
+      key: "subkey1",
+      label: "Products",
+      icon: <SvgIcon name="product" />,
+      tabid: [2],
+      children: [
+        {
+          key: ROUTER.STAFF_MANAGE_ORDER,
+          label: "Manage Orders",
+          tabid: [2],
+        },
+      ],
+    },
+    {
+      key: ROUTER.STAFF_DASHBOARD,
+      label: "Report",
+      icon: <SvgIcon name="menu5" />,
+      tabid: [4],
+    },
+    {
+      key: ROUTER.STAFF_DASHBOARD,
+      label: "Download History",
+      icon: <SvgIcon name="dowload-export" />,
+      tabid: [5],
     },
   ]
 }
@@ -221,12 +273,12 @@ export const MenuItemUser = () => {
     //   icon: <SvgIcon name="user-info" />,
     //   tabid: [1],
     // },
-    {
-      key: ROUTER.THONG_TIN_TAI_KHOAN,
-      label: "Thông tin cá nhân",
-      icon: <SvgIcon name="user-info" />,
-      tabid: [1],
-    },
+    // {
+    //   key: ROUTER.THONG_TIN_TAI_KHOAN,
+    //   label: "Thông tin cá nhân",
+    //   icon: <SvgIcon name="user-info" />,
+    //   tabid: [1],
+    // },
     // {
     //   key: ROUTER.LS_HOAT_DONG_USER,
     //   label: "Lịch sử hoạt động",

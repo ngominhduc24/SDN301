@@ -32,6 +32,7 @@ export const appGlobalSlice = createSlice({
       state.listCount = action.payload
     },
     setUserInfo: (state, action) => {
+      console.log("Reducer setUserInfo called with payload:", action.payload)
       state.userInfo = action.payload
     },
     setIsAdmin: (state, action) => {
@@ -59,3 +60,4 @@ export const {
 } = appGlobalSlice.actions
 
 export default appGlobalSlice.reducer
+

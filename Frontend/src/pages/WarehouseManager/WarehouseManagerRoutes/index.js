@@ -8,7 +8,7 @@ import { StoreContext } from "src/lib/store"
 import { hasPermission } from "src/lib/utils"
 import ROUTER from "src/router"
 
-function AdminRoutes() {
+function WarehouseManagerRoutes() {
   const { routerStore } = useContext(StoreContext)
   const [, setRouterBeforeLogin] = routerStore
   const userInfo = useSelector(state => state.appGlobal.userInfo)
@@ -28,8 +28,8 @@ function AdminRoutes() {
   const userRole = userInfo?.role
 
   return !!isLogin ? (
-    role.role === "ADMIN" ? (
-      <MainLayout isAdmin={true}>
+    role.role === "WAREHOUSE MANAGER" ? (
+      <MainLayout isWarehouseManager={true}>
         <Outlet />
       </MainLayout>
     ) : (
@@ -53,5 +53,5 @@ function AdminRoutes() {
   )
 }
 
-export default AdminRoutes
+export default WarehouseManagerRoutes
 

@@ -21,14 +21,19 @@ const ChangePassword = React.lazy(() =>
 )
 const PersonProfile = React.lazy(() => import("src/pages/USER/PersonProfile"))
 // ADMIN
-const AminRoutes = React.lazy(() => import("src/pages/ADMIN/AminRoutes"))
+const AdminRoutes = React.lazy(() => import("src/pages/ADMIN/AminRoutes"))
 const Dashboard = React.lazy(() => import("src/pages/ADMIN/DashBoard"))
 const ManageUser = React.lazy(() => import("src/pages/ADMIN/ManageUser"))
 const ManageStore = React.lazy(() => import("src/pages/ADMIN/ManageStore"))
 const ManageWarehouse = React.lazy(() =>
   import("src/pages/ADMIN/ManageWarehouse"),
 )
+const ManageProduct = React.lazy(() => import("src/pages/ADMIN/ManageProduct"))
 // MANAGER
+const ManagerRoutes = React.lazy(() =>
+  import("src/pages/Manager/ManagerRoutes"),
+)
+
 const ManagerManageStaff = React.lazy(() =>
   import("src/pages/Manager/ManageStaffs"),
 )
@@ -39,14 +44,25 @@ const ManagerManageInvoice = React.lazy(() =>
   import("src/pages/Manager/ManageInvoice"),
 )
 // WAREHOUSE MANAGER
+const WarehouseManagerRoutes = React.lazy(() =>
+  import("src/pages/WarehouseManager/WarehouseManagerRoutes"),
+)
 const WarehouseManager = React.lazy(() =>
   import("src/pages/WarehouseManager/ManageWarehouse"),
 )
 const WarehouseManagerInvoices = React.lazy(() =>
   import("src/pages/WarehouseManager/ManageInvoice"),
 )
+const WarehouseManagerProduct = React.lazy(() =>
+  import("src/pages/WarehouseManager/ManageProduct"),
+)
+const WarehouseManagerStore = React.lazy(() =>
+  import("src/pages/WarehouseManager/ManageStore"),
+)
 // STAFF
-const ManageProduct = React.lazy(() => import("src/pages/ADMIN/ManageProduct"))
+const StaffRoutes = React.lazy(() => import("src/pages/Staff/StaffRoutes"))
+const ManageOrders = React.lazy(() => import("src/pages/Staff/ManageOrders"))
+
 function LazyLoadingComponent({ children }) {
   return (
     <React.Suspense
@@ -75,7 +91,7 @@ const routes = [
   {
     element: (
       <LazyLoadingComponent>
-        <AminRoutes />
+        <AdminRoutes />
       </LazyLoadingComponent>
     ),
     children: [
@@ -150,17 +166,49 @@ const routes = [
   },
 
   // STAFF
-
-  // MANAGER
   {
     element: (
       <LazyLoadingComponent>
-        <AminRoutes />
+        <StaffRoutes />
       </LazyLoadingComponent>
     ),
     children: [
       {
-        path: ROUTER.DASHBOARD,
+        path: ROUTER.STAFF_DASHBOARD,
+        element: (
+          <LazyLoadingComponent>
+            <Dashboard />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.STAFF_MANAGE_ORDER,
+        element: (
+          <LazyLoadingComponent>
+            <ManageOrders />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.STAFF_PROFILE,
+        element: (
+          <LazyLoadingComponent>
+            <PersonProfile />
+          </LazyLoadingComponent>
+        ),
+      },
+    ],
+  },
+  // MANAGER
+  {
+    element: (
+      <LazyLoadingComponent>
+        <ManagerRoutes />
+      </LazyLoadingComponent>
+    ),
+    children: [
+      {
+        path: ROUTER.MANAGER_DASHBOARD,
         element: (
           <LazyLoadingComponent>
             <Dashboard />
@@ -191,18 +239,26 @@ const routes = [
           </LazyLoadingComponent>
         ),
       },
+      {
+        path: ROUTER.MANAGER_PROFILE,
+        element: (
+          <LazyLoadingComponent>
+            <PersonProfile />
+          </LazyLoadingComponent>
+        ),
+      },
     ],
   },
   // WAREHOUSE_MANAGER
   {
     element: (
       <LazyLoadingComponent>
-        <AminRoutes />
+        <WarehouseManagerRoutes />
       </LazyLoadingComponent>
     ),
     children: [
       {
-        path: ROUTER.DASHBOARD,
+        path: ROUTER.WAREHOUSE_MANAGER_DASHBOARD,
         element: (
           <LazyLoadingComponent>
             <Dashboard />
@@ -210,10 +266,26 @@ const routes = [
         ),
       },
       {
-        path: ROUTER.WAREHOUSE_MANAGER_MANAGER_WAREHOUSE,
+        path: ROUTER.WAREHOUSE_MANAGER_MANAGE_WAREHOUSE,
         element: (
           <LazyLoadingComponent>
             <WarehouseManager />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.WAREHOUSE_MANAGER_MANAGE_PRODUCT,
+        element: (
+          <LazyLoadingComponent>
+            <WarehouseManagerProduct />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.WAREHOUSE_MANAGER_MANAGE_STORE,
+        element: (
+          <LazyLoadingComponent>
+            <WarehouseManagerStore />
           </LazyLoadingComponent>
         ),
       },
@@ -222,6 +294,14 @@ const routes = [
         element: (
           <LazyLoadingComponent>
             <WarehouseManagerInvoices />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.WAREHOUSE_MANAGER_PROFILE,
+        element: (
+          <LazyLoadingComponent>
+            <PersonProfile />
           </LazyLoadingComponent>
         ),
       },

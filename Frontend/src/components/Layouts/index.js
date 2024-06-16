@@ -21,7 +21,9 @@ import SvgIcon from "../SvgIcon"
 import BreadcrumbHome from "./BreadcrumbHome/BreadcrumbHome"
 import MenuItemBreadcrumb, {
   MenuItemAdmin,
-  MenuItemTopAdmin,
+  MenuItemManager,
+  MenuItemWarehouseManager,
+  MenuItemStaff,
   MenuItemUser,
 } from "./MenuItems"
 import ChangePasswordModal from "./component/ChangePassword/ChangePasswordModal"
@@ -40,7 +42,13 @@ import Anonymous from "./component/Anonymous/Anonymous"
 import { SubTableHeader } from "../TableCustom/styled"
 const { Header, Content } = Layout
 
-const MainLayout = ({ children, isAdmin }) => {
+const MainLayout = ({
+  children,
+  isAdmin,
+  isManager,
+  isWarehouseManager,
+  isStaff,
+}) => {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useDispatch()
@@ -60,10 +68,11 @@ const MainLayout = ({ children, isAdmin }) => {
   const [menuUser, setMenuUser] = useState([])
   const [openRegisterModal, setOpenRegisterModal] = useState(false)
   const [openModalVoting, setOpenModalVoting] = useState({})
+  const role = getStorage(STORAGE.USER_INFO)
 
   const handleLogout = async () => {
     if (isLogin) {
-      await AuthService.logout()
+      // await AuthService.logout()
       await clearStorage()
       await dispatch(setUserInfo({}))
       return navigate(ROUTER?.DANG_NHAP)
@@ -115,31 +124,50 @@ const MainLayout = ({ children, isAdmin }) => {
                 </div>
               </Menu.Item>
             )}
-            {/* {!!isLogin && (
-              <Menu.Item
-                key="2"
-                onClick={() => {
-                  let startPage = undefined
-                  if (!!menuUser && !!menuUser[0]) {
-                    startPage =
-                      menuUser[0]?.children?.[0]?.key || menuUser[0]?.key
-                  } else if (!!(menuUser[0]?.key?.charAt(0) === "/")) {
-                    startPage = menuUser[0]?.key
-                  }
-                  navigate(!!menuUser?.length ? startPage : ROUTER.HOME)
-                }}
-              >
-                <div className="btn-function strok-btn-function">
-                  <SvgIcon name="user-setting" />
-                  <span className="fw-400">Cá nhân</span>
-                </div>
-              </Menu.Item>
-            )} */}
-            {!!menuUser?.find(i => i?.key === ROUTER.THONG_TIN_TAI_KHOAN) && (
+            {role?.role === "ADMIN" && (
               <Menu.Item
                 key="3"
                 onClick={() => {
                   navigate(ROUTER.PROFILE)
+                }}
+              >
+                <div className="btn-function strok-btn-function">
+                  <SvgIcon name="user-info" />
+                  <span className="fw-400">Thông tin cá nhân</span>
+                </div>
+              </Menu.Item>
+            )}
+            {role?.role === "MANAGER" && (
+              <Menu.Item
+                key="3"
+                onClick={() => {
+                  navigate(ROUTER.MANAGER_PROFILE)
+                }}
+              >
+                <div className="btn-function strok-btn-function">
+                  <SvgIcon name="user-info" />
+                  <span className="fw-400">Thông tin cá nhân</span>
+                </div>
+              </Menu.Item>
+            )}
+            {role?.role === "WAREHOUSE MANAGER" && (
+              <Menu.Item
+                key="3"
+                onClick={() => {
+                  navigate(ROUTER.PROFWAREHOUSE_MANAGER_PROFILEILE)
+                }}
+              >
+                <div className="btn-function strok-btn-function">
+                  <SvgIcon name="user-info" />
+                  <span className="fw-400">Thông tin cá nhân</span>
+                </div>
+              </Menu.Item>
+            )}
+            {role?.role === "STAFF" && (
+              <Menu.Item
+                key="3"
+                onClick={() => {
+                  navigate(ROUTER.STAFF_PROFILE)
                 }}
               >
                 <div className="btn-function strok-btn-function">
@@ -183,8 +211,17 @@ const MainLayout = ({ children, isAdmin }) => {
   }, [location])
 
   useEffect(() => {
-    if (!!isLogin) {
+    if (!!isLogin && role?.role === "ADMIN") {
       setMenuAdmin(MenuItemAdmin())
+      setMenuUser(MenuItemUser())
+    } else if (!!isLogin && role?.role === "MANAGER") {
+      setMenuAdmin(MenuItemManager())
+      setMenuUser(MenuItemUser())
+    } else if (!!isLogin && role?.role === "WAREHOUSE MANAGER") {
+      setMenuAdmin(MenuItemWarehouseManager())
+      setMenuUser(MenuItemUser())
+    } else if (!!isLogin && role?.role === "STAFF") {
+      setMenuAdmin(MenuItemStaff())
       setMenuUser(MenuItemUser())
     }
   }, [listTabs])
@@ -367,7 +404,7 @@ const MainLayout = ({ children, isAdmin }) => {
       <Layout>
         <Content className="site-layout-background ">
           <LayoutBackgroundCommon>
-            {isAdmin ? (
+            {isAdmin || isStaff || isManager || isWarehouseManager ? (
               <>
                 <LayoutAdmin
                   collapseMenu={collapseMenu}
@@ -377,12 +414,6 @@ const MainLayout = ({ children, isAdmin }) => {
                   selectedKey={selectedKey}
                 />
               </>
-            ) : isUser ? (
-              <LayoutUser
-                children={children}
-                selectedKey={selectedKey}
-                userInfo={userInfo}
-              />
             ) : (
               <Anonymous children={children} />
             )}
