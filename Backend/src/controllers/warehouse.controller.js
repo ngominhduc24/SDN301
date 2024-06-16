@@ -1,18 +1,17 @@
-const Warehouse = require('../models/warehouse');
+const warehouseService = require('../services/warehouse.service');
 
 // Create a new warehouse
 async function create(req, res, next) {
   try {
-    const warehouse = new Warehouse({
+    const warehouse = {
       name: req.body.name,
       location: req.body.location,
       phone: req.body.phone,
       email: req.body.email,
       manager: req.body.manager
-    });
-    await warehouse.save()
-      .then(newDoc => res.status(201).json(newDoc))
-      .catch(err => next(err));
+      };
+    const newWarehouse = await warehouseService.create(warehouse);
+    res.status(201).json(newWarehouse);
   } catch (error) {
     next(error);
   }
@@ -21,7 +20,7 @@ async function create(req, res, next) {
 // Get all warehouses
 async function getAll(req, res, next) {
   try {
-    const warehouses = await Warehouse.find();
+    const warehouses = await warehouseService.getAll();
     res.status(200).send(warehouses);
   } catch (error) {
     next(error);
@@ -31,7 +30,7 @@ async function getAll(req, res, next) {
 // Get warehouse by ID
 async function getById(req, res, next) {
   try {
-    const warehouse = await Warehouse.findById(req.params.id);
+    const warehouse = await warehouseService.getById(req.params.id);
     if (!warehouse) {
       return res.status(404).send({ message: 'Warehouse not found' });
     }
@@ -51,9 +50,8 @@ async function update(req, res, next) {
       email: req.body.email,
       manager: req.body.manager,
       status: req.body.status,
-    };
-
-    const warehouse = await Warehouse.findByIdAndUpdate(req.params.id, updateWarehouse, { new: true, runValidators: true });
+      };
+    const warehouse = await warehouseService.update(req.params.id, updateWarehouse);
     if (!warehouse) {
       return res.status(404).send({ message: 'Warehouse not found' });
     }
@@ -64,18 +62,9 @@ async function update(req, res, next) {
 }
 
 // Create a product for a specific warehouse
-const createProduct = async (req, res, next) => {
+async function createProduct(req, res, next) {
   try {
-    const { productId, quantity } = req.body;
-
-    const warehouse = await Warehouse.findById(req.params.warehouseId);
-    if (!warehouse) {
-      return res.status(404).send({ message: 'Warehouse not found' });
-    }
-
-    warehouse.products.push({ productId, quantity });
-    await warehouse.save();
-
+    const warehouse = await warehouseService.createProduct(req.params.warehouseId, req.body);
     res.status(201).send(warehouse);
   } catch (error) {
     next(error);
@@ -83,32 +72,19 @@ const createProduct = async (req, res, next) => {
 }
 
 // Get all products for a specific warehouse
-const getProductByWarehouseId = async (req, res, next) => {
+async function getProductByWarehouseId(req, res, next) {
   try {
-    const warehouse = await Warehouse.findById(req.params.warehouseId);
-    if (!warehouse) {
-      return res.status(404).send({ message: 'Warehouse not found' });
-    }
-
-    res.status(200).send(warehouse.products);
+    const products = await warehouseService.getProductByWarehouseId(req.params.warehouseId);
+    res.status(200).send(products);
   } catch (error) {
     next(error);
   }
 }
 
 // Get a specific product by its ID within a specific warehouse
-const getProductById = async (req, res, next) => {
+async function getProductById(req, res, next) {
   try {
-    const warehouse = await Warehouse.findById(req.params.warehouseId);
-    if (!warehouse) {
-      return res.status(404).send({ message: 'Warehouse not found' });
-    }
-
-    const product = warehouse.products.id(req.params.id);
-    if (!product) {
-      return res.status(404).send({ message: 'Product not found' });
-    }
-
+    const product = await warehouseService.getProductById(req.params.warehouseId, req.params.id);
     res.status(200).send(product);
   } catch (error) {
     next(error);
@@ -116,30 +92,24 @@ const getProductById = async (req, res, next) => {
 }
 
 // Update a product for a specific product in a specific warehouse
-const updateProductById = async (req, res, next) => {
+async function updateProductById(req, res, next) {
   try {
-    const { quantity } = req.body;
-
-    const warehouse = await Warehouse.findById(req.params.warehouseId);
-    if (!warehouse) {
-      return res.status(404).send({ message: 'Warehouse not found' });
-    }
-
-    const product = warehouse.products.id(req.params.id);
-    if (!product) {
-      return res.status(404).send({ message: 'Product not found' });
-    }
-
-    product.quantity = quantity;
-
-    await warehouse.save();
-
+    const product = await warehouseService.updateProductById(req.params.warehouseId, req.params.id, req.body.quantity);
     res.status(200).send(product);
   } catch (error) {
     next(error);
   }
 }
 
-const warehouseController = { create, getAll, getById, update, 
-  createProduct, getProductByWarehouseId, getProductById, updateProductById };
+const warehouseController = {
+  create,
+  getAll,
+  getById,
+  update,
+  createProduct,
+  getProductByWarehouseId,
+  getProductById,
+  updateProductById
+};
+
 module.exports = warehouseController;
