@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 
 const UserSchema = new Schema({
@@ -12,7 +12,25 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
+    require: true
+  },
+  dob: {
+    type: String,
     default: null
+  },
+  phone: {
+    type: String,
+    require: true
+  },
+  status: {
+    type: String,
+    enum: ['active', 'deactive'], 
+    default: 'active' 
+  },
+  role: {
+    type: String,
+    enum: ['STAFF', 'MANAGER', 'ADMIN'], 
+    default: 'STAFF' 
   },
 }, {
   timestamps: true

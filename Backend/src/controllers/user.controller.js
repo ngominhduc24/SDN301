@@ -12,4 +12,14 @@ module.exports = {
         const result = await UserService.CreateUser(req);
         res.status(200).json(result);
     }),
+
+    ListAllUsers: asyncHandler(async (req, res) => {
+        const result = await UserService.ListAllUsers(req);
+        res.status(200).json(result);
+    }),
+
+    updateUserById: asyncHandler(async (req, res) => {
+        const result = await UserService.updateUserById(req);
+        res.status(200).json(result);
+    }),
 };

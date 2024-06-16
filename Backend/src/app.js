@@ -11,6 +11,7 @@ var connectMongoDB =  require("./config/mongodb.config.js");
 const categoryRouter = require("./routes/category.router.js");
 const shopRouter = require("./routes/shop.router.js");
 const warehouseRouter = require("./routes/warehouse.router.js");
+const productRouter = require("./routes/product.router.js");
 
 var app = express();
 
@@ -24,11 +25,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
+
+// routers controller
 app.use("/", indexRouter);
 app.use("/api", userRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/shop", shopRouter);
 app.use("/api/warehouse", warehouseRouter);
+app.use("/api/product", productRouter);
+
+// swagger config
 setupSwagger(app);
 
 // Connect mongo DB
