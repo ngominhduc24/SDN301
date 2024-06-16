@@ -1,9 +1,9 @@
-const asyncHandler = require('../utils/async-handler');
+const asyncHandler = require('../utils/async-handle');
 const jwt = require("jsonwebtoken");
 const { PRIVATE_KEY } = process.env;
 
 const verifyToken = asyncHandler(async (req, res, next) => {
-    const token = req.headers.token;
+    const token = req.headers.authorization;
     if (token) {
         const accessToken = token.split(" ")[1];
         try {

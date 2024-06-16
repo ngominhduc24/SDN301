@@ -7,29 +7,28 @@ import { getRegexPassword } from "src/lib/stringsUtils"
 import { StyleChangePassword } from "./styled"
 import Notice from "src/components/Notice"
 import ROUTER from "src/router"
-import UserService from "src/services/UserService"
 
 const ChangePassword = () => {
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
   const navigate = useNavigate()
-  const handleSubmit = async () => {
-    try {
-      setLoading(true)
-      const values = await form.validateFields()
-      const res = await UserService.replacePassword({
-        ...values,
-      })
-      if (res.isError) return
-      navigate(ROUTER.HOME)
-      Notice({
-        isSuccess: true,
-        msg: "Cập nhật mật khẩu thành công!",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
+  // const handleSubmit = async () => {
+  //   try {
+  //     setLoading(true)
+  //     const values = await form.validateFields()
+  //     const res = await UserService.replacePassword({
+  //       ...values,
+  //     })
+  //     if (res.isError) return
+  //     navigate(ROUTER.HOME)
+  //     Notice({
+  //       isSuccess: true,
+  //       msg: "Cập nhật mật khẩu thành công!",
+  //     })
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
   return (
     <StyleChangePassword>
@@ -121,7 +120,7 @@ const ChangePassword = () => {
                       className="btn-login"
                       type="submit"
                       htmlType="submit"
-                      onClick={handleSubmit}
+                      // onClick={handleSubmit}
                     >
                       Lưu lại
                     </Button>
@@ -137,3 +136,4 @@ const ChangePassword = () => {
 }
 
 export default ChangePassword
+

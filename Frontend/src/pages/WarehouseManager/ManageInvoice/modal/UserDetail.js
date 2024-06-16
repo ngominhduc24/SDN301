@@ -5,7 +5,6 @@ import CB1 from "src/components/Modal/CB1"
 import CustomModal from "src/components/Modal/CustomModal"
 import Button from "src/components/MyButton/Button"
 import Notice from "src/components/Notice"
-import UserService from "src/services/UserService"
 import styled from "styled-components"
 import ModalInsertUpdate from "./InsertUpdate"
 import { FAILBACK } from "src/constants/constants"
@@ -40,19 +39,19 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
   const [customerInfo, setCustomerInfo] = useState(false)
 
   useEffect(() => {
-    getUserDetail()
+    // getUserDetail()
   }, [])
 
-  const getUserDetail = async () => {
-    try {
-      setLoading(true)
-      const res = await UserService.detailUser(open?.UserID)
-      if (res?.isError) return
-      setCustomerInfo(res?.Object)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // const getUserDetail = async () => {
+  //   try {
+  //     setLoading(true)
+  //     const res = await UserService.detailUser(open?.UserID)
+  //     if (res?.isError) return
+  //     setCustomerInfo(res?.Object)
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
   const footer = (
     <div className="d-flex justify-content-space-between align-item-center">
       <div>
@@ -66,7 +65,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
                 icon: "warning-usb",
                 okText: "Đồng ý",
                 onOk: async close => {
-                  onReset(customerInfo?.UserID)
+                  // onReset(customerInfo?.UserID)
                   close()
                 },
               })
@@ -97,7 +96,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
                 icon: "warning-usb",
                 okText: "Đồng ý",
                 onOk: async close => {
-                  onDeleteUser(customerInfo?.UserID)
+                  // onDeleteUser(customerInfo?.UserID)
                   close()
                 },
               })
@@ -110,21 +109,21 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
     </div>
   )
 
-  const onDeleteUser = async UserID => {
-    try {
-      const res = await UserService.deleteUser(UserID)
-      if (res?.isError) return
-      Notice({ msg: "Xóa người dùng thành công !" })
-      onCancel()
-      onOk()
-    } finally {
-    }
-  }
-  const onReset = async UserID => {
-    const res = await UserService.resetPassword({ UserID })
-    if (res?.isError) return
-    Notice({ msg: "Reset mật khẩu thàng công !" })
-  }
+  // const onDeleteUser = async UserID => {
+  //   try {
+  //     const res = await UserService.deleteUser(UserID)
+  //     if (res?.isError) return
+  //     Notice({ msg: "Xóa người dùng thành công !" })
+  //     onCancel()
+  //     onOk()
+  //   } finally {
+  //   }
+  // }
+  // const onReset = async UserID => {
+  //   const res = await UserService.resetPassword({ UserID })
+  //   if (res?.isError) return
+  //   Notice({ msg: "Reset mật khẩu thàng công !" })
+  // }
   return (
     <CustomModal
       footer={footer}
@@ -255,7 +254,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
           detailInfo={customerInfo}
           onOk={() => {
             onOk()
-            getUserDetail()
+            // getUserDetail()
           }}
           onCancel={() => {
             setOpenInsert(false)
@@ -267,3 +266,4 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
 }
 
 export default UserDetail
+

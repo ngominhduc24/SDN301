@@ -1,6 +1,6 @@
 const STORAGE = {
-  TOKEN: "token-dvc_hd",
-  USER_INFO: "user-info-dvc_hd",
+  TOKEN: "token",
+  USER_INFO: "user-info",
   REMEMBER_LOGIN: "remember-login",
   KEY_MENU_ACTIVE: "key-active",
   TABS_PAGE_ACTIVE: "tabs-page-active",
@@ -64,3 +64,4 @@ export const clearStorage = () => {
 }
 
 export default STORAGE
+

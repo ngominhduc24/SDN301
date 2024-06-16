@@ -6,24 +6,22 @@ import SpinCustom from "src/components/Spin"
 import SvgIcon from "src/components/SvgIcon"
 import UploadCustom from "src/components/Upload"
 import { downloadFileBlob } from "src/lib/base64"
-import UserService from "src/services/UserService"
-import { apiImportUser } from "src/services/UserService/urls"
 import { ImportStyled } from "../styled"
 
 const ImportUser = ({ open, onCancel, onOk, department }) => {
   const { importLoading } = useSelector(state => state.common)
   const [loading, setLoading] = useState(false)
-  const getTemplateUpload = () => {
-    setLoading(true)
-    UserService.templateImportGuest()
-      .then(res => {
-        if (res?.isError) return
-        downloadFileBlob(res, "Mẫu danh sách nhân viên.xlsx")
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
+  // const getTemplateUpload = () => {
+  //   setLoading(true)
+  //   UserService.templateImportGuest()
+  //     .then(res => {
+  //       if (res?.isError) return
+  //       downloadFileBlob(res, "Mẫu danh sách nhân viên.xlsx")
+  //     })
+  //     .finally(() => {
+  //       setLoading(false)
+  //     })
+  // }
   return (
     <CustomModal
       title="Nhập file danh sách nhân viên"
@@ -38,7 +36,7 @@ const ImportUser = ({ open, onCancel, onOk, department }) => {
               Tải file mẫu{" "}
               <span
                 onKeyPress={() => {}}
-                onClick={getTemplateUpload}
+                // onClick={getTemplateUpload}
                 style={{ color: "#154398", cursor: "pointer" }}
               >
                 Tại đây
@@ -51,7 +49,7 @@ const ImportUser = ({ open, onCancel, onOk, department }) => {
             <UploadCustom
               accept=".xlsx, .xls"
               isDragger
-              api={`${apiImportUser}?DepartmentID=${department?.DepartmentID}`}
+              // api={`${apiImportUser}?DepartmentID=${department?.DepartmentID}`}
               onOk={() => {
                 onOk()
                 onCancel()
@@ -87,3 +85,4 @@ const ImportUser = ({ open, onCancel, onOk, department }) => {
 }
 
 export default ImportUser
+

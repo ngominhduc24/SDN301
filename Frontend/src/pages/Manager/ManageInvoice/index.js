@@ -14,7 +14,6 @@ import {
   SubTableData,
   SubTableHeader,
 } from "src/components/Table/CustomTable/styled"
-import UserService from "src/services/UserService"
 import Search from "./components/Search"
 import ImportUser from "./modal/ImportUser"
 import ModalInsertUpdate from "./modal/InsertUpdate"
@@ -142,17 +141,17 @@ const ManageInvoice = () => {
   ]
   useEffect(() => {
     if (!!selectedNode?.DepartmentID) {
-      getAllUser()
+      // getAllUser()
     }
   }, [pagination])
   useEffect(() => {
     setPagination(pre => ({ ...pre, CurrentPage: 1 }))
   }, [selectedNode])
-  const onReset = async UserID => {
-    const res = await UserService.resetPassword({ UserID: UserID })
-    if (res?.isError) return
-    Notice({ msg: "Reset mật khẩu thàng công !" })
-  }
+  // const onReset = async UserID => {
+  //   const res = await UserService.resetPassword({ UserID: UserID })
+  //   if (res?.isError) return
+  //   Notice({ msg: "Reset mật khẩu thàng công !" })
+  // }
   const renderListButton = record => (
     <Space>
       <ButtonCircle
@@ -174,7 +173,7 @@ const ManageInvoice = () => {
             icon: "warning-usb",
             okText: "Đồng ý",
             onOk: async close => {
-              onDeleteUser(record?.UserID)
+              // onDeleteUser(record?.UserID)
               close()
             },
           })
@@ -191,7 +190,7 @@ const ManageInvoice = () => {
             icon: "warning-usb",
             okText: "Đồng ý",
             onOk: async close => {
-              onReset(record?.UserID)
+              // onReset(record?.UserID)
               close()
             },
           })
@@ -200,38 +199,38 @@ const ManageInvoice = () => {
     </Space>
   )
 
-  const onDeleteUser = async UserID => {
-    try {
-      const res = await UserService.deleteUser({ UserID })
-      if (res?.isError) return
-      Notice({ msg: "Xóa người dùng thành công !" })
-      getAllUser()
-    } finally {
-    }
-  }
+  // const onDeleteUser = async UserID => {
+  //   try {
+  //     const res = await UserService.deleteUser({ UserID })
+  //     if (res?.isError) return
+  //     Notice({ msg: "Xóa người dùng thành công !" })
+  //     getAllUser()
+  //   } finally {
+  //   }
+  // }
 
-  const getAllUser = async () => {
-    try {
-      setLoading(true)
-      const res = await UserService.getAllUserByDept({
-        ...pagination,
-        DepartmentID: selectedNode?.DepartmentID,
-      })
-      setListButtonShow(res?.Object?.ButtonShows)
-      setDataSource(res?.Object?.lt || [])
-      setTotal(res?.Object?.Total || [])
-      // setDataSource(
-      //   res?.Object?.Data?.length
-      //     ? res?.Object?.Data?.map(i => ({
-      //         ...i,
-      //         UserInfoOutputList: i?.UserInfoOutputList,
-      //       }))
-      //     : [],
-      // )
-    } finally {
-      setLoading(false)
-    }
-  }
+  // const getAllUser = async () => {
+  //   try {
+  //     setLoading(true)
+  //     const res = await UserService.getAllUserByDept({
+  //       ...pagination,
+  //       DepartmentID: selectedNode?.DepartmentID,
+  //     })
+  //     setListButtonShow(res?.Object?.ButtonShows)
+  //     setDataSource(res?.Object?.lt || [])
+  //     setTotal(res?.Object?.Total || [])
+  //     // setDataSource(
+  //     //   res?.Object?.Data?.length
+  //     //     ? res?.Object?.Data?.map(i => ({
+  //     //         ...i,
+  //     //         UserInfoOutputList: i?.UserInfoOutputList,
+  //     //       }))
+  //     //     : [],
+  //     // )
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
   const fakeData = [
     {
@@ -254,23 +253,23 @@ const ManageInvoice = () => {
     },
     // Add more fake data if needed
   ]
-  const exportUser = async () => {
-    try {
-      const res = await UserService.exportUser({
-        DepartmentID: selectedNode?.DepartmentID,
-      })
-      const href = URL.createObjectURL(res)
-      const link = document.createElement("a")
-      link.href = href
-      link.setAttribute("download", "danh sách nhân viên.xlsx") //or any other extension
-      document.body.appendChild(link)
-      link.click()
-      // clean up "a" element & remove ObjectURL
-      document.body.removeChild(link)
-      URL.revokeObjectURL(href)
-    } finally {
-    }
-  }
+  // const exportUser = async () => {
+  //   try {
+  //     const res = await UserService.exportUser({
+  //       DepartmentID: selectedNode?.DepartmentID,
+  //     })
+  //     const href = URL.createObjectURL(res)
+  //     const link = document.createElement("a")
+  //     link.href = href
+  //     link.setAttribute("download", "danh sách nhân viên.xlsx") //or any other extension
+  //     document.body.appendChild(link)
+  //     link.click()
+  //     // clean up "a" element & remove ObjectURL
+  //     document.body.removeChild(link)
+  //     URL.revokeObjectURL(href)
+  //   } finally {
+  //   }
+  // }
   return (
     <ListUserStyled>
       <div>
@@ -291,7 +290,7 @@ const ManageInvoice = () => {
 
             <Col>
               <Button
-                onClick={exportUser}
+                // onClick={exportUser}
                 className="btn-hover-shadow"
                 btntype="third"
               >
@@ -377,7 +376,7 @@ const ManageInvoice = () => {
         <ModalInsertUpdate
           open={openInsertUpdate}
           detailInfo={detailInfo}
-          onOk={getAllUser}
+          // onOk={getAllUser}
           onCancel={() => {
             setDetailInfo(undefined)
             setOpenInsertUpdate(false)
@@ -389,7 +388,7 @@ const ManageInvoice = () => {
         <ImportUser
           open={openImportUser}
           onCancel={() => setOpenImportUser(false)}
-          onOk={getAllUser}
+          // onOk={getAllUser}
           department={selectedNode}
         />
       )}

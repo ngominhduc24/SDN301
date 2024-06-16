@@ -15,7 +15,6 @@ import {
   setUserInfo,
 } from "./redux/appGlobal"
 import AppRouter from "./router/AppRouter"
-import RoleService from "./services/RoleService"
 // import SystemCateService from "./services/SystemCateService"
 import { setConductMeetings } from "./redux/socketState"
 import { setVotingModal } from "./redux/voting"
@@ -30,41 +29,6 @@ function App() {
   const { modalLoading } = useSelector(state => state.common)
   const { userInfo } = useSelector(state => state?.appGlobal)
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (!!isLogin) {
-      // getSystemKey()
-      getData()
-    }
-  }, [isLogin])
-
-  // const getSystemKey = async () => {
-  //   const res = await CommonService.getSystemKey("All")
-  //   if (res.isError) return
-  //   dispatch(getListSystemKey(res.Object))
-  // }
-  // const getSystemCate = async () => {
-  //   const resSystem = await SystemCateService.getForCombobox()
-  //   if (resSystem?.isError) return
-  //   dispatch(getListSystemCate(resSystem.Object))
-  // }
-  const getData = async () => {
-    try {
-      setLoading(true)
-      dispatch(setUserInfo(getStorage(STORAGE.USER_INFO)))
-      if (
-        getStorage(STORAGE.USER_INFO)?.AccountType !== ACCOUNT_TYPE_ID.HocVien
-      ) {
-        const resp = await RoleService.getListTab()
-        if (resp.isOk) {
-          dispatch(setListTabs(resp.Object || []))
-        }
-      }
-      // getSystemCate()
-    } finally {
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
     if (!!isLogin) {

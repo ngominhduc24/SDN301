@@ -30,6 +30,7 @@
     "html2pdf.js": "^0.9.3",
     "image-downloader": "^4.3.0",
     "jspdf": "^2.5.1",
+    "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "pdf-lib": "^1.17.1",

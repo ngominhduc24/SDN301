@@ -24,8 +24,6 @@ import {
   getRegexUsername,
 } from "src/lib/stringsUtils"
 import { getListComboByKey, nest, normFile } from "src/lib/utils"
-import RoleService from "src/services/RoleService"
-import UserService from "src/services/UserService"
 import styled from "styled-components"
 import SvgIcon from "src/components/SvgIcon"
 import dayjs from "dayjs"
@@ -63,7 +61,7 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
     i => i?.CodeKey === "DEFAULT_PASSWORD",
   )
   useEffect(() => {
-    getUserDetail()
+    // getUserDetail()
   }, [])
 
   useEffect(() => {
@@ -101,32 +99,32 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
   //     setLoading(false)
   //   }
   // }
-  const getUserDetail = async () => {
-    try {
-      setLoading(true)
-      const res = await UserService.getInforUser()
-      if (!res || res.isError || !res.Object) return // Add this check
-      form.setFieldsValue({
-        ...res.Object,
-        Birthday: !!res.Object.Birthday && moment(res.Object.Birthday),
-        DateParty: !!res.Object.DateParty && moment(res.Object.DateParty),
-        RoleID: res?.Object?.ListRole?.[0]?.RoleID,
-        Avatar: !!res.Object.Avatar ? [{ url: res.Object.Avatar }] : [],
-        Sex: !!res.Object.Sex ? res.Object.Sex : undefined,
+  // const getUserDetail = async () => {
+  //   try {
+  //     setLoading(true)
+  //     const res = await UserService.getInforUser()
+  //     if (!res || res.isError || !res.Object) return // Add this check
+  //     form.setFieldsValue({
+  //       ...res.Object,
+  //       Birthday: !!res.Object.Birthday && moment(res.Object.Birthday),
+  //       DateParty: !!res.Object.DateParty && moment(res.Object.DateParty),
+  //       RoleID: res?.Object?.ListRole?.[0]?.RoleID,
+  //       Avatar: !!res.Object.Avatar ? [{ url: res.Object.Avatar }] : [],
+  //       Sex: !!res.Object.Sex ? res.Object.Sex : undefined,
 
-        MaccanType: !!res.Object.MaccanType
-          ? +res.Object.MaccanType
-          : undefined,
-      })
-      setRegionCode({
-        ProvinceID: res.Object.ProvinceID,
-        DistrictID: res.Object.DistrictID,
-        WardID: res.Object.WardID,
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
+  //       MaccanType: !!res.Object.MaccanType
+  //         ? +res.Object.MaccanType
+  //         : undefined,
+  //     })
+  //     setRegionCode({
+  //       ProvinceID: res.Object.ProvinceID,
+  //       DistrictID: res.Object.DistrictID,
+  //       WardID: res.Object.WardID,
+  //     })
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
   // const getListSelect = async () => {
   //   try {
@@ -151,16 +149,16 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
   //     setLoading(false)
   //   }
   // }
-  const getListRole = async () => {
-    try {
-      setLoading(true)
-      const resRole = await RoleService.getAllForCombobox()
-      if (!!resRole?.isError) return
-      setListRole(resRole?.Object)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // const getListRole = async () => {
+  //   try {
+  //     setLoading(true)
+  //     const resRole = await RoleService.getAllForCombobox()
+  //     if (!!resRole?.isError) return
+  //     setListRole(resRole?.Object)
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
   // const onContinue = async () => {
   //   try {

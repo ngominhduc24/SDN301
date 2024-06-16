@@ -74,27 +74,11 @@ const instance = axios.create({
 
 // request header
 instance.interceptors.request.use(
-  async config => {
-    // Do something before request is sent
-    if (config.data) {
-      config.data =
-        config.data instanceof FormData ? config.data : trimData(config.data)
-    }
-    config.headers = {
-      Authorization: getStorage(STORAGE.TOKEN) || "5W+3CaFlo0GnUltbhGtcgA==",
-      // Authorization: getStorage(STORAGE.TOKEN) || "1tjyE+/5HUqKlhwI1IwXwg==",
-    }
-    config.baseURL = window.env?.API_ROOT || process.env.REACT_APP_API_ROOT
-    config.onUploadProgress = progressEvent => {
-      // let percentCompleted = Math.floor(
-      //   (progressEvent.loaded * 100) / progressEvent.total,
-      // )
-      // do whatever you like with the percentage complete
-      // maybe dispatch an action that will update a progress bar or something
-    }
+  config => {
+    config.baseURL = process.env.REACT_APP_ROOT_API
     return config
   },
-  error => Promise.reject(error),
+  error => Promise.reject(error.message),
 )
 
 // response parse
@@ -150,3 +134,4 @@ export const httpGetFile = (path = "", optionalHeader = {}) =>
     url: path,
     headers: { ...optionalHeader },
   })
+

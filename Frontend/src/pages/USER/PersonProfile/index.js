@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { UserOutlined } from "@ant-design/icons"
 import SvgIcon from "src/components/SvgIcon"
 import { StyleMyAccount } from "./styled"
-import UserService from "src/services/UserService"
 import STORAGE, { setStorage } from "src/lib/storage"
 import { setUserInfo } from "src/redux/appGlobal"
 import Notice from "src/components/Notice"
@@ -43,42 +42,42 @@ const PersonProfile = () => {
   // }
 
   //getInfor User
-  const getInfo = async () => {
-    try {
-      setLoading(true)
-      // const body = userInfo?.UserID
-      const res = await UserService.getInforUser()
-      if (res?.isError) return
-      setUser(res?.Object)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // const getInfo = async () => {
+  //   try {
+  //     setLoading(true)
+  //     // const body = userInfo?.UserID
+  //     const res = await UserService.getInforUser()
+  //     if (res?.isError) return
+  //     setUser(res?.Object)
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
-  const changeAvatar = async () => {
-    try {
-      setLoading(true)
-      setShowCancelButton(false)
+  // const changeAvatar = async () => {
+  //   try {
+  //     setLoading(true)
+  //     setShowCancelButton(false)
 
-      const res = await UserService.changeAvatar(avatarUpload)
-      if (res.isError) return
+  //     const res = await UserService.changeAvatar(avatarUpload)
+  //     if (res.isError) return
 
-      setStorage(STORAGE.USER_INFO, {
-        ...userInfo,
-        Avatar: avatarUpload,
-      })
-      dispatch(
-        setUserInfo({
-          ...userInfo,
-          Avatar: avatarUpload,
-        }),
-      )
-      Notice({ msg: "Cập nhật thành công!" })
-      setAvatarUpload("")
-    } finally {
-      setLoading(false)
-    }
-  }
+  //     setStorage(STORAGE.USER_INFO, {
+  //       ...userInfo,
+  //       Avatar: avatarUpload,
+  //     })
+  //     dispatch(
+  //       setUserInfo({
+  //         ...userInfo,
+  //         Avatar: avatarUpload,
+  //       }),
+  //     )
+  //     Notice({ msg: "Cập nhật thành công!" })
+  //     setAvatarUpload("")
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
   const cancelUpload = () => {
     setShowCancelButton(false)
     setAvatarUpload("")
@@ -91,9 +90,9 @@ const PersonProfile = () => {
     )?.find(item => +item?.CodeValue === +code)
     return selectedOption ? selectedOption.Description : "Unknown"
   }
-  useEffect(() => {
-    getInfo()
-  }, [])
+  // useEffect(() => {
+  //   getInfo()
+  // }, [])
 
   const isMobile = useWindowSize.isMobile() || false
   return (
@@ -206,7 +205,7 @@ const PersonProfile = () => {
                                   style={{ width: 100 }}
                                   onClick={e => {
                                     e.stopPropagation()
-                                    changeAvatar()
+                                    // changeAvatar()
                                   }}
                                 >
                                   Lưu ảnh
@@ -285,7 +284,7 @@ const PersonProfile = () => {
         <UpdatePersonProfile
           open={modalUpdatePersonProfile}
           onCancel={() => setModalUpdatePersonProfile(false)}
-          onOk={() => getInfo()}
+          // onOk={() => getInfo()}
         />
       )}
     </StyleMyAccount>

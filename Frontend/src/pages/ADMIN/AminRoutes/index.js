@@ -1,9 +1,8 @@
 import { Button, Result } from "antd"
-import { useContext, useEffect, useLayoutEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react" // Ensure useState is imported here
 import { useSelector } from "react-redux"
 import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom"
 import MainLayout from "src/components/Layouts"
-import { MenuItemAdmin } from "src/components/Layouts/MenuItems"
 import STORAGE, { getStorage } from "src/lib/storage"
 import { StoreContext } from "src/lib/store"
 import { hasPermission } from "src/lib/utils"
@@ -12,43 +11,28 @@ import ROUTER from "src/router"
 function AdminRoutes() {
   const { routerStore } = useContext(StoreContext)
   const [, setRouterBeforeLogin] = routerStore
-  const { listTabs, userInfo } = useSelector(state => state?.appGlobal)
-  const [menuAdmin, setMenuAdmin] = useState([])
+  const { userInfo } = useSelector(state => state?.appGlobal)
   const isLogin = getStorage(STORAGE.TOKEN)
   const location = useLocation()
-  const [check, setCheck] = useState()
-  const setShowListMenu = list =>
-    !!list?.length
-      ? list
-          ?.filter(x => hasPermission(x?.tabid, [...listTabs]))
-          .map(i => ({
-            ...i,
-            children: setShowListMenu(i?.children),
-          }))
-      : undefined
+  const [check, setCheck] = useState() // Ensure useState is used here
+
   useEffect(() => {
     setCheck(location?.key)
     if (!isLogin)
       setRouterBeforeLogin(`${location.pathname}${location?.search}`)
   }, [isLogin])
-  useLayoutEffect(() => {
-    if (!!isLogin) {
-      const menu = setShowListMenu(MenuItemAdmin())
-      setMenuAdmin(menu)
-    }
-  }, [userInfo, listTabs])
-  // if (window.history.state.key !== check) {
-  //   setIsModelNotification(false)
-  // }
+
+  const userRole = userInfo?.role
+
   return !!isLogin ? (
-    !!menuAdmin?.length ? (
+    userRole === "ADMIN" ? (
       <MainLayout isAdmin={true}>
         <Outlet />
       </MainLayout>
     ) : (
       <Result
         status="403"
-        title="403 Erorr Permission"
+        title="403 Error Permission"
         subTitle="Xin lỗi, Bạn không có quyền truy cập trang web."
         extra={
           <NavLink to={ROUTER.DEFAULT}>

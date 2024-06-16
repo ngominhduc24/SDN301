@@ -53,7 +53,6 @@ const MainLayout = ({ children, isAdmin }) => {
   const isLogin = getStorage(STORAGE.TOKEN)
   let isUser = location.pathname.includes(ROUTER.CA_NHAN)
   const [open, setOpen] = useState(false)
-  const { votingModal } = useSelector(state => state.voting)
   const [selectedKey, setSelectedKey] = useState(
     getStorage(STORAGE.KEY_MENU_ACTIVE) || ["/"],
   )
@@ -61,10 +60,6 @@ const MainLayout = ({ children, isAdmin }) => {
   const [menuUser, setMenuUser] = useState([])
   const [openRegisterModal, setOpenRegisterModal] = useState(false)
   const [openModalVoting, setOpenModalVoting] = useState({})
-
-  useEffect(() => {
-    if (!!votingModal) setOpenModalVoting(votingModal)
-  }, [votingModal])
 
   const handleLogout = async () => {
     if (isLogin) {
@@ -182,16 +177,6 @@ const MainLayout = ({ children, isAdmin }) => {
     </StyleMenuAccount>
   )
 
-  const setShowListMenu = list =>
-    !!list?.length
-      ? list
-          ?.filter(x => hasPermission(x?.tabid, [...listTabs]))
-          .map(i => ({
-            ...i,
-            children: setShowListMenu(i?.children),
-          }))
-      : undefined
-
   useEffect(() => {
     let key = location?.pathname
     setSelectedKey([key])
@@ -199,34 +184,14 @@ const MainLayout = ({ children, isAdmin }) => {
 
   useEffect(() => {
     if (!!isLogin) {
-      const menu = setShowListMenu(MenuItemAdmin())
-      setMenuAdmin(menu)
-      const menuUser = setShowListMenu(MenuItemUser())
-      setMenuUser(menuUser)
+      setMenuAdmin(MenuItemAdmin())
+      setMenuUser(MenuItemUser())
     }
   }, [listTabs])
 
   const isMobile = useWindowSize.isMobile() || false
   const isTablet = useWindowSize.isTablet() || false
   const [menuMobile, setMenuMobile] = useState()
-  // useEffect(() => {
-  //   let menuItemMobile = MenuItemMobile()
-  //   let listRoleMobile = []
-  //   menuItemMobile?.forEach(item => {
-  //     if (
-  //       !!listTabs.some(
-  //         itemTab =>
-  //           item?.TabID === itemTab.CategoryID && itemTab.IsVistTab === true,
-  //       ) ||
-  //       !!item?.default
-  //     ) {
-  //       listRoleMobile?.push(item)
-  //     }
-  //   })
-
-  //   setMenuMobile(pre => listRoleMobile)
-  // }, [listTabs])
-
   return (
     <LayoutStyled shadow={!!isAdmin || !!isUser}>
       <Header className={`header-background`}>
