@@ -8,6 +8,7 @@ var indexRouter = require("./routes/index");
 var userRouter = require("./routes/user.router");
 const setupSwagger = require('./config/swagger');
 var connectMongoDB =  require("./config/mongodb.config.js");
+const categoryRouter = require("./routes/category.router.js");
 const shopRouter = require("./routes/shop.router.js");
 const warehouseRouter = require("./routes/warehouse.router.js");
 
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use("/", indexRouter);
 app.use("/api", userRouter);
+app.use("/api/category", categoryRouter);
 app.use("/api/shop", shopRouter);
 app.use("/api/warehouse", warehouseRouter);
 setupSwagger(app);
