@@ -154,7 +154,7 @@ const ChangePasswordModal = ({ onOk, onCancel, open }) => {
             </div>
           </div>
         </ModalChangePasswordStyle>
-      </Spin>
+      </SpinCustom>
     </CustomModal>
   )
 }
