@@ -7,7 +7,7 @@ const { Schema } = mongoose;
 const OrderSchema = new Schema({
     "shop": {
         type: Schema.Types.ObjectId,
-        ref: "shops"
+        ref: "Shop"
     },
     "details": [DetailSchema],
     "total_price": {
@@ -19,6 +19,13 @@ const OrderSchema = new Schema({
       type: String,
       enum: ['pending', 'completed', 'cancelled'],
       required: true
+    },
+    "note": {
+        type: String,
+    },
+    "created_by": {
+        type: Schema.Types.ObjectId,
+        ref: "user"
     }
 },
 {
