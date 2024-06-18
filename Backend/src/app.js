@@ -13,6 +13,8 @@ const shopRouter = require("./routes/shop.router.js");
 const warehouseRouter = require("./routes/warehouse.router.js");
 const productRouter = require("./routes/product.router.js");
 
+// swagger url:  http://localhost:9999/api-docs/ 
+
 var app = express();
 
 // view engine setup
