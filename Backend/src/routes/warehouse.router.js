@@ -7,7 +7,7 @@ warehouseRouter.use(bodyParser.json());
 
 /**
  * @swagger
- * /warehouses:
+ * /warehouse:
  *   post:
  *     summary: Create a new warehouse
  *     description: Add a new warehouse to the system.
@@ -44,7 +44,7 @@ warehouseRouter.post('/', WarehouseController.create);
 
 /**
  * @swagger
- * /warehouses:
+ * /warehouse:
  *   get:
  *     summary: Get all warehouses
  *     description: Retrieve a list of all warehouses.
@@ -70,7 +70,7 @@ warehouseRouter.get('/', WarehouseController.getAll);
 
 /**
  * @swagger
- * /warehouses/{id}:
+ * /warehouse/{id}:
  *   get:
  *     summary: Get a warehouse by ID
  *     description: Retrieve a single warehouse by its ID.
@@ -107,7 +107,7 @@ warehouseRouter.get('/:id', WarehouseController.getById);
 
 /**
  * @swagger
- * /warehouses/{id}:
+ * /warehouse/{id}:
  *   put:
  *     summary: Update a warehouse by ID
  *     description: Update the details of an existing warehouse by its ID.
@@ -157,7 +157,7 @@ warehouseRouter.put('/:id', WarehouseController.update);
 
 /**
  * @swagger
- * /warehouses/{warehouseId}/product:
+ * /warehouse/{warehouseId}/product:
  *   post:
  *     summary: Create a product for a specific warehouse
  *     description: Add a new product to a specific warehouse.
@@ -207,7 +207,7 @@ warehouseRouter.post('/:warehouseId/product', WarehouseController.createProduct)
 
 /**
  * @swagger
- * /warehouses/{warehouseId}/product:
+ * /warehouse/{warehouseId}/product:
  *   get:
  *     summary: Get all products for a specific warehouse
  *     description: Retrieve a list of all products for a specific warehouse.
@@ -246,7 +246,7 @@ warehouseRouter.get('/:warehouseId/product', WarehouseController.getProductByWar
 
 /**
  * @swagger
- * /warehouses/{warehouseId}/product/{id}:
+ * /warehouse/{warehouseId}/product/{id}:
  *   get:
  *     summary: Get a specific product by its ID within a specific warehouse
  *     description: Retrieve a specific product by its ID within a specific warehouse.
@@ -289,7 +289,7 @@ warehouseRouter.get('/:warehouseId/product/:id', WarehouseController.getProductB
 
 /**
  * @swagger
- * /warehouses/{warehouseId}/product/{id}:
+ * /warehouse/{warehouseId}/product/{id}:
  *   put:
  *     summary: Update a product by its ID within a specific warehouse
  *     description: Update the details of a specific product by its ID within a specific warehouse.

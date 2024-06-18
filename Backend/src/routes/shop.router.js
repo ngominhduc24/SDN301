@@ -7,7 +7,7 @@ shopRouter.use(bodyParser.json());
 
 /**
  * @swagger
- * /shops:
+ * /Shop:
  *   post:
  *     summary: Create a new shop
  *     description: Add a new shop to the system.
@@ -44,7 +44,7 @@ shopRouter.post('/', ShopController.create);
 
 /**
  * @swagger
- * /shops:
+ * /Shop:
  *   get:
  *     summary: Get all shops
  *     description: Retrieve a list of all shops.
@@ -70,7 +70,7 @@ shopRouter.get('/', ShopController.getAll);
 
 /**
  * @swagger
- * /shops/{id}:
+ * /Shop/{id}:
  *   get:
  *     summary: Get a shop by ID
  *     description: Retrieve a single shop by its ID.
@@ -107,7 +107,7 @@ shopRouter.get('/:id', ShopController.getById);
 
 /**
  * @swagger
- * /shops/{id}:
+ * /Shop/{id}:
  *   put:
  *     summary: Update a shop by ID
  *     description: Update the details of an existing shop by its ID.
@@ -157,7 +157,7 @@ shopRouter.put('/:id', ShopController.update);
 
 /**
  * @swagger
- * /shops/{shopId}/product:
+ * /Shop/{shopId}/product:
  *   post:
  *     summary: Create a product for a specific shop
  *     description: Add a new product to a specific shop.
@@ -207,7 +207,7 @@ shopRouter.post('/:shopId/product', ShopController.createProduct);
 
 /**
  * @swagger
- * /shops/{shopId}/product:
+ * /Shop/{shopId}/product:
  *   get:
  *     summary: Get all products for a specific shop
  *     description: Retrieve a list of all products for a specific shop.
@@ -246,7 +246,7 @@ shopRouter.get('/:shopId/product', ShopController.getProductByShopId);
 
 /**
  * @swagger
- * /shops/{shopId}/product/{id}:
+ * /Shop/{shopId}/product/{id}:
  *   get:
  *     summary: Get a specific product by its ID within a specific shop
  *     description: Retrieve a specific product by its ID within a specific shop.
@@ -289,7 +289,7 @@ shopRouter.get('/:shopId/product/:id', ShopController.getProductById);
 
 /**
  * @swagger
- * /shops/{shopId}/product/{id}:
+ * /Shop/{shopId}/product/{id}:
  *   put:
  *     summary: Update a product by its ID within a specific shop
  *     description: Update the details of a specific product by its ID within a specific shop.

@@ -7,7 +7,7 @@ categoryRouter.use(bodyParser.json());
 
 /**
  * @swagger
- * /categories:
+ * /category:
  *   post:
  *     summary: Create a new category
  *     description: Add a new category to the system.
@@ -44,7 +44,7 @@ categoryRouter.post('/', CategoryController.create);
 
 /**
  * @swagger
- * /categories:
+ * /category:
  *   get:
  *     summary: Get all categories
  *     description: Retrieve a list of all categories.
@@ -70,7 +70,7 @@ categoryRouter.get('/', CategoryController.getAll);
 
 /**
  * @swagger
- * /categories/{id}:
+ * /category/{id}:
  *   get:
  *     summary: Get a category by ID
  *     description: Retrieve a single category by its ID.
@@ -107,7 +107,7 @@ categoryRouter.get('/:id', CategoryController.getById);
 
 /**
  * @swagger
- * /categories/{id}:
+ * /category/{id}:
  *   put:
  *     summary: Update a category by ID
  *     description: Update the details of an existing category by its ID.
