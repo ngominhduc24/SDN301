@@ -1,5 +1,6 @@
 const Shop = require('../models/shop');
 
+
 // Create a new shop
 async function create(data) {
   const shop = new Shop(data);
@@ -8,12 +9,24 @@ async function create(data) {
 
 // Get all shops
 async function getAll() {
-  return await Shop.find({ inventoryType: 'shop' });
+  return await Shop.find({ inventoryType: 'shop' }).select('-products').populate('manager');
 }
 
 // Get shop by ID
 async function getById(id) {
-  return await Shop.findById(id);
+  return await Shop.findById(id).populate('manager');
+}
+
+// Get warehouse by ID
+async function getWarehouse() {
+  try {
+    console.log("start");
+    const warehouses = await Shop.find({ inventoryType: 'warehouse' }).populate('manager');
+    console.log(warehouses);
+    return warehouses;
+  } catch (error) {
+    throw new Error(`Error retrieving warehouses: ${error.message}`);
+  }
 }
 
 // Get warehouse by ID
@@ -47,7 +60,7 @@ async function createProduct(shopId, productData) {
 
 // Get all products for a specific shop
 async function getProductByShopId(shopId) {
-  const shop = await Shop.findById(shopId);
+  const shop = await Shop.findById(shopId).populate('products.productId');
   if (!shop) {
     throw new Error('Shop not found');
   }
@@ -56,7 +69,7 @@ async function getProductByShopId(shopId) {
 
 // Get a specific product by its ID within a specific shop
 async function getProductById(shopId, productId) {
-  const shop = await Shop.findById(shopId);
+  const shop = await Shop.findById(shopId).populate('products.productId');
   if (!shop) {
     throw new Error('Shop not found');
   }

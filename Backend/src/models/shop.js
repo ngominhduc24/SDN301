@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const Product = require('./product');
+const User = require('./user');
 
 // Define the Product schema for embedding
 const productSchema = new Schema({
   productId: { 
     type: Schema.Types.ObjectId, 
-    ref: 'Product', 
+    ref: Product, 
     required: true
     },
   quantity: { 
@@ -42,7 +44,7 @@ const shopSchema = new Schema({
   },
   manager: { 
     type: Schema.Types.ObjectId, 
-    ref: 'User', 
+    ref: User, 
     required: true 
   },
   inventoryType: { 
