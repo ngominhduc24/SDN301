@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const Schema = mongoose.Schema
 
 // Define the Product schema for embedding
 const ProductSchema = new Schema({

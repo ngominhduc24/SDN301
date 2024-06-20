@@ -1,19 +1,13 @@
-const mongoose = require("mongoose");
-const DetailSchema = require("./detail");
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema
 
-require("./warehouse");
-require("./user");
-require("./shop");
-
-const Schema = mongoose.Schema;
-
-const ExportInvoiceSchema = new Schema(
+const InvoiceSchema = new Schema(
   {
-    warehouse: {
+    from: {
       type: Schema.Types.ObjectId,
-      ref: "warehouses",
+      ref: "shops",
     },
-    shop: {
+    to: {
       type: Schema.Types.ObjectId,
       ref: "shops",
     },
@@ -42,6 +36,18 @@ const ExportInvoiceSchema = new Schema(
   }
 );
 
-const ExportInvoice = mongoose.model("export_invoices", ExportInvoiceSchema);
+const DetailSchema = new Schema({
+  "product": {
+      type: Schema.Types.ObjectId,
+      ref: "products"
+  },
+  "quantity": {
+      type:Number,
+      required: true,
+      min: 0
+  }
+});
 
-module.exports = ExportInvoice;
+const Invoice = mongoose.model("Invoice", InvoiceSchema);
+
+module.exports = Invoice;
