@@ -11,7 +11,6 @@ const setupSwagger = require('./config/swagger');
 var connectMongoDB =  require("./config/mongodb.config.js");
 const categoryRouter = require("./routes/category.router.js");
 const shopRouter = require("./routes/shop.router.js");
-const warehouseRouter = require("./routes/warehouse.router.js");
 const productRouter = require("./routes/product.router.js");
 const orderRouter = require("./routes/order.router.js");
 
@@ -38,7 +37,6 @@ app.use("/", indexRouter);
 app.use("/api", userRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/shop", shopRouter);
-app.use("/api/warehouse", warehouseRouter);
 app.use("/api/product", productRouter);
 app.use("/api/order", orderRouter);
 
