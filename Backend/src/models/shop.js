@@ -45,6 +45,11 @@ const shopSchema = new Schema({
     ref: 'User', 
     required: true 
   },
+  inventoryType: { 
+    type: String, 
+    enum: ['shop', 'warehouse'], 
+    default: 'shop' 
+  },
   products: [productSchema], 
   status: { 
     type: String, 
