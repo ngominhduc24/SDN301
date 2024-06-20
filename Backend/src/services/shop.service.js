@@ -8,7 +8,7 @@ async function create(data) {
 
 // Get all shops
 async function getAll() {
-  return await Shop.find();
+  return await Shop.find({ inventoryType: 'shop' });
 }
 
 // Get shop by ID
