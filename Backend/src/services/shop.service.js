@@ -33,7 +33,7 @@ async function getWarehouse() {
 async function getWarehouse() {
   try {
     console.log("start");
-    const warehouses = await Shop.find({ inventoryType: 'warehouse' });
+    const warehouses = await Shop.find({ inventoryType: 'warehouse' }).populate('manager');
     console.log(warehouses);
     return warehouses;
   } catch (error) {
