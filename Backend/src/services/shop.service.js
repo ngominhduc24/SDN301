@@ -19,10 +19,12 @@ async function getById(id) {
 // Get warehouse by ID
 async function getWarehouse() {
   try {
-    console.log("start");
     const warehouses = await Shop.find({ inventoryType: 'warehouse' });
-    console.log(warehouses);
-    return warehouses;
+    if (warehouses.length > 0) {
+      return warehouses[0];
+    } else {
+      return null; // or handle the case where no warehouses are found
+    }
   } catch (error) {
     throw new Error(`Error retrieving warehouses: ${error.message}`);
   }
