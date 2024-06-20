@@ -8,6 +8,7 @@ async function create(req, res, next) {
       location: req.body.location,
       phone : req.body.phone,
       email : req.body.email,
+      inventoryType : req.body.inventoryType,
       manager : req.body.manager
       };
     const newShop = await shopService.create(shopData);
@@ -101,7 +102,18 @@ async function updateProductById(req, res, next) {
   }
 }
 
-const shopController = { create, getAll, getById, update, 
+// get warehouse info
+async function getWarehouse(req, res, next) {
+  try {
+    console.log('getWarehouse');
+    const warehouse = await shopService.getWarehouse();
+    res.status(200).send(warehouse);
+  } catch (error) {
+    next(error);
+  }
+}
+
+const shopController = { create, getAll, getById, update, getWarehouse,
   createProduct, getProductByShopId, getProductById, updateProductById };
 
 module.exports = shopController;

@@ -16,6 +16,18 @@ async function getById(id) {
   return await Shop.findById(id);
 }
 
+// Get warehouse by ID
+async function getWarehouse() {
+  try {
+    console.log("start");
+    const warehouses = await Shop.find({ inventoryType: 'warehouse' });
+    console.log(warehouses);
+    return warehouses;
+  } catch (error) {
+    throw new Error(`Error retrieving warehouses: ${error.message}`);
+  }
+}
+
 // Update shop by ID
 async function update(id, data) {
   return await Shop.findByIdAndUpdate(id, data, { new: true, runValidators: true });
@@ -81,5 +93,6 @@ module.exports = {
   createProduct,
   getProductByShopId,
   getProductById,
-  updateProductById
+  updateProductById,
+  getWarehouse
 };

@@ -343,4 +343,7 @@ shopRouter.get('/:shopId/product/:id', ShopController.getProductById);
  */
 shopRouter.put('/:shopId/product/:id', ShopController.updateProductById);
 
+// WAREHOUSE MANAGER
+shopRouter.get('/warehouse/getinfo', ShopController.getWarehouse);
+
 module.exports = shopRouter;
