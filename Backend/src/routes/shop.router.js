@@ -343,6 +343,8 @@ shopRouter.get('/:shopId/product/:id', ShopController.getProductById);
  */
 shopRouter.put('/:shopId/product/:id', ShopController.updateProductById);
 
+shopRouter.get('/:shopId/product/unadded/getinfo', ShopController.getProductNotAddedByShop);
+
 // WAREHOUSE MANAGER
 shopRouter.get('/warehouse/getinfo', ShopController.getWarehouse);
 

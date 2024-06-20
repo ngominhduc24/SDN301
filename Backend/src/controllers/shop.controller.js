@@ -1,4 +1,5 @@
 const shopService = require('../services/shop.service');
+const ProductService = require("../services/product.service");
 
 // Create a new shop
 async function create(req, res, next) {
@@ -82,6 +83,26 @@ async function getProductByShopId(req, res, next) {
   }
 }
 
+// Get all products for a specific shop
+async function getProductNotAddedByShop(req, res, next) {
+  try {
+    // Get products added by the shop
+    const productsAdded = await shopService.getProductByShopId(req.params.shopId);
+    
+    // Get all products
+    const allProducts = await ProductService.listAllProducts();
+
+    // Filter products not added by the shop
+    const productsNotAdded = allProducts.filter(product => {
+      return !productsAdded.some(addedProduct => addedProduct.productId.equals(product._id));
+    });
+
+    res.status(200).json(productsNotAdded);
+  } catch (error) {
+    next(error);
+  }
+}
+
 // Get a specific product by its ID within a specific shop
 async function getProductById(req, res, next) {
   try {
@@ -114,6 +135,6 @@ async function getWarehouse(req, res, next) {
 }
 
 const shopController = { create, getAll, getById, update, getWarehouse,
-  createProduct, getProductByShopId, getProductById, updateProductById };
+  createProduct, getProductByShopId, getProductById, updateProductById, getProductNotAddedByShop };
 
 module.exports = shopController;
