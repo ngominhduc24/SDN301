@@ -26,7 +26,7 @@ const SearchAndFilter = ({ pagination, setPagination }) => {
             onSearch={e => setPagination({ ...pagination, TextSearch: e })}
             search
             allowClear
-            label="Tìm kiếm chương trình họp"
+            label="Tìm kiếm"
           />
         </Col>
         <Col xl={5} lg={24} md={24} sm={24} xs={24}>
@@ -51,9 +51,9 @@ const SearchAndFilter = ({ pagination, setPagination }) => {
                 onChange={e =>
                   e
                     ? setPagination({
-                      ...pagination,
-                      FromDate: moment(e.$d).format("YYYY-MM-DDTHH:mm:ssZ"),
-                    })
+                        ...pagination,
+                        FromDate: moment(e.$d).format("YYYY-MM-DDTHH:mm:ssZ"),
+                      })
                     : setPagination({ ...pagination, FromDate: "" })
                 }
               />
@@ -100,3 +100,4 @@ const SearchAndFilter = ({ pagination, setPagination }) => {
 }
 
 export default SearchAndFilter
+
