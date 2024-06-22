@@ -7,11 +7,6 @@ const DetailSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "products"
     },
-    "price": {
-        type: Number,
-        required: true,
-        min: 0
-    },
     "quantity": {
         type:Number,
         required: true,

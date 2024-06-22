@@ -1,37 +1,38 @@
-const Shop = require('../models/shop');
+const shopService = require('../services/shop.service');
+const ProductService = require("../services/product.service");
 
 // Create a new shop
-async function create (req, res, next) {
+async function create(req, res, next) {
   try {
-    const shop = new Shop({
-        name: req.body.name,
-        location: req.body.location,
-        phone : req.body.phone,
-        email : req.body.email,
-        manager : req.body.manager
-      });
-    await shop.save()
-      .then(newDoc => res.status(201).json(newDoc))
-      .catch(err => next(err));
+    const shopData = {
+      name: req.body.name,
+      location: req.body.location,
+      phone : req.body.phone,
+      email : req.body.email,
+      inventoryType : req.body.inventoryType,
+      manager : req.body.manager
+      };
+    const newShop = await shopService.create(shopData);
+    res.status(201).json(newShop);
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Get all shops
-async function getAll (req, res, next) {
+async function getAll(req, res, next) {
   try {
-    const shops = await Shop.find();
+    const shops = await shopService.getAll();
     res.status(200).send(shops);
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Get shop by ID
-async function getById (req, res, next) {
+async function getById(req, res, next) {
   try {
-    const shop = await Shop.findById(req.params.id);
+    const shop = await shopService.getById(req.params.id);
     if (!shop) {
       return res.status(404).send({ message: 'Shop not found' });
     }
@@ -39,21 +40,20 @@ async function getById (req, res, next) {
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Update shop by ID
-async function update (req, res, next) {
+async function update(req, res, next) {
   try {
     const updateShop = {
-        name: req.body.name,
-        location: req.body.location,
-        phone : req.body.phone,
-        email : req.body.email,
-        manager : req.body.manager,
-        status: req.body.status
+      name: req.body.name,
+      location: req.body.location,
+      phone : req.body.phone,
+      email : req.body.email,
+      manager : req.body.manager,
+      status: req.body.status
       };
-
-    const shop = await Shop.findByIdAndUpdate(req.params.id, updateShop, { new: true, runValidators: true });
+    const shop = await shopService.update(req.params.id, updateShop);
     if (!shop) {
       return res.status(404).send({ message: 'Shop not found' });
     }
@@ -61,153 +61,80 @@ async function update (req, res, next) {
   } catch (error) {
     next(error);
   }
-};
-
-// Create a new shop
-async function create (req, res, next) {
-  try {
-    const shop = new Shop({
-        name: req.body.name,
-        location: req.body.location,
-        phone : req.body.phone,
-        email : req.body.email,
-        manager : req.body.manager,
-        status: req.body.status
-      });
-    await shop.save()
-      .then(newDoc => res.status(201).json(newDoc))
-      .catch(err => next(err));
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Get all shops
-async function getAll (req, res, next) {
-  try {
-    const shops = await Shop.find();
-    res.status(200).send(shops);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Get shop by ID
-async function getById (req, res, next) {
-  try {
-    const shop = await Shop.findById(req.params.id);
-    if (!shop) {
-      return res.status(404).send({ message: 'Shop not found' });
-    }
-    res.status(200).send(shop);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Update shop by ID
-async function update (req, res, next) {
-  try {
-    const updateShop = {
-        name: req.body.name,
-        location: req.body.location,
-        phone : req.body.phone,
-        email : req.body.email,
-        manager : req.body.manager,
-        status: req.body.status
-      };
-
-    const shop = await Shop.findByIdAndUpdate(req.params.id, updateShop, { new: true, runValidators: true });
-    if (!shop) {
-      return res.status(404).send({ message: 'Shop not found' });
-    }
-    res.status(200).send(shop);
-  } catch (error) {
-    next(error);
-  }
-};
+}
 
 // Create a product for a specific shop
-const createProduct = async (req, res, next) => {
+async function createProduct(req, res, next) {
   try {
-    const { productId, quantity } = req.body;
-
-    const shop = await Shop.findById(req.params.shopId);
-    if (!shop) {
-      return res.status(404).send({ message: 'Shop not found' });
-    }
-
-    shop.products.push({ productId, quantity });
-    await shop.save();
-
+    const shop = await shopService.createProduct(req.params.shopId, req.body);
     res.status(201).send(shop);
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Get all products for a specific shop
-const getProductByShopId = async (req, res, next) => {
+async function getProductByShopId(req, res, next) {
   try {
-    const shop = await Shop.findById(req.params.shopId);
-    if (!shop) {
-      return res.status(404).send({ message: 'Shop not found' });
-    }
-
-    res.status(200).send(shop.products);
+    const products = await shopService.getProductByShopId(req.params.shopId);
+    res.status(200).send(products);
   } catch (error) {
     next(error);
   }
-};
+}
+
+// Get all products for a specific shop
+async function getProductNotAddedByShop(req, res, next) {
+  try {
+    // Get products added by the shop
+    const productsAdded = await shopService.getProductByShopId(req.params.shopId);
+    
+    // Get all products
+    const allProducts = await ProductService.listAllProducts();
+
+    // Filter products not added by the shop
+    const productsNotAdded = allProducts.filter(product => {
+      return !productsAdded.some(addedProduct => addedProduct.productId.equals(product._id));
+    });
+
+    res.status(200).json(productsNotAdded);
+  } catch (error) {
+    next(error);
+  }
+}
 
 // Get a specific product by its ID within a specific shop
-const getProductById = async (req, res, next) => {
+async function getProductById(req, res, next) {
   try {
-    const shop = await Shop.findById(req.params.shopId);
-    if (!shop) {
-      return res.status(404).send({ message: 'Shop not found' });
-    }
-
-    const product = shop.products.id(req.params.id);
-    if (!product) {
-      return res.status(404).send({ message: 'Product not found' });
-    }
-
+    const product = await shopService.getProductById(req.params.shopId, req.params.id);
     res.status(200).send(product);
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Update a product for a specific product in a specific shop
-const updateProductById = async (req, res, next) => {
+async function updateProductById(req, res, next) {
   try {
-    const { quantity } = req.body;
-
-    const shop = await Shop.findById(req.params.shopId);
-    if (!shop) {
-      return res.status(404).send({ message: 'Shop not found' });
-    }
-
-    const product = shop.products.id(req.params.id);
-
-    if (!product) {
-      return res.status(404).send({ message: 'Product not found' });
-    }
-
-    product.quantity = quantity;
-a
-    await shop.save();
-
+    const product = await shopService.updateProductById(req.params.shopId, req.params.id, req.body.quantity);
     res.status(200).send(product);
   } catch (error) {
     next(error);
   }
-};
+}
 
-const shopController = { create, getAll, getById, update, 
-  createProduct, getProductByShopId, getProductById, updateProductById };
+// get warehouse info
+async function getWarehouse(req, res, next) {
+  try {
+    console.log('getWarehouse');
+    const warehouse = await shopService.getWarehouse();
+    res.status(200).send(warehouse);
+  } catch (error) {
+    next(error);
+  }
+}
+
+const shopController = { create, getAll, getById, update, getWarehouse,
+  createProduct, getProductByShopId, getProductById, updateProductById, getProductNotAddedByShop };
+
 module.exports = shopController;
-
-
-
