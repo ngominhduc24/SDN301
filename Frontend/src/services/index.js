@@ -134,4 +134,3 @@ export const httpGetFile = (path = "", optionalHeader = {}) =>
     url: path,
     headers: { ...optionalHeader },
   })
-

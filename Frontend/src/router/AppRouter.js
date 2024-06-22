@@ -59,6 +59,9 @@ const WarehouseManagerProduct = React.lazy(() =>
 const WarehouseManagerStore = React.lazy(() =>
   import("src/pages/WarehouseManager/ManageStore"),
 )
+const WarehouseManagerDashboard = React.lazy(() =>
+  import("src/pages/WarehouseManager/WarehouseManageDashboard"),
+)
 // STAFF
 const StaffRoutes = React.lazy(() => import("src/pages/Staff/StaffRoutes"))
 const ManageOrders = React.lazy(() => import("src/pages/Staff/ManageOrders"))
@@ -261,7 +264,7 @@ const routes = [
         path: ROUTER.WAREHOUSE_MANAGER_DASHBOARD,
         element: (
           <LazyLoadingComponent>
-            <Dashboard />
+            <WarehouseManagerDashboard />
           </LazyLoadingComponent>
         ),
       },
@@ -348,4 +351,3 @@ const AppRouter = () => {
   return renderRouter
 }
 export default AppRouter
-

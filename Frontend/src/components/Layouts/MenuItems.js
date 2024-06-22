@@ -164,40 +164,27 @@ export const MenuItemWarehouseManager = () => {
       tabid: [1],
     },
     {
-      key: "subkey1",
-      label: "Products",
-      icon: <SvgIcon name="product" />,
-      tabid: [2],
-      children: [
-        {
-          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_PRODUCT,
-          label: "Manage Products",
-          tabid: [2],
-        },
-      ],
-    },
-    {
       key: ROUTER.WAREHOUSE_MANAGER_DASHBOARD,
       label: "Report",
       icon: <SvgIcon name="menu5" />,
-      tabid: [4],
+      tabid: [2],
     },
     {
       key: ROUTER.WAREHOUSE_MANAGER_DASHBOARD,
       label: "Download History",
       icon: <SvgIcon name="dowload-export" />,
-      tabid: [5],
+      tabid: [3],
     },
     {
-      key: "subkey2",
-      label: "Store",
-      icon: <SvgIcon name="store" />,
-      tabid: [6],
+      key: "subkey1",
+      label: "Products",
+      icon: <SvgIcon name="product" />,
+      tabid: [4],
       children: [
         {
-          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_STORE,
-          label: "Manage Store",
-          tabid: [6],
+          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_PRODUCT,
+          label: "Manage Products",
+          tabid: [4],
         },
       ],
     },
@@ -205,12 +192,12 @@ export const MenuItemWarehouseManager = () => {
       key: "subkey2",
       label: "Store",
       icon: <SvgIcon name="store" />,
-      tabid: [7],
+      tabid: [5],
       children: [
         {
-          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_WAREHOUSE,
+          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_STORE,
           label: "Manage Store",
-          tabid: [7],
+          tabid: [5],
         },
       ],
     },
@@ -218,12 +205,12 @@ export const MenuItemWarehouseManager = () => {
       key: "subkey3",
       label: "Warehouse Mananer",
       icon: <SvgIcon name="menu14" />,
-      tabid: [8],
+      tabid: [7],
       children: [
         {
           key: ROUTER.WAREHOUSE_MANAGER_MANAGE_INVOICE,
           label: "Manage Invoice",
-          tabid: [8],
+          tabid: [7],
         },
       ],
     },
@@ -287,4 +274,3 @@ export const MenuItemUser = () => {
     // },
   ]
 }
-

@@ -1,4 +1,4 @@
-import { Col, Form, Row, Select, Space, Tabs, Tooltip } from "antd"
+import { Col, Form, Row, Select, Space, Tabs, Tooltip, InputNumber } from "antd"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
 import { PatentRegistrationChildBorder, StylesTabPattern } from "./styled"
@@ -7,13 +7,15 @@ import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Button from "src/components/MyButton/Button"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
+import Notice from "src/components/Notice"
 
 const { Option } = Select
 
-const InsertUpdateProgram = ({ open, onCancel, onOk, id }) => {
+const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
   const [form] = Form.useForm()
   const [wareHouseProductsNotIn, setWareHouseProductsNotIn] = useState([])
   const [selectedProducts, setSelectedProducts] = useState([])
+  const [stateBody, setStateBody] = useState({})
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
@@ -84,6 +86,13 @@ const InsertUpdateProgram = ({ open, onCancel, onOk, id }) => {
       dataIndex: "quantity",
       width: 120,
       key: "quantity",
+      render: (_, record) => (
+        <InputNumber
+          min={0}
+          defaultValue={record.quantity}
+          onChange={value => handleQuantityChange(record._id, value)}
+        />
+      ),
     },
     {
       title: "Ảnh",
@@ -137,17 +146,47 @@ const InsertUpdateProgram = ({ open, onCancel, onOk, id }) => {
     },
   ]
 
+  // const handleRemoveProduct = record => {
+  //   setSelectedProducts(prev => prev.filter(item => item._id !== record._id))
+  //   setStateBody(prev => prev.filter(item => item.productId !== record._id))
+  // }
   const handleRemoveProduct = record => {
     setSelectedProducts(prev => prev.filter(item => item._id !== record._id))
+    setStateBody(prev => {
+      const newStateBody = { ...prev }
+      delete newStateBody[record._id]
+      return newStateBody
+    })
   }
 
+  // const handleProductChange = value => {
+  //   const selected = wareHouseProductsNotIn.find(
+  //     product => product._id === value,
+  //   )
+  //   if (selected) {
+  //     setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
+  //     setStateBody(prev => [...prev, { productId: selected._id, quantity: 0 }])
+  //   }
+  // }
   const handleProductChange = value => {
     const selected = wareHouseProductsNotIn.find(
       product => product._id === value,
     )
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
+      setStateBody({
+        productId: selected._id,
+        quantity: 0,
+      })
     }
+  }
+
+  const handleQuantityChange = (productId, quantity) => {
+    setStateBody(prev =>
+      prev.map(item =>
+        item.productId === productId ? { ...item, quantity } : item,
+      ),
+    )
   }
 
   const getProductsNotInWarehouse = async () => {
@@ -171,7 +210,34 @@ const InsertUpdateProgram = ({ open, onCancel, onOk, id }) => {
     }
   }
 
+  const addProductsToWarehouse = async () => {
+    try {
+      setLoading(true)
+      const response = await WarehouseManagerService.addProductsToWarehouse(
+        id,
+        stateBody,
+      )
+      console.log("djt me response", response)
+      if (response?.isError) {
+        console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
+        return
+      }
+      // Xử lý khi thành công
+      getProductsNotInWarehouse()
+      onOk()
+      onCancel()
+      Notice({
+        msg: "Thêm thành công.",
+      })
+    } catch (error) {
+      console.error("Lỗi trong quá trình thêm sản phẩm vào kho:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
+    console.log(id)
     getProductsNotInWarehouse()
   }, [pagination])
 
@@ -181,45 +247,66 @@ const InsertUpdateProgram = ({ open, onCancel, onOk, id }) => {
       label: <div>Sản phẩm</div>,
       children: (
         <PatentRegistrationChildBorder>
-          <Row gutter={16} style={{ marginBottom: 16 }}>
-            <Col span={12}>
-              <Select
-                showSearch
-                placeholder="Chọn sản phẩm"
-                optionFilterProp="children"
-                onChange={handleProductChange}
-                style={{ width: "100%" }}
-              >
-                {wareHouseProductsNotIn.map(product => (
-                  <Option key={product._id} value={product._id}>
-                    {product.name}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-          </Row>
-          <TableCustom
-            isPrimary
-            rowKey="ProductId"
-            columns={column}
-            dataSource={selectedProducts}
-            scroll={{ x: "800px" }}
-            pagination={{
-              hideOnSinglePage: total <= 10,
-              current: pagination?.CurrentPage,
-              pageSize: pagination?.PageSize,
-              responsive: true,
-              total: total,
-              locale: { items_per_page: "" },
-              showSizeChanger: total > 10,
-              onChange: (CurrentPage, PageSize) =>
-                setPagination({
-                  ...pagination,
-                  CurrentPage,
-                  PageSize,
-                }),
-            }}
-          />
+          <Form form={form} onFinish={addProductsToWarehouse}>
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Select
+                  showSearch
+                  placeholder="Chọn sản phẩm"
+                  optionFilterProp="children"
+                  onChange={handleProductChange}
+                  style={{ width: "100%" }}
+                >
+                  {wareHouseProductsNotIn.map(product => (
+                    <Option key={product._id} value={product._id}>
+                      {product.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+              {/* <Col span={12}>
+                <Form.Item
+                  name="quantity"
+                  rules={[
+                    { required: true, message: "Vui lòng nhập số lượng" },
+                  ]}
+                >
+                  <InputNumber
+                    min={0}
+                    placeholder="Số lượng"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col> */}
+            </Row>
+            <TableCustom
+              isPrimary
+              rowKey="ProductId"
+              columns={column}
+              dataSource={selectedProducts}
+              scroll={{ x: "800px" }}
+              pagination={{
+                hideOnSinglePage: total <= 10,
+                current: pagination?.CurrentPage,
+                pageSize: pagination?.PageSize,
+                responsive: true,
+                total: total,
+                locale: { items_per_page: "" },
+                showSizeChanger: total > 10,
+                onChange: (CurrentPage, PageSize) =>
+                  setPagination({
+                    ...pagination,
+                    CurrentPage,
+                    PageSize,
+                  }),
+              }}
+            />
+            {/* <Form.Item>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Thêm sản phẩm
+              </Button>
+            </Form.Item> */}
+          </Form>
         </PatentRegistrationChildBorder>
       ),
     },
@@ -232,15 +319,11 @@ const InsertUpdateProgram = ({ open, onCancel, onOk, id }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={onOk}
+          onClick={addProductsToWarehouse}
         >
           Lưu
         </Button>
-        <Button
-          btntype="third"
-          className="ml-8 mt-12 mb-12"
-          onClick={() => onCancel()}
-        >
+        <Button btntype="third" className="ml-8 mt-12 mb-12" onClick={onCancel}>
           Đóng
         </Button>
       </div>
@@ -253,7 +336,7 @@ const InsertUpdateProgram = ({ open, onCancel, onOk, id }) => {
         open={open}
         onCancel={onCancel}
         onOk={onOk}
-        title={open?.BookingID ? "Chỉnh sửa cửa hàng" : "Thêm mới cửa hàng"}
+        title={id ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm"}
         width="90vw"
         footer={renderFooter()}
       >
@@ -265,5 +348,5 @@ const InsertUpdateProgram = ({ open, onCancel, onOk, id }) => {
   )
 }
 
-export default InsertUpdateProgram
+export default InsertUpdateProduct
 
