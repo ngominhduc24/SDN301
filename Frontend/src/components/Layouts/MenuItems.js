@@ -50,18 +50,6 @@ export const MenuItemAdmin = () => {
       ],
     },
     {
-      key: ROUTER.DASHBOARD,
-      label: "Report",
-      icon: <SvgIcon name="menu5" />,
-      tabid: [4],
-    },
-    {
-      key: ROUTER.DASHBOARD,
-      label: "Download History",
-      icon: <SvgIcon name="dowload-export" />,
-      tabid: [5],
-    },
-    {
       key: "subkey2",
       label: "Store",
       icon: <SvgIcon name="store" />,
@@ -71,19 +59,6 @@ export const MenuItemAdmin = () => {
           key: ROUTER.MANAGE_STORE,
           label: "Manage Store",
           tabid: [6],
-        },
-      ],
-    },
-    {
-      key: "subkey3",
-      label: "Warehouse",
-      icon: <SvgIcon name="warehouse" />,
-      tabid: [8, 9],
-      children: [
-        {
-          key: ROUTER.MANAGE_WAREHOUSE,
-          label: "Manage Warehouse",
-          tabid: [8],
         },
       ],
     },

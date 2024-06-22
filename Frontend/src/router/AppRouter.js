@@ -120,14 +120,6 @@ const routes = [
         ),
       },
       {
-        path: ROUTER.MANAGE_WAREHOUSE,
-        element: (
-          <LazyLoadingComponent>
-            <ManageWarehouse />
-          </LazyLoadingComponent>
-        ),
-      },
-      {
         path: ROUTER.MANAGE_PRODUCTS,
         element: (
           <LazyLoadingComponent>
@@ -348,4 +340,3 @@ const AppRouter = () => {
   return renderRouter
 }
 export default AppRouter
-

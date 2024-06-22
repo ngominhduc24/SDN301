@@ -1,3 +1,6 @@
 import http from "../index"
-import {apiChangePassword, apiPersonalProfile} from './urls'
-const changePassword = body => http.post(apiChangePassword, body)
+import { apiChangePassword } from "./urls"
+export const changePassword = async (id, body) => {
+  const endpoint = apiChangePassword.replace(":id", id)
+  await http.post(endpoint, { ...body })
+}

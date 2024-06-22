@@ -1,1 +1,1 @@
-export const apiChangePassword = 'api/'
+export const apiChangePassword = 'api/admin/user/:id'

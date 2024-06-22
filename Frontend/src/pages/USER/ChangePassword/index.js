@@ -50,11 +50,11 @@ const ChangePassword = () => {
                         required: true,
                         message: "Bạn chưa nhập mật khẩu cũ!",
                       },
-                      {
-                        pattern: getRegexPassword(),
-                        message:
-                          "Mật khẩu có chứa ít nhất 8 ký tự, trong đó có ít nhất một số và bao gồm cả chữ thường và chữ hoa và ký tự đặc biệt, ví dụ @, #, ?, !.",
-                      },
+                      // {
+                      //   pattern: getRegexPassword(),
+                      //   message:
+                      //     "Mật khẩu có chứa ít nhất 8 ký tự, trong đó có ít nhất một số và bao gồm cả chữ thường và chữ hoa và ký tự đặc biệt, ví dụ @, #, ?, !.",
+                      // },
                     ]}
                     label="Mật khẩu hiện tại"
                     name="Password"

@@ -7,28 +7,35 @@ import { getRegexPassword } from "src/lib/stringsUtils"
 import { StyleChangePassword } from "./styled"
 import Notice from "src/components/Notice"
 import ROUTER from "src/router"
+import { changePassword } from "src/services/UserService"
+import STORAGE, { getStorage } from "src/lib/storage"
 
 const ChangePassword = () => {
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
   const navigate = useNavigate()
-  // const handleSubmit = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const values = await form.validateFields()
-  //     const res = await UserService.replacePassword({
-  //       ...values,
-  //     })
-  //     if (res.isError) return
-  //     navigate(ROUTER.HOME)
-  //     Notice({
-  //       isSuccess: true,
-  //       msg: "Cập nhật mật khẩu thành công!",
-  //     })
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+  const userInfo = getStorage(STORAGE.USER_INFO)
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true)
+      const values = await form.validateFields()
+      // const res = await UserService.replacePassword({
+      //   ...values,
+      // })
+
+      const res = await changePassword(userInfo.UserID, values)
+      console.log("values", values)
+      if (res.isError) return
+      navigate(ROUTER.HOME)
+      Notice({
+        isSuccess: true,
+        msg: "Cập nhật mật khẩu thành công!",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <StyleChangePassword>
@@ -50,11 +57,11 @@ const ChangePassword = () => {
                         required: true,
                         message: "Bạn chưa nhập mật khẩu cũ!",
                       },
-                      {
-                        pattern: getRegexPassword(),
-                        message:
-                          "Mật khẩu có chứa ít nhất 8 ký tự, trong đó có ít nhất một số và bao gồm cả chữ thường và chữ hoa và ký tự đặc biệt, ví dụ @, #, ?, !.",
-                      },
+                      // {
+                      //   pattern: getRegexPassword(),
+                      //   message:
+                      //     "Mật khẩu có chứa ít nhất 8 ký tự, trong đó có ít nhất một số và bao gồm cả chữ thường và chữ hoa và ký tự đặc biệt, ví dụ @, #, ?, !.",
+                      // },
                     ]}
                     label="Mật khẩu hiện tại"
                     name="Password"
@@ -120,7 +127,7 @@ const ChangePassword = () => {
                       className="btn-login"
                       type="submit"
                       htmlType="submit"
-                      // onClick={handleSubmit}
+                      onClick={handleSubmit}
                     >
                       Lưu lại
                     </Button>
@@ -136,4 +143,3 @@ const ChangePassword = () => {
 }
 
 export default ChangePassword
-
