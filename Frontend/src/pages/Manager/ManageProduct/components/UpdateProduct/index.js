@@ -8,6 +8,7 @@ import {
   Tooltip,
   InputNumber,
   Modal,
+  Switch,
 } from "antd"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
@@ -18,7 +19,7 @@ import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Button from "src/components/MyButton/Button"
 import ManagerService from "src/services/ManagerService"
 import Notice from "src/components/Notice"
-
+import IOSSwitch from "src/components/IOSSwitch"
 const { Option } = Select
 
 const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
@@ -31,19 +32,32 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
   useEffect(() => {
     if (product) {
       setSelectedProduct([product])
+      setStateBody({
+        [product._id]: {
+          quantity: product.quantity,
+          status: product.status,
+        },
+      })
     }
   }, [product])
+
   const handleQuantityChange = (productId, quantity) => {
     setStateBody(prev => ({
       ...prev,
-      quantity: quantity,
+      [productId]: {
+        ...prev[productId],
+        quantity: quantity,
+      },
     }))
   }
-  const handleStatusChange = (productId, currentStatus) => {
-    const newStatus = currentStatus === "active" ? "inactive" : "active"
-    setStateBody(prev => ({
-      ...prev,
-      status: newStatus,
+
+  const toggleStatus = (productId, checked) => {
+    setStateBody(prevStatus => ({
+      ...prevStatus,
+      [productId]: {
+        ...prevStatus[productId],
+        status: checked ? "active" : "inactive",
+      },
     }))
   }
 
@@ -107,17 +121,33 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: ["status"],
+      dataIndex: "status",
       align: "center",
-      width: 150,
+      width: 100,
       key: "Status",
-      render: (status, record) => (
+      render: (_, record) => (
         <span
-          className={status === "active" ? "blue-text" : "red-text"}
-          onClick={() => handleStatusChange(record.productId._id, status)}
+          className={[
+            "no-color",
+            record?.productId?.status === "active" ? "blue-text" : "red-text",
+          ].join(" ")}
         >
-          {status === "active" ? "Đang hoạt động" : "Dừng hoạt động"}
+          {record?.productId?.status === "active"
+            ? "Đang hoạt động"
+            : "Dừng Hoạt Động"}
         </span>
+      ),
+    },
+    {
+      title: "Action",
+      dataIndex: "status",
+      width: 120,
+      key: "status",
+      render: (_, record) => (
+        <Switch
+          checked={stateBody[record._id]?.status === "active"}
+          onChange={checked => toggleStatus(record._id, checked)}
+        />
       ),
     },
   ]
@@ -164,13 +194,14 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
       </div>
     </div>
   )
+
   const updateProductsToShop = async () => {
     try {
       setLoading(true)
       const response = await ManagerService.updateProductsToShop(
         id,
         product?.productId?._id,
-        stateBody,
+        stateBody[product._id],
       )
       console.log("Response:", response)
       if (response?.isError) {
