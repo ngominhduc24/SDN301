@@ -12,13 +12,14 @@ import ModalViewProduct from "./components/ModalViewProduct"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
-
+import UpdateProduct from "./components/UpdateProduct"
 const ManageProduct = () => {
   const [wareHouseProducts, setWareHouseProducts] = useState([])
   const [wareHouseId, setWareHouseId] = useState("")
   const [total, setTotal] = useState(0)
   const [openInsertUpdateProducts, setOpenInsertUpdateProducts] =
     useState(false)
+  const [openUpdateProducts, setOpenUpdateProducts] = useState(false)
   const [openViewProducts, setOpenViewProducts] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -74,12 +75,15 @@ const ManageProduct = () => {
         console.log("Products:", record)
       },
     },
-    // {
-    //   isEnable: true,
-    //   name: "Chỉnh sửa",
-    //   icon: "edit-green",
-    //   onClick: () => setOpenInsertUpdateProducts(record),
-    // },
+    {
+      isEnable: true,
+      name: "Chỉnh sửa",
+      icon: "edit-green",
+      onClick: () => {
+        setSelectedProduct(record)
+        setOpenUpdateProducts(true)
+      },
+    },
     // {
     //   isEnable: true,
     //   name: "Xóa",
@@ -253,6 +257,15 @@ const ManageProduct = () => {
           visible={openViewProducts}
           onCancel={() => setOpenViewProducts(false)}
           product={selectedProduct}
+        />
+      )}
+      {!!openUpdateProducts && selectedProduct && (
+        <UpdateProduct
+          id={wareHouseId}
+          product={selectedProduct}
+          open={openUpdateProducts}
+          onCancel={() => setOpenUpdateProducts(false)}
+          onOk={() => getWarehouseInfo()}
         />
       )}
     </SpinCustom>

@@ -1,12 +1,6 @@
 import { Col, DatePicker, Form, Input, Row, Select } from "antd"
-import { useSelector } from "react-redux"
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons"
-import Button from "src/components/MyButton/Button"
-import { RedStar } from "src/components/FloatingLabel/styled"
-import ButtonCircle from "src/components/MyButton/ButtonCircle"
 
 const { Option } = Select
-const { RangePicker } = DatePicker
 
 const FormInsertUpdateProgram = ({
   form,
@@ -14,8 +8,6 @@ const FormInsertUpdateProgram = ({
   managers,
   employees,
 }) => {
-  const { listSystemKey } = useSelector(state => state.appGlobal)
-
   return (
     <Form
       form={form}
