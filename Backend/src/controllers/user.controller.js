@@ -17,11 +17,6 @@ module.exports = {
         const result = await UserService.ListAllUsers(req);
         res.status(200).json(result);
     }),
-
-    changePassword: asyncHandler(async(req, res) => {
-        const result = await UserService.changePassword(req, res);
-        res.status(200).json(result);
-    }),
     
     updateUserById: asyncHandler(async (req, res) => {
         const result = await UserService.updateUserById(req);
