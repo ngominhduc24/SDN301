@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const {hashPassword, hashChangePassword} = require("../utils/security");
+const {hashPassword} = require("../utils/security");
 
 class UserService {
   // Authentication login service

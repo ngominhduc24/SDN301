@@ -154,7 +154,7 @@ const MainLayout = ({
               <Menu.Item
                 key="3"
                 onClick={() => {
-                  navigate(ROUTER.PROFWAREHOUSE_MANAGER_PROFILEILE)
+                  navigate(ROUTER.WAREHOUSE_MANAGER_PROFILE)
                 }}
               >
                 <div className="btn-function strok-btn-function">

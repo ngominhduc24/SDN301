@@ -1,7 +1,7 @@
 var userRouter = require('express').Router();
 const UserController = require("../controllers/user.controller");
 const verifyTokenHandle = require("../middlewares/verifyToken.middleware");
-const { validateLogin, validatePassword } = require('../utils/common.validate');
+const { validateLogin} = require('../utils/common.validate');
 
 /**
  * @swagger

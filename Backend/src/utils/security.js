@@ -5,9 +5,4 @@ function hashPassword(password) {
     return hash;
 }
 
-const hashChangePassword = (inputPassword, storedPassword) => {
-    const hash = crypto.createHash('sha256').update(inputPassword).digest('base64');
-    return storedPassword === hash;
-};
-
-module.exports = {hashPassword, hashChangePassword};
+module.exports = {hashPassword};
