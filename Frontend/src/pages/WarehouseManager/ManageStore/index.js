@@ -1,4 +1,4 @@
-import { Col, Row, Space } from "antd"
+import { Col, Row, Space, Tooltip, Modal } from "antd"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import CB1 from "src/components/Modal/CB1"
@@ -6,22 +6,24 @@ import Button from "src/components/MyButton/Button"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Notice from "src/components/Notice"
 import TableCustom from "src/components/Table/CustomTable"
-import { SYSTEM_KEY } from "src/constants/constants"
-import { getListComboByKey } from "src/lib/utils"
 import SearchAndFilter from "./components/SearchAndFilter"
-import InsertUpdateProgram from "./components/InsertUpdateProgram"
-import ModalViewProgram from "./components/ModalViewProgram"
+import ModalViewManager from "./components/ModalViewManager"
+import ModalViewStore from "./components/ModalViewStore"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
+import WarehouseManagerService from "src/services/WarehouseManagerService"
 
-const ManageWarehouse = () => {
-  const [bookings, setBookings] = useState([])
+const ManageStore = () => {
+  const [shopList, setShopList] = useState([])
   const [total, setTotal] = useState(0)
-  const [buttonShow, setButtonShow] = useState()
-  const [openInsertUpdateBooking, setOpenInsertUpdateBooking] = useState(false)
-  const [openViewBooking, setOpenViewBooking] = useState(false)
+
+  const [openViewStore, setOpenViewStore] = useState(false)
+  const [openViewManager, setOpenViewManager] = useState(false)
+  const [selectedStore, setSelectedStore] = useState(null)
+  const [selectedManager, setSelectedManager] = useState(null)
   const [loading, setLoading] = useState(false)
-  const { listSystemKey } = useSelector(state => state.appGlobal)
+  const [imageModalVisible, setImageModalVisible] = useState(false)
+  const [selectedImage, setSelectedImage] = useState(null)
   const { userInfo } = useSelector(state => state.appGlobal)
   const [pagination, setPagination] = useState({
     PageSize: 10,
@@ -31,44 +33,68 @@ const ManageWarehouse = () => {
     Status: 0,
   })
 
-  useEffect(() => {}, [pagination])
+  useEffect(() => {
+    getShopList()
+  }, [pagination])
+
+  const getShopList = async () => {
+    try {
+      setLoading(true)
+      const res = await WarehouseManagerService.getShopList()
+      console.log("API Response:", res)
+      if (res?.isError) {
+        console.error("Error fetching warehouse info:", res.message)
+        return
+      }
+      setShopList(res)
+      setTotal(res.length)
+    } catch (error) {
+      console.error("Error in getWarehouseInfo:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const listBtn = record => [
     {
       isEnable: true,
-      name: "Duyệt chương trình",
+      name: "Xem sản phẩm ",
       icon: "eye",
-      // onClick: () => approveMeet(record),
+      onClick: () => {
+        setSelectedStore(record)
+        setOpenViewStore(true)
+        console.log("Products:", record)
+      },
     },
-    {
-      isEnable: true,
-      name: "Chỉnh sửa",
-      icon: "edit-green",
-      onClick: () => setOpenInsertUpdateBooking(record),
-    },
-    {
-      isEnable: true,
-      name: "Xóa",
-      icon: "delete-red-row",
-      onClick: () =>
-        CB1({
-          record,
-          title: `bạn chắc chắn muốn xóa?`,
-          icon: "warning-usb",
-          okText: "Có",
-          cancelText: "Không",
-          onOk: async close => {
-            // handleDeleteBooking(record)
-            close()
-          },
-        }),
-    },
+    // {
+    //   isEnable: true,
+    //   name: "Chỉnh sửa",
+    //   icon: "edit-green",
+    //   onClick: () => setOpenInsertUpdateProducts(record),
+    // },
+    // {
+    //   isEnable: true,
+    //   name: "Xóa",
+    //   icon: "delete-red-row",
+    //   onClick: () =>
+    //     CB1({
+    //       record,
+    //       title: `bạn chắc chắn muốn xóa?`,
+    //       icon: "warning-usb",
+    //       okText: "Có",
+    //       cancelText: "Không",
+    //       onOk: async close => {
+    //         // handleDeleteBooking(record)
+    //         close()
+    //       },
+    //     }),
+    // },
   ]
 
   const column = [
     {
       title: "STT",
-      key: "StoreID",
+      key: "_id",
       width: 60,
       render: (_, record, index) => (
         <div className="text-center">{index + 1}</div>
@@ -76,54 +102,61 @@ const ManageWarehouse = () => {
     },
     {
       title: "Tên cửa hàng",
-      dataIndex: "StoreName",
+      dataIndex: "name",
       width: 200,
-      key: "StoreName",
+      key: "name",
     },
     {
-      title: "Địa chỉ cửa hàng",
-      dataIndex: "Address",
+      title: "Địa chỉ",
+      dataIndex: "location",
       width: 200,
-      key: "Address",
-      render: (_, record) => (
-        <span>{moment(record?.StartDate).format("DD/MM/YYYY HH:mm")}</span>
-      ),
+      key: "location",
     },
     {
       title: "Số điện thoại",
-      dataIndex: "PhoneNumber",
+      dataIndex: "phone",
       width: 120,
-      key: "PhoneNumber",
-      render: (_, record) => <span>{userInfo?.FullName}</span>,
+      key: "phone",
     },
     {
       title: "Email",
-      dataIndex: "Email",
+      dataIndex: "email",
       width: 120,
-      align: "center",
-      key: "Email",
+      key: "email",
     },
     {
-      title: "Thời gian làm việc",
-      dataIndex: "OperatingHours",
+      title: "Manager",
+      dataIndex: ["manager", "email"],
       width: 120,
-      key: "OperatingHours",
-      render: (_, record) => <span>{userInfo?.FullName}</span>,
+      key: "managerEmail",
+      render: (text, record) => (
+        <Tooltip title="Click to view manager details">
+          <span
+            className="link"
+            onClick={() => {
+              setSelectedManager(record.manager)
+              setOpenViewManager(true)
+            }}
+          >
+            {text}
+          </span>
+        </Tooltip>
+      ),
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: "Status",
+      dataIndex: "status",
       align: "center",
       width: 100,
-      key: "Status",
+      key: "status",
       render: (_, record) => (
         <span
           className={[
             "no-color",
-            record?.Status === 1 ? "blue-text" : "red-text",
+            record.status === "open" ? "blue-text" : "red-text",
           ].join(" ")}
         >
-          {record?.Status === 1 ? "Đang hoạt động" : "Dừng Hoạt Động"}
+          {record.status === "open" ? "Đang hoạt động" : "Dừng Hoạt Động"}
         </span>
       ),
     },
@@ -149,38 +182,17 @@ const ManageWarehouse = () => {
       ),
     },
   ]
-  const fakeData = [
-    {
-      StoreID: 1,
-      StoreName: "user1",
-      Address: "User One",
-      Email: "user1@example.com",
-      PhoneNumber: "1234567890",
-      OperatingHours: "",
-      Status: 1,
-    },
-    {
-      StoreID: 2,
-      StoreName: "user2",
-      Address: "User One",
-      Email: "user1@example.com",
-      PhoneNumber: "1234567890",
-      OperatingHours: "",
-      Status: 1,
-    },
-  ]
 
   return (
     <SpinCustom spinning={loading}>
       <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
-        <div>Quản lý kho hàng tổng</div>
+        <div>Xem danh sách các cửa hàng</div>
         <div>
-          <Button
+          {/* <Button
             btntype="third"
-            onClick={() => setOpenInsertUpdateBooking(true)}
           >
             Thêm mới
-          </Button>
+          </Button> */}
         </div>
       </div>
       <SearchAndFilter pagination={pagination} setPagination={setPagination} />
@@ -188,18 +200,11 @@ const ManageWarehouse = () => {
         <Col span={24} className="mt-30 mb-20">
           <TableCustom
             isPrimary
-            rowKey="BookingID"
+            rowKey="_id"
             columns={column}
-            textEmpty="Chưa có cửa hàng nào"
-            dataSource={fakeData}
+            textEmpty="Chưa có sản phẩm nào trong kho"
+            dataSource={shopList}
             scroll={{ x: "800px" }}
-            onRow={record => {
-              return {
-                onClick: () => {
-                  setOpenViewBooking(record)
-                },
-              }
-            }}
             pagination={{
               hideOnSinglePage: total <= 10,
               current: pagination?.CurrentPage,
@@ -218,25 +223,30 @@ const ManageWarehouse = () => {
           />
         </Col>
       </Row>
-      {!!openInsertUpdateBooking && (
-        <InsertUpdateProgram
-          open={openInsertUpdateBooking}
-          // onOk={() => getListBookings()}
-          onCancel={() => setOpenInsertUpdateBooking(false)}
+      <Modal
+        visible={imageModalVisible}
+        footer={null}
+        onCancel={() => setImageModalVisible(false)}
+      >
+        <img alt="product" style={{ width: "100%" }} src={selectedImage} />
+      </Modal>
+      {!!openViewStore && selectedStore && (
+        <ModalViewStore
+          visible={openViewStore}
+          onCancel={() => setOpenViewStore(false)}
+          store={selectedStore}
         />
       )}
-      {!!openViewBooking && (
-        <ModalViewProgram
-          open={openViewBooking}
-          // onOk={() => getListBookings()}
-          // handleDeleteBooking={handleDeleteBooking}
-          onCancel={() => setOpenViewBooking(false)}
-          buttonShow={buttonShow}
+      {!!openViewManager && selectedManager && (
+        <ModalViewManager
+          visible={openViewManager}
+          onCancel={() => setOpenViewManager(false)}
+          manager={selectedManager}
         />
       )}
     </SpinCustom>
   )
 }
 
-export default ManageWarehouse
+export default ManageStore
 

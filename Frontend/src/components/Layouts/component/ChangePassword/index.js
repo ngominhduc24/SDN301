@@ -7,35 +7,56 @@ import { getRegexPassword } from "src/lib/stringsUtils"
 import { StyleChangePassword } from "./styled"
 import Notice from "src/components/Notice"
 import ROUTER from "src/router"
-import { changePassword } from "src/services/UserService"
+import UserService from "src/services/UserService"
 import STORAGE, { getStorage } from "src/lib/storage"
 
 const ChangePassword = () => {
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
   const navigate = useNavigate()
-  const userInfo = getStorage(STORAGE.USER_INFO)
-
+  const userID = getStorage(STORAGE.USER_ID)
+  // const userInfo = getStorage(STORAGE.USER_INFO)
   const handleSubmit = async () => {
     try {
       setLoading(true)
       const values = await form.validateFields()
-      // const res = await UserService.replacePassword({
-      //   ...values,
-      // })
-
-      const res = await changePassword(userInfo.UserID, values)
+      
+      if(values.NewPassword !== values.ReNewPassword){
+        Notice({
+          isSuccess: false,
+          msg: "Mật khẩu nhập lại không khớp!",
+        })
+        return;
+      }
+  
+      const res = await UserService.changePassword(userID, {
+        password: values.NewPassword,
+      })
+      
+      // if (res.isError) {
+      //   throw new Error(res.message || "Có lỗi xảy ra khi đổi mật khẩu!")
+      // }
+  
+      console.log("API Response:", res);
       console.log("values", values)
-      if (res.isError) return
-      navigate(ROUTER.HOME)
+      console.log("userid", userID)
+  
+      navigate(ROUTER.WAREHOUSE_MANAGER_DASHBOARD)
       Notice({
         isSuccess: true,
         msg: "Cập nhật mật khẩu thành công!",
+      })
+    } catch (error) {
+      const errorMessage = error.message || "Có lỗi xảy ra!"
+      Notice({
+        isSuccess: false,
+        msg: errorMessage,
       })
     } finally {
       setLoading(false)
     }
   }
+  
 
   return (
     <StyleChangePassword>

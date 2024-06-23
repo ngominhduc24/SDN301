@@ -1,6 +1,5 @@
 const User = require("../models/user");
-const {hashPassword, hashChangePassword, hashPassword} = require("../utils/security");
-const bcrypt = require("bcryptjs");
+const {hashPassword, hashChangePassword} = require("../utils/security");
 
 class UserService {
   // Authentication login service
@@ -30,38 +29,6 @@ class UserService {
     } catch (error) {
       throw error;
     }
-  }
-
-  async changePassword(req, res, next) {
-    const { Password, NewPassword, ReNewPassword } = req.body;
-    try {
-      const user = await User.findById(req.params.id);
-      if (!user) {
-        throw new Error("User not found");
-      }
-      // const comparedPass = await bcrypt.compare(Password, user.password);
-      // if (!comparedPass) {
-      //   throw new Error("Old pass not found");
-      // }
-      // if (NewPassword !== ReNewPassword) {
-      //   throw new Error("NewPassword not equal ReNewPassword");
-      // }
-      // const hashPassword = hashPassword(NewPassword);
-      // user.password = hashPassword;
-      // await user.save();
-      // res.send("success");
-      if(!hashChangePassword(Password, user.password)){
-        throw new Error("Incorrect password");
-      }
-      if(NewPassword !== ReNewPassword){
-        throw new Error("NewPassword not equal ReNewPassword");
-      }
-      const hashPassword = NewPassword;
-      if(NewPassword){
-        hashPassword = hashPassword(NewPassword);
-      }
-      await user.save();
-    } catch (error) {}
   }
 
   async updateUserById(req, res, next) {

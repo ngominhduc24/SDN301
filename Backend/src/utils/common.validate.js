@@ -21,13 +21,5 @@ module.exports = {
         await schema.validateAsync(req.body, { abortEarly: false });
         next();
     }),
-    validatePassword: asyncHandler(async(req, res, next) => {
-        const schema = Joi.object({
-            password: Joi.string().required(),
-            newPassword: Joi.string().min(8).required()
-        })
-        await schema.validateAsync(req.body, { abortEarly: false });
-        next();
-    })
 };
 

@@ -7,7 +7,7 @@ import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Notice from "src/components/Notice"
 import TableCustom from "src/components/Table/CustomTable"
 import SearchAndFilter from "./components/SearchAndFilter"
-import InsertUpdateProgram from "./components/InsertUpdateProgram"
+import InsertUpdateProduct from "./components/InsertUpdateProduct"
 import ModalViewProduct from "./components/ModalViewProduct"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
@@ -74,35 +74,35 @@ const ManageProduct = () => {
         console.log("Products:", record)
       },
     },
-    {
-      isEnable: true,
-      name: "Chỉnh sửa",
-      icon: "edit-green",
-      onClick: () => setOpenInsertUpdateProducts(record),
-    },
-    {
-      isEnable: true,
-      name: "Xóa",
-      icon: "delete-red-row",
-      onClick: () =>
-        CB1({
-          record,
-          title: `bạn chắc chắn muốn xóa?`,
-          icon: "warning-usb",
-          okText: "Có",
-          cancelText: "Không",
-          onOk: async close => {
-            // handleDeleteBooking(record)
-            close()
-          },
-        }),
-    },
+    // {
+    //   isEnable: true,
+    //   name: "Chỉnh sửa",
+    //   icon: "edit-green",
+    //   onClick: () => setOpenInsertUpdateProducts(record),
+    // },
+    // {
+    //   isEnable: true,
+    //   name: "Xóa",
+    //   icon: "delete-red-row",
+    //   onClick: () =>
+    //     CB1({
+    //       record,
+    //       title: `bạn chắc chắn muốn xóa?`,
+    //       icon: "warning-usb",
+    //       okText: "Có",
+    //       cancelText: "Không",
+    //       onOk: async close => {
+    //         // handleDeleteBooking(record)
+    //         close()
+    //       },
+    //     }),
+    // },
   ]
 
   const column = [
     {
       title: "STT",
-      key: "ProductID",
+      key: ["productId", "_id"],
       width: 60,
       render: (_, record, index) => (
         <div className="text-center">{index + 1}</div>
@@ -241,10 +241,11 @@ const ManageProduct = () => {
         <img alt="product" style={{ width: "100%" }} src={selectedImage} />
       </Modal>
       {!!openInsertUpdateProducts && (
-        <InsertUpdateProgram
+        <InsertUpdateProduct
           id={wareHouseId}
           open={openInsertUpdateProducts}
           onCancel={() => setOpenInsertUpdateProducts(false)}
+          onOk={() => getWarehouseInfo()}
         />
       )}
       {!!openViewProducts && selectedProduct && (

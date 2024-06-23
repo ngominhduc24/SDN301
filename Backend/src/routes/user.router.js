@@ -125,7 +125,6 @@ userRouter.post('/admin/users', UserController.AddNewUser);
  *               $ref: '#/components/schemas/Error'
  */
 userRouter.get('/admin/users', verifyTokenHandle.verifyToken, UserController.ListAllUsers);
-userRouter.post('/admin/user/:id', validatePassword, verifyTokenHandle.verifyToken, UserController.changePassword);
 userRouter.put('/admin/user/:id', UserController.updateUserById);
 
 

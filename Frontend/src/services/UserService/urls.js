@@ -1,1 +1,2 @@
-export const apiChangePassword = 'api/admin/user/:id'
+export const apiGetAllUsers = 'api/admin/users'
+export const apiChangePassword = id =>  `api/admin/users/${id}`
