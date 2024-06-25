@@ -18,6 +18,11 @@ module.exports = {
         res.status(200).json(result);
     }),
 
+    getUserById: asyncHandler(async (req, res) => {
+        const result = await UserService.getUserById(req.params.userId);
+        res.status(200).json(result);
+    }),
+
     updateUserById: asyncHandler(async (req, res) => {
         const result = await UserService.updateUserById(req);
         res.status(200).json(result);

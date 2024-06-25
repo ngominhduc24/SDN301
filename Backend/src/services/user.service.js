@@ -31,6 +31,14 @@ class UserService {
         }
     }
 
+    async getUserById(id) {
+        try {
+            return await User.findById(id);
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async updateUserById(req, res, next) {
         const userId = req.params.id;
         const { fullname, email, password, dob, phone, status, role } = req.body;

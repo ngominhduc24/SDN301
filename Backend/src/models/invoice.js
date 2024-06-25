@@ -1,6 +1,18 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 
+const DetailSchema = new Schema({
+  "product": {
+      type: Schema.Types.ObjectId,
+      ref: "products"
+  },
+  "quantity": {
+      type:Number,
+      required: true,
+      min: 0
+  }
+});
+
 const InvoiceSchema = new Schema(
   {
     from: {
@@ -35,18 +47,6 @@ const InvoiceSchema = new Schema(
     timestamps: true,
   }
 );
-
-const DetailSchema = new Schema({
-  "product": {
-      type: Schema.Types.ObjectId,
-      ref: "products"
-  },
-  "quantity": {
-      type:Number,
-      required: true,
-      min: 0
-  }
-});
 
 const Invoice = mongoose.model("Invoice", InvoiceSchema);
 
