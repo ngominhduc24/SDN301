@@ -176,4 +176,6 @@ userRouter.get('/admin/users', verifyTokenHandle.verifyToken, UserController.Lis
  */
 userRouter.put('/admin/users/:id', UserController.updateUserById);
 
+userRouter.get('/admin/users/:id', UserController.getUserById);
+
 module.exports = userRouter;

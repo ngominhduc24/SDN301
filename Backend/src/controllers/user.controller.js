@@ -19,7 +19,7 @@ module.exports = {
     }),
 
     getUserById: asyncHandler(async (req, res) => {
-        const result = await UserService.getUserById(req.params.userId);
+        const result = await UserService.getUserById(req.params.id);
         res.status(200).json(result);
     }),
 
