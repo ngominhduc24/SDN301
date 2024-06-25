@@ -42,4 +42,16 @@ module.exports = {
         const result = await UserService.CreateStaff(req);
         res.status(200).json(result);
     }),
+
+    getListStaff: asyncHandler(async (req, res) => {
+        const managerId = req.user.payload.id;
+        console.log(managerId);
+        if (!managerId) {
+            return res.status(401).json({
+                message: "Error! You need to login with manager role.",
+            });
+        }
+        const result = await UserService.getUserStaffByManagerId(managerId);
+        res.status(200).json(result);
+    }),
 };

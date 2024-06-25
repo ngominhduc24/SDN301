@@ -92,7 +92,6 @@ userRouter.post('/auth/login',  UserController.AuthenLogin);
  */
 userRouter.post('/admin/users', UserController.AddNewUser);
 
-userRouter.post('/manager/staff', verifyTokenHandle.verifyTokenManager, UserController.AddNewStaff);
 
 /**
  * @swagger
@@ -179,5 +178,10 @@ userRouter.get('/admin/users', verifyTokenHandle.verifyToken, UserController.Lis
 userRouter.put('/admin/users/:id', UserController.updateUserById);
 
 userRouter.get('/admin/users/:id', UserController.getUserById);
+
+// MANAGER
+userRouter.post('/manager/staff', verifyTokenHandle.verifyTokenManager, UserController.AddNewStaff);
+userRouter.get('/manager/staff', verifyTokenHandle.verifyTokenManager, UserController.getListStaff);
+
 
 module.exports = userRouter;

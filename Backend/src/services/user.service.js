@@ -63,6 +63,14 @@ class UserService {
         }
     }
 
+    async getUserStaffByManagerId(id) {
+        try {
+            return await User.find({createBy: id});
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async updateUserById(req, res, next) {
         const userId = req.params.id;
         const { fullname, email, password, dob, phone, status, role } = req.body;
