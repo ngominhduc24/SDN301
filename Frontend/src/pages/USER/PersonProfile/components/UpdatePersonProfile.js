@@ -193,12 +193,21 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
   //   }
   // }
 
+  const onUpdateProfiile = async() => {
+    try {
+      setLoading(true);
+      // const values = await form.validateFields();
+    } catch (error) {
+      
+    }
+  }
+
   const renderFooter = () => (
     <div className={"d-flex-sb"}>
       <Button
         btntype="primary"
         className="btn-hover-shadow"
-        // onClick={onContinue}
+        onClick={onUpdateProfiile}
       >
         Ghi lại
       </Button>
@@ -243,7 +252,7 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                 </Form.Item>
               </Col>
 
-              <Col md={12} xs={24}>
+              {/* <Col md={12} xs={24}>
                 <Form.Item
                   label="Tên tài khoản"
                   name="UserName"
@@ -261,8 +270,8 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                 >
                   <Input placeholder="Nhập tên" disabled={true} />
                 </Form.Item>
-              </Col>
-              <Col md={8} xs={24}>
+              </Col> */}
+              {/* <Col md={8} xs={24}>
                 <Form.Item
                   label="Tên thường gọi"
                   name="CommonNames"
@@ -277,7 +286,7 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                 >
                   <Input placeholder="Nhập tên" />
                 </Form.Item>
-              </Col>
+              </Col> */}
               <Col md={8} xs={24}>
                 <Form.Item
                   label="Số điện thoại"
@@ -302,10 +311,10 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                   label="Email"
                   name="Email"
                   rules={[
-                    // {
-                    //   required: true,
-                    //   message: "Thông tin không được để trống",
-                    // },
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
                     {
                       pattern: getRegexEmail(),
                       message: "Email sai định dạng",
@@ -316,7 +325,7 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                 </Form.Item>
               </Col>
 
-              <Col md={6} xs={24}>
+              {/* <Col md={6} xs={24}>
                 <Form.Item
                   label="Giới tính"
                   name="Sex"
@@ -338,8 +347,8 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                     ))}
                   </Select>
                 </Form.Item>
-              </Col>
-              <Col md={6} xs={24}>
+              </Col> */}
+              {/* <Col md={6} xs={24}>
                 <Form.Item
                   label="Tôn giáo"
                   name="Religion"
@@ -354,16 +363,16 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                 >
                   <Input placeholder="Nhập tên" />
                 </Form.Item>
-              </Col>
+              </Col> */}
               <Col md={6} xs={24}>
                 <Form.Item
                   label="Ngày sinh"
                   name="Birthday"
                   rules={[
-                    // {
-                    //   required: true,
-                    //   message: "Thông tin không được để trống",
-                    // },
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
                     () => ({
                       validator(_, value) {
                         if (!!value) {
@@ -407,7 +416,7 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                 </Form.Item>
               </Col>
 
-              <Col md={6} xs={24}>
+              {/* <Col md={6} xs={24}>
                 <Form.Item
                   label="Dân tộc"
                   name="Ethnic"
@@ -422,9 +431,9 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                 >
                   <Input placeholder="Nhập tên" />
                 </Form.Item>
-              </Col>
-              <div className="fw-600 mb-12 ml-8">Quê quán:</div>
-              <Col md={24} xs={24}>
+              </Col> */}
+              {/* <div className="fw-600 mb-12 ml-8">Quê quán:</div> */}
+              {/* <Col md={24} xs={24}> */}
                 {/* <SelectAddress
                   floating={true}
                   form={form}
@@ -434,9 +443,9 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                   initValue={regionCode}
                   listFormName={["ProvinceID", "DistrictID", "WardID"]}
                 /> */}
-              </Col>
+              {/* </Col> */}
 
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Form.Item
                   label="Địa chỉ"
                   name="Address"
@@ -449,8 +458,8 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                 >
                   <Input placeholder="Nhập" />
                 </Form.Item>
-              </Col>
-              <Col md={8} xs={24}>
+              </Col> */}
+              {/* <Col md={8} xs={24}>
                 <Form.Item
                   label="Trình độ học vấn"
                   name="AcademicLevel"
@@ -625,7 +634,7 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                     ))}
                   </Select>
                 </Form.Item>
-              </Col>
+              </Col> */}
             </Row>
             {/* <div className="form-list-custom">
               <Form.List name="ListUserManager">

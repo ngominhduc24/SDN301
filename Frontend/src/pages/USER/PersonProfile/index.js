@@ -8,13 +8,14 @@ import { useDispatch, useSelector } from "react-redux"
 import { UserOutlined } from "@ant-design/icons"
 import SvgIcon from "src/components/SvgIcon"
 import { StyleMyAccount } from "./styled"
-import STORAGE, { setStorage } from "src/lib/storage"
+import STORAGE, { getStorage, setStorage } from "src/lib/storage"
 import { setUserInfo } from "src/redux/appGlobal"
 import Notice from "src/components/Notice"
 import LayoutCommon from "src/components/Common/Layout"
 import useWindowSize from "src/lib/useWindowSize"
 import { getListComboByKey } from "src/lib/utils"
 import { SYSTEM_KEY } from "src/constants/constants"
+import UserService from "src/services/UserService"
 import moment from "moment"
 
 const PersonProfile = () => {
@@ -25,7 +26,7 @@ const PersonProfile = () => {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState([])
   const [avatarUpload, setAvatarUpload] = useState("")
-  const { userInfo } = useSelector(state => state?.appGlobal)
+  // const { userInfo } = useSelector(state => state?.appGlobal)
   const [showCancelButton, setShowCancelButton] = useState(false)
 
   // const uploadImg = async file => {
@@ -46,7 +47,7 @@ const PersonProfile = () => {
   //   try {
   //     setLoading(true)
   //     // const body = userInfo?.UserID
-  //     const res = await UserService.getInforUser()
+
   //     if (res?.isError) return
   //     setUser(res?.Object)
   //   } finally {
@@ -151,7 +152,7 @@ const PersonProfile = () => {
                       <div className="d-flex justify-content-center">
                         <div className="wrap-avatar">
                           <div className="user-img-box">
-                            {!!avatarUpload || !!userInfo?.Avatar ? (
+                            {/* {!!avatarUpload || !!userInfo?.Avatar ? (
                               <img
                                 className="user-avatar"
                                 src={avatarUpload || userInfo?.Avatar}
@@ -180,7 +181,7 @@ const PersonProfile = () => {
                               >
                                 <UserOutlined style={{ fontSize: "50px" }} />
                               </div>
-                            )}
+                            )} */}
                             <div className="camera-icon mr-20">
                               <SvgIcon name="camera" />
                             </div>
@@ -233,24 +234,24 @@ const PersonProfile = () => {
               <div className={isMobile ? "" : "p-24"}>
                 <div className="infor-box">
                   <div className="title-infor"> Họ và tên:</div>
-                  <div>{user?.FullName}</div>
+                  <div>{user?.fullname}</div>
                 </div>
-                <div className="infor-box">
+                {/* <div className="infor-box">
                   <div className="title-infor">Tên tài khoản:</div>
                   <div>{user?.UserName}</div>
-                </div>
+                </div> */}
 
-                <div className="infor-box" style={{ flex: 1 }}>
+                {/* <div className="infor-box" style={{ flex: 1 }}>
                   <div className="title-infor"> Giới tính:</div>
                   <div>
                     {user?.Sex === 1 ? "Nam" : user?.Sex === 2 ? "Nữ" : ""}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="infor-box" style={{ flex: 1 }}>
                   <div className="title-infor">Ngày sinh:</div>
                   <div>
-                    {user?.Birthday
+                    {user?.dob
                       ? moment(user?.Birthday).format("DD/MM/YYYY")
                       : ""}
                   </div>
@@ -261,19 +262,19 @@ const PersonProfile = () => {
               <div className={isMobile ? "" : "p-24"}>
                 <div className="infor-box">
                   <div className="title-infor"> Số điện thoại:</div>
-                  <div>{user?.PhoneNumber}</div>
+                  <div>{user?.phone}</div>
                 </div>
                 <div className="infor-box">
                   <div className="title-infor"> Email:</div>
-                  <div>{user?.Email}</div>
+                  <div>{user?.email}</div>
                 </div>
-                <div className={`infor-box ${!!isMobile ? "mb-0" : ""}`}>
+                {/* <div className={`infor-box ${!!isMobile ? "mb-0" : ""}`}>
                   <div className={`title-infor ${!!isMobile ? "mb-0" : ""}`}>
                     {" "}
                     Địa chỉ:
                   </div>
                   <div>{user?.Address}</div>
-                </div>
+                </div> */}
               </div>
             </Col>
           </Row>

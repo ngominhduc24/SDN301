@@ -13,13 +13,14 @@ import InsertUpdateProgram from "./components/InsertUpdateProgram"
 import ModalViewProgram from "./components/ModalViewProgram"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
+import AdminServices from "src/services/AdminService"
 
 const ManageStore = () => {
-  const [bookings, setBookings] = useState([])
+  const [stores, setStores] = useState([]);
   const [total, setTotal] = useState(0)
   const [buttonShow, setButtonShow] = useState()
   const [openInsertUpdateBooking, setOpenInsertUpdateBooking] = useState(false)
-  const [openViewBooking, setOpenViewBooking] = useState(false)
+  const [openViewStore, setOpenViewStore] = useState(false)
   const [loading, setLoading] = useState(false)
   const { listSystemKey } = useSelector(state => state.appGlobal)
   const { userInfo } = useSelector(state => state.appGlobal)
@@ -31,14 +32,33 @@ const ManageStore = () => {
     Status: 0,
   })
 
-  useEffect(() => {}, [pagination])
+  useEffect(() => {getAllShops()}, [pagination])
+
+  const getAllShops = async() => {
+    try {
+      setLoading(true);
+      const shopList = await AdminServices.getAllStores()
+      if(shopList?.isError){
+        console.error("Error fetching store list", shopList.message)
+        return;
+      }
+     setStores(shopList);
+     setTotal(shopList.length);
+    } catch (error) {
+      console.log("error");
+    }finally{
+      setLoading(false);
+    }
+  }
 
   const listBtn = record => [
     {
       isEnable: true,
-      name: "Duyệt chương trình",
+      name: "Xem cửa hàng",
       icon: "eye",
-      // onClick: () => approveMeet(record),
+      onClick: () => {setStores(record) //storeid
+        console.log('store', record);
+    }
     },
     {
       isEnable: true,
@@ -68,7 +88,7 @@ const ManageStore = () => {
   const column = [
     {
       title: "STT",
-      key: "StoreID",
+      key: ["shopId", "_id"],
       width: 60,
       render: (_, record, index) => (
         <div className="text-center">{index + 1}</div>
@@ -76,32 +96,32 @@ const ManageStore = () => {
     },
     {
       title: "Tên cửa hàng",
-      dataIndex: "StoreName",
+      dataIndex: ["shopId, name"],
       width: 200,
-      key: "StoreName",
+      key: "storeName",
     },
     {
       title: "Địa chỉ cửa hàng",
-      dataIndex: "Address",
+      dataIndex: ["shopId", "location"],
       width: 200,
-      key: "Address",
-      render: (_, record) => (
-        <span>{moment(record?.StartDate).format("DD/MM/YYYY HH:mm")}</span>
-      ),
+      key: "address",
+      // render: (_, record) => (
+      //   <span>{moment(record?.StartDate).format("DD/MM/YYYY HH:mm")}</span>
+      // ),
     },
     {
       title: "Số điện thoại",
-      dataIndex: "PhoneNumber",
+      dataIndex: ["shopId", "phone"],
       width: 120,
-      key: "PhoneNumber",
+      key: "phoneNumber",
       render: (_, record) => <span>{userInfo?.FullName}</span>,
     },
     {
       title: "Email",
-      dataIndex: "Email",
+      dataIndex: ["shopId", "email"],
       width: 120,
       align: "center",
-      key: "Email",
+      key: "email",
     },
     {
       title: "Thời gian làm việc",
@@ -112,7 +132,7 @@ const ManageStore = () => {
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: "Status",
+      dataIndex: ["shopId", "status"],
       align: "center",
       width: 100,
       key: "Status",
@@ -120,10 +140,10 @@ const ManageStore = () => {
         <span
           className={[
             "no-color",
-            record?.Status === 1 ? "blue-text" : "red-text",
+            record?.shopId?.status === "open" ? "blue-text" : "red-text",
           ].join(" ")}
         >
-          {record?.Status === 1 ? "Đang hoạt động" : "Dừng Hoạt Động"}
+          {record?.shopId?.status === "open" ? "Đang mở cửa" : "Đóng cửa"}
         </span>
       ),
     },
@@ -149,26 +169,26 @@ const ManageStore = () => {
       ),
     },
   ]
-  const fakeData = [
-    {
-      StoreID: 1,
-      StoreName: "user1",
-      Address: "User One",
-      Email: "user1@example.com",
-      PhoneNumber: "1234567890",
-      OperatingHours: "",
-      Status: 1,
-    },
-    {
-      StoreID: 2,
-      StoreName: "user2",
-      Address: "User One",
-      Email: "user1@example.com",
-      PhoneNumber: "1234567890",
-      OperatingHours: "",
-      Status: 1,
-    },
-  ]
+  // const fakeData = [
+  //   {
+  //     StoreID: 1,
+  //     StoreName: "user1",
+  //     Address: "User One",
+  //     Email: "user1@example.com",
+  //     PhoneNumber: "1234567890",
+  //     OperatingHours: "",
+  //     Status: 1,
+  //   },
+  //   {
+  //     StoreID: 2,
+  //     StoreName: "user2",
+  //     Address: "User One",
+  //     Email: "user1@example.com",
+  //     PhoneNumber: "1234567890",
+  //     OperatingHours: "",
+  //     Status: 1,
+  //   },
+  // ]
 
   return (
     <SpinCustom spinning={loading}>
@@ -188,15 +208,15 @@ const ManageStore = () => {
         <Col span={24} className="mt-30 mb-20">
           <TableCustom
             isPrimary
-            rowKey="BookingID"
+            rowKey="shopId"
             columns={column}
             textEmpty="Chưa có cửa hàng nào"
-            dataSource={fakeData}
+            dataSource={stores}
             scroll={{ x: "800px" }}
             onRow={record => {
               return {
                 onClick: () => {
-                  setOpenViewBooking(record)
+                  setOpenViewStore(record)
                 },
               }
             }}
@@ -223,14 +243,15 @@ const ManageStore = () => {
           open={openInsertUpdateBooking}
           // onOk={() => getListBookings()}
           onCancel={() => setOpenInsertUpdateBooking(false)}
+          onOk={() => getAllShops()}
         />
       )}
-      {!!openViewBooking && (
+      {!!openViewStore && (
         <ModalViewProgram
-          open={openViewBooking}
+          open={openViewStore}
           // onOk={() => getListBookings()}
           // handleDeleteBooking={handleDeleteBooking}
-          onCancel={() => setOpenViewBooking(false)}
+          onCancel={() => setOpenViewStore(false)}
           buttonShow={buttonShow}
         />
       )}

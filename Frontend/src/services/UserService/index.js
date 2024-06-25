@@ -4,13 +4,13 @@ import { apiChangePassword, apiGetAllUsers } from "./urls"
 //   const endpoint = apiChangePassword.replace(":id", id)
 //   await http.post(endpoint, { ...body })
 // }
-const getAllUsers = () => http.get(apiGetAllUsers);
+const getInforUser = (token) => http.get(apiGetAllUsers, token);
 const changePassword = (id, body) => {
   http.put(apiChangePassword(id), body);
 }
 
 const UserService = {
-  changePassword, getAllUsers
+  changePassword, getInforUser
 }
 
 export default UserService;
