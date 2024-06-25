@@ -53,7 +53,7 @@ const { validateLogin } = require('../utils/common.validate');
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRouter.post('/auth/login', validateLogin, UserController.AuthenLogin);
+userRouter.post('/auth/login',  UserController.AuthenLogin);
 
 /**
  * @swagger
@@ -91,6 +91,8 @@ userRouter.post('/auth/login', validateLogin, UserController.AuthenLogin);
  *               $ref: '#/components/schemas/Error'
  */
 userRouter.post('/admin/users', UserController.AddNewUser);
+
+userRouter.post('/manager/staff', verifyTokenHandle.verifyTokenManager, UserController.AddNewStaff);
 
 /**
  * @swagger
