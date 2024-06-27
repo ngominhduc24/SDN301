@@ -12,7 +12,7 @@ const productSchema = new Schema({
     },
   quantity: { 
     type: Number, 
-    required: true, 
+    default: 0,
     min: 0 
   }, 
   status: { 

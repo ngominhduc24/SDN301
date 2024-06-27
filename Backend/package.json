@@ -18,10 +18,11 @@
     "jade": "~1.11.0",
     "joi": "^17.13.1",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.1",
+    "morgan": "~1.9.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
-    "mongoose": "^8.4.1",
-    "morgan": "~1.9.1"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
