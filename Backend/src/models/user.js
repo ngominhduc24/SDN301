@@ -22,6 +22,14 @@ const UserSchema = new Schema({
     type: String,
     require: true
   },
+  salary: {
+    type: String,
+    default: null
+  },
+  violation: {
+    type: String,
+    require: null
+  },
   status: {
     type: String,
     enum: ['active', 'deactive'], 
@@ -31,6 +39,11 @@ const UserSchema = new Schema({
     type: String,
     enum: ['STAFF', 'MANAGER', 'ADMIN'], 
     default: 'STAFF' 
+  },
+  createBy: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
   },
 }, {
   timestamps: true

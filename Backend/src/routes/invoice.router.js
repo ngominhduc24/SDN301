@@ -2,6 +2,7 @@ const express = require('express');
 const InvoiceController = require('../controllers/invoice.controller'); 
 
 const router = express.Router();
+router.use(bodyParser.json());
 
 router.post('/', InvoiceController.create);
 router.get('/', InvoiceController.getAll);
