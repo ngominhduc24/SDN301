@@ -1,5 +1,5 @@
 const Shop = require('../models/shop');
-
+const Product = require('../models/product');
 
 // Create a new shop
 async function create(data) {
@@ -31,17 +31,47 @@ async function getWarehouse() {
   }
 }
 
-
 // Update shop by ID
 async function update(id, data) {
   return await Shop.findByIdAndUpdate(id, data, { new: true, runValidators: true });
 }
 
-// Create a product for a specific shop
+// Create list of product for a specific shop
 async function createProduct(shopId, productData) {
   const shop = await Shop.findById(shopId);
   if (!shop) {
     throw new Error('Shop not found');
+  }
+
+  if (!Array.isArray(productData)) {
+    throw new Error('Product data must be an array');
+  }
+
+  productData.forEach(newProduct => {
+    var product = Product.findById(newProduct.productId);
+    if(!product) {
+      throw new Error('Product not found');
+    }
+    const existingProduct = shop.products.find(p => p.productId.toString() === newProduct.productId.toString());
+    if (existingProduct) {
+      throw new Error('Product with id: ' + newProduct.productId + ' already exists for shopId: ' + shopId);
+    } 
+  });
+
+  shop.products.push(...productData);
+  await shop.save();
+  return shop;
+}
+
+async function createOneProduct(shopId, productData) {
+  const shop = await Shop.findById(shopId);
+  if (!shop) {
+    throw new Error('Shop not found');
+  }
+
+  var product = Product.findById(productData.productId);
+  if(!product) {
+    throw new Error('Product not found');
   }
 
   shop.products.push(productData);
@@ -60,31 +90,30 @@ async function getProductByShopId(shopId) {
 
 // Get a specific product by its ID within a specific shop
 async function getProductById(shopId, productId) {
-  const shop = await Shop.findById(shopId).populate('products.productId');
-  if (!shop) {
-    throw new Error('Shop not found');
-  }
-
-  const product = shop.products.id(productId);
-  if (!product) {
-    throw new Error('Product not found');
-  }
-  return product;
-}
-
-// Update a product for a specific product in a specific shop
-async function updateProductById(shopId, productId, quantity) {
   const shop = await Shop.findById(shopId);
   if (!shop) {
     throw new Error('Shop not found');
   }
 
-  const product = shop.products.id(productId);
+  const product = shop.products.find(prod => prod.productId.toString() === productId.toString());
   if (!product) {
-    throw new Error('Product not found');
+    throw new Error('Product not found for productId: ' + productId);
   }
+  return product;
+}
 
-  product.quantity = quantity;
+// Add quantity to a specific product in a specific shop
+async function updateProductById(shopId, productId, quantity) {
+  const shop = await Shop.findById(shopId);
+  if (!shop) {
+    throw new Error('Shop not found');
+  }
+  const product = shop.products.find(prod => prod.productId.toString() === productId.toString());
+  if (!product) {
+    throw new Error('Product not found for productId: ' + productId);
+  }
+  
+  product.quantity = product.quantity + quantity;
   await shop.save();
   return product;
 }
@@ -95,6 +124,7 @@ module.exports = {
   getById,
   update,
   createProduct,
+  createOneProduct,
   getProductByShopId,
   getProductById,
   updateProductById,

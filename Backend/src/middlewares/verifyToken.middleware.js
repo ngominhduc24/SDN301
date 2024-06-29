@@ -21,7 +21,7 @@ const verifyToken = asyncHandler(async (req, res, next) => {
 // check user có phải admin không
 const verifyTokenAdmin = asyncHandler(async (req, res, next) => {
     await verifyToken(req, res, () => {
-        if (req.user.admin) {
+        if (req.user.payload.role == 'ADMIN') {
             next();
         } else {
             return res.status(403).json("You are not an Admin");
@@ -30,7 +30,21 @@ const verifyTokenAdmin = asyncHandler(async (req, res, next) => {
 
 });
 
+// check user có phải admin không
+const verifyTokenManager = asyncHandler(async (req, res, next) => {
+    await verifyToken(req, res, () => {
+        console.log(req.user.payload)
+        if (req.user.payload.role == 'MANAGER') {
+            next();
+        } else {
+            return res.status(403).json("You are not an Manager");
+        }
+    });
+
+});
+
 module.exports = {
     verifyToken,
-    verifyTokenAdmin
+    verifyTokenAdmin,
+    verifyTokenManager
 };
