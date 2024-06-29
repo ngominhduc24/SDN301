@@ -39,7 +39,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (!!isLogin) {
-      // loginSuccess(userInfo)
+      loginSuccess(userInfo)
     }
   }, [])
 
@@ -89,6 +89,8 @@ const LoginPage = () => {
   }
 
   const loginSuccess = data => {
+    console.log(userInfo)
+
     handleSuccess()
 
     if (routerBeforeLogin) navigate(routerBeforeLogin)

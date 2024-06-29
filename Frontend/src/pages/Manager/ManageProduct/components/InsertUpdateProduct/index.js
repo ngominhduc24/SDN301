@@ -231,6 +231,14 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     try {
       setLoading(true)
       const response = await ManagerService.addProductsToShop(id, stateBody)
+      console.log("API2 response:", response) // Log the entire response object
+      if (response && response.data) {
+        // Assuming response.data is where the expected data resides
+        console.log("Data received:", response.data)
+        // Further processing of response.data here
+      } else {
+        console.error("Unexpected response structure:", response)
+      }
       if (response?.isError) {
         console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
         return
