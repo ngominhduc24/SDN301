@@ -20,6 +20,7 @@
     "antd-img-crop": "^4.12.2",
     "aos": "^3.0.0-beta.6",
     "axios": "^1.1.2",
+    "date-fns": "^3.6.0",
     "dotenv": "^16.3.1",
     "draft-js": "^0.11.7",
     "draftjs-to-html": "^0.9.1",

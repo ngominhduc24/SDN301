@@ -105,19 +105,19 @@ export const MenuItemAdmin = () => {
 export const MenuItemManager = () => {
   return [
     {
-      key: ROUTER.DASHBOARD,
+      key: ROUTER.MANAGER_DASHBOARD,
       label: "Dashboard",
       icon: <SvgIcon name="dashboard" />,
       tabid: [1],
     },
     {
-      key: ROUTER.DASHBOARD,
+      key: ROUTER.MANAGER_DASHBOARD,
       label: "Report",
       icon: <SvgIcon name="menu5" />,
       tabid: [2],
     },
     {
-      key: ROUTER.DASHBOARD,
+      key: ROUTER.MANAGER_DASHBOARD,
       label: "Download History",
       icon: <SvgIcon name="dowload-export" />,
       tabid: [3],
