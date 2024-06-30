@@ -13,7 +13,7 @@ module.exports = {
             const product = await ProductService.getProductById(req.params.id);
             res.status(200).send(product);
           } catch (error) {
-            console.log(error);
+            next(error); 
           }
     }),
 
@@ -22,7 +22,7 @@ module.exports = {
             const product = await ProductService.updateProduct(req.params.id, req.body);
             res.status(200).send(product);
           } catch (error) {
-            console.log(error);
+            next(error); 
           }
     }),
 
@@ -31,7 +31,7 @@ module.exports = {
           const product = await ProductService.createProduct(req.body);
           res.status(200).send(product);
         } catch (error) {
-          console.log(error);
+          next(error); 
         }
   }),
 };

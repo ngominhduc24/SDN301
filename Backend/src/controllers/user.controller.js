@@ -22,6 +22,10 @@ module.exports = {
         const result = await UserService.getUserById(req.params.id);
         res.status(200).json(result);
     }),
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
     updateUserById: asyncHandler(async (req, res) => {
         const result = await UserService.updateUserById(req);
         res.status(200).json(result);

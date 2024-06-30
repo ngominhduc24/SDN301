@@ -14,7 +14,7 @@ class ProductService {
         try {
           const product = await Product.findById(productId);
           if (!product) {
-            throw new Error('Product not found');
+            throw new Error('Product not found for productId: ' + productId);
           }
           return product;
         } catch (error) {
@@ -38,7 +38,7 @@ class ProductService {
             const updatedProduct = await Product.findByIdAndUpdate(
                 productId,
                 updateData,
-                { new: true, runValidators: true } // Return the updated document and run validation
+                { new: true, runValidators: true } 
             );
             if (!updatedProduct) {
                 throw new Error('Product not found');

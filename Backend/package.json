@@ -22,7 +22,12 @@
     "mongoose": "^8.4.1",
     "morgan": "~1.9.1",
     "swagger-jsdoc": "^6.2.8",
+<<<<<<< HEAD
     "swagger-ui-express": "^5.0.0"
+=======
+    "swagger-ui-express": "^5.0.0",
+    "uuid": "^10.0.0"
+>>>>>>> develop
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

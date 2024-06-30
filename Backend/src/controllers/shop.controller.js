@@ -1,8 +1,9 @@
+const asyncHandler = require('../utils/async-handle');
 const shopService = require('../services/shop.service');
 const ProductService = require("../services/product.service");
 
 // Create a new shop
-async function create(req, res, next) {
+const create = asyncHandler(async (req, res, next) => {
   try {
     const shopData = {
       name: req.body.name,
@@ -17,7 +18,7 @@ async function create(req, res, next) {
   } catch (error) {
     next(error);
   }
-}
+});
 
 // Get all shops
 async function getAll(req, res, next) {

@@ -66,15 +66,6 @@ const LoginPage = () => {
       const values = await form.validateFields()
       const res = await AuthService.login({ ...values })
       const decodedToken = jwtDecode(res?.token)
-      const userID = decodedToken.payload.id;
-      console.log("id: ", decodedToken.payload.id);
-      setStorage(STORAGE.USER_ID, userID);
-      setStorage(STORAGE.TOKEN, res?.token)
-      setStorage(STORAGE.USER_INFO, decodedToken.payload)
-      console.log("Dispatching user info:", decodedToken.payload)
-      dispatch(setUserInfo(decodedToken.payload))
-      setRouterBeforeLogin(undefined)
-      loginSuccess(decodedToken.payload)
       console.log(res)
       console.log(decodedToken.payload)
       if (res) {

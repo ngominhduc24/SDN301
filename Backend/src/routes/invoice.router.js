@@ -1,15 +1,14 @@
 const bodyParser = require('body-parser');
 const express = require('express');
-const InvoiceController = require('../controllers/invoice.controller');
-const verifyTokenHandle = require("../middlewares/verifyToken.middleware");
-const orderRouter = express.Router();
+const InvoiceController = require('../controllers/invoice.controller'); 
 
-//using middleware
-orderRouter.use(bodyParser.json());
-orderRouter.use(verifyTokenHandle.verifyToken);
+const router = express.Router();
+router.use(bodyParser.json());
 
-//create routes
-orderRouter.get('/', InvoiceController.index);
-orderRouter.post('/', InvoiceController.create);
+router.post('/', InvoiceController.create);
+router.get('/', InvoiceController.getAll);
+router.get('/:id', InvoiceController.getById);
+router.put('/:id', InvoiceController.updateInfo);
+router.put('/status/:id', InvoiceController.updateStatus);
 
-module.exports = orderRouter;
+module.exports = router;
