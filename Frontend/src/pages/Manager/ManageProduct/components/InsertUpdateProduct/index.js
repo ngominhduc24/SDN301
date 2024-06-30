@@ -16,14 +16,15 @@ import TableCustom from "src/components/Table/CustomTable"
 import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Button from "src/components/MyButton/Button"
-import WarehouseManagerService from "src/services/WarehouseManagerService"
+import ManagerService from "src/services/ManagerService"
 import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
+
 const { Option } = Select
 
 const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
   const [form] = Form.useForm()
-  const [wareHouseProductsNotIn, setWareHouseProductsNotIn] = useState([])
+  const [shopProductsNotIn, setShopProductsNotIn] = useState([])
   const [selectedProducts, setSelectedProducts] = useState([])
   const [openViewProducts, setOpenViewProducts] = useState(false)
   const [selectedProductView, setSelectedProductView] = useState(null)
@@ -45,6 +46,12 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
       isEnable: true,
       name: "Xem sản phẩm ",
       icon: "eye",
+      onClick: () => {
+        setSelectedProductView(record)
+        setOpenViewProducts(true)
+        console.log(record)
+        console.log("Products:", record)
+      },
     },
     {
       isEnable: true,
@@ -181,9 +188,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
   //   }
   // }
   const handleProductChange = value => {
-    const selected = wareHouseProductsNotIn.find(
-      product => product._id === value,
-    )
+    const selected = shopProductsNotIn.find(product => product._id === value)
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
       setStateBody({
@@ -201,20 +206,20 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     )
   }
 
-  const getProductsNotInWarehouse = async () => {
+  const getProductsNotInShop = async () => {
     try {
       setLoading(true)
-      const warehouseProductsNotInRes =
-        await WarehouseManagerService.getListProductsNotInWarehouse(id)
-      if (warehouseProductsNotInRes?.isError) {
+      const shopProductsNotInRes =
+        await ManagerService.getListProductsNotInShop(id)
+      if (shopProductsNotInRes?.isError) {
         console.error(
           "Error fetching warehouse info:",
-          warehouseProductsNotInRes.message,
+          shopProductsNotInRes.message,
         )
         return
       }
-      setWareHouseProductsNotIn(warehouseProductsNotInRes)
-      setTotal(warehouseProductsNotInRes.length)
+      setShopProductsNotIn(shopProductsNotInRes)
+      setTotal(shopProductsNotInRes.length)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
     } finally {
@@ -222,20 +227,24 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     }
   }
 
-  const addProductsToWarehouse = async () => {
+  const addProductsToShop = async () => {
     try {
       setLoading(true)
-      const response = await WarehouseManagerService.addProductsToWarehouse(
-        id,
-        stateBody,
-      )
-      console.log("djt me response", response)
+      const response = await ManagerService.addProductsToShop(id, stateBody)
+      console.log("API2 response:", response) // Log the entire response object
+      if (response && response.data) {
+        // Assuming response.data is where the expected data resides
+        console.log("Data received:", response.data)
+        // Further processing of response.data here
+      } else {
+        console.error("Unexpected response structure:", response)
+      }
       if (response?.isError) {
         console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
         return
       }
       // Xử lý khi thành công
-      getProductsNotInWarehouse()
+      getProductsNotInShop()
       onOk()
       onCancel()
       Notice({
@@ -250,7 +259,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
 
   useEffect(() => {
     console.log(id)
-    getProductsNotInWarehouse()
+    getProductsNotInShop()
   }, [pagination])
 
   const items = [
@@ -259,7 +268,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
       label: <div>Sản phẩm</div>,
       children: (
         <PatentRegistrationChildBorder>
-          <Form form={form} onFinish={addProductsToWarehouse}>
+          <Form form={form} onFinish={addProductsToShop}>
             <Row gutter={16} style={{ marginBottom: 16 }}>
               <Col span={12}>
                 <Select
@@ -269,7 +278,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
                   onChange={handleProductChange}
                   style={{ width: "100%" }}
                 >
-                  {wareHouseProductsNotIn.map(product => (
+                  {shopProductsNotIn.map(product => (
                     <Option key={product._id} value={product._id}>
                       {product.name}
                     </Option>
@@ -338,7 +347,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={addProductsToWarehouse}
+          onClick={addProductsToShop}
         >
           Lưu
         </Button>

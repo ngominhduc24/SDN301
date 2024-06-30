@@ -6,6 +6,7 @@ import {
   apiGetListProductsNotInWarehouse,
   apiGetListProductsWarehouse,
   apiGetShopList,
+  apiUpdateProductsInWarehouse,
 } from "./urls"
 import QueryString from "qs"
 
@@ -16,13 +17,15 @@ const getListProductsNotInWarehouse = id =>
   http.get(apiGetListProductsNotInWarehouse(id))
 const addProductsToWarehouse = (id, body) =>
   http.post(apiAddProductsToWarehouse(id), body)
-
+const updateProductsToWarehouse = (shopId, productId, body) =>
+  http.put(apiUpdateProductsInWarehouse(shopId, productId), body)
 const WarehouseManagerService = {
   getInfoWareHouse,
   getListProductsWarehouse,
   getListProductsNotInWarehouse,
   addProductsToWarehouse,
   getShopList,
+  updateProductsToWarehouse,
 }
 
 export default WarehouseManagerService

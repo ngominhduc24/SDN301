@@ -86,45 +86,45 @@ export const MenuItemManager = () => {
       tabid: [1],
     },
     {
-      key: "subkey1",
-      label: "Products",
-      icon: <SvgIcon name="product" />,
-      tabid: [2, 3],
-      children: [
-        {
-          key: ROUTER.MANAGE_PRODUCTS,
-          label: "Manage Products",
-          tabid: [2],
-        },
-      ],
-    },
-    {
       key: ROUTER.DASHBOARD,
       label: "Report",
       icon: <SvgIcon name="menu5" />,
-      tabid: [4],
+      tabid: [2],
     },
     {
       key: ROUTER.DASHBOARD,
       label: "Download History",
       icon: <SvgIcon name="dowload-export" />,
-      tabid: [5],
+      tabid: [3],
     },
     {
-      key: "subkey5",
+      key: "subkey1",
+      label: "Products",
+      icon: <SvgIcon name="product" />,
+      tabid: [4],
+      children: [
+        {
+          key: ROUTER.MANAGER_MANAGE_PRODUCTS,
+          label: "Manage Products",
+          tabid: [4],
+        },
+      ],
+    },
+    {
+      key: "subkey2",
       label: "Manager",
       icon: <SvgIcon name="menu13" />,
-      tabid: [12, 13],
+      tabid: [5, 6],
       children: [
         {
           key: ROUTER.MANAGER_MANAGE_STAFF,
           label: "Manage Staff",
-          tabid: [12],
+          tabid: [5],
         },
         {
           key: ROUTER.MANAGER_MANAGE_INVOICE,
           label: "Manage Invoice",
-          tabid: [13],
+          tabid: [6],
         },
       ],
     },

@@ -1,7 +1,7 @@
 import { Checkbox, Col, Divider, Form, Input, Row } from "antd"
 import { useContext, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
-import { Router, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import Button from "src/components/MyButton/Button"
 import STORAGE, { getStorage, setStorage } from "src/lib/storage"
 import { StoreContext } from "src/lib/store"
@@ -12,7 +12,6 @@ import {
   setListTabs,
   setUserInfo,
 } from "src/redux/appGlobal"
-
 import ROUTER from "src/router"
 import AuthService from "src/services/AuthService"
 import { StyleLoginPage } from "./styled"
@@ -22,6 +21,7 @@ import { setOpenChangePassModal } from "src/redux/loginModal"
 import login from "src/assets/images/modalLogin/login.png"
 import useWindowSize from "src/lib/useWindowSize"
 import { jwtDecode } from "jwt-decode"
+import Notice from "src/components/Notice"
 
 const LoginPage = () => {
   const isLogin = getStorage(STORAGE.TOKEN)
@@ -39,36 +39,27 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (!!isLogin) {
-      // loginSuccsess(userInfo)
+      loginSuccess(userInfo)
     }
   }, [])
 
-  // const comeStartPage = async isAdmin => {
-  //   if (!!isMobile) navigate(ROUTER.HOME)
-  //   else {
-  //     const resp = await RoleService.getListTab()
-  //     if (resp.isError) return
-  //     dispatch(setListTabs(resp.Object || []))
-  //     const menu = isAdmin
-  //       ? MenuItemAdmin()
-  //       : MenuItemUser()?.filter(i => i.key !== ROUTER.HOME)
-  //     const menuAdmin = menu
-  //       ?.filter(x => hasPermission(x?.tabid, [...resp.Object]))
-  //       .map(i => ({
-  //         ...i,
-  //         children: i?.children?.filter(x =>
-  //           hasPermission(x?.tabid, [...resp.Object]),
-  //         ),
-  //       }))
-  //     let startPage = "/"
-  //     if (!!menuAdmin && !!menuAdmin[0]) {
-  //       startPage = menuAdmin[0]?.children?.[0]?.key || menuAdmin[0]?.key
-  //     } else if (!!(menuAdmin[0]?.key?.charAt(0) === "/")) {
-  //       startPage = menuAdmin[0]?.key
-  //     }
-  //     navigate(startPage)
-  //   }
-  // }
+  const handleError = error => {
+    console.error("Login error:", error)
+    Notice({
+      isSuccess: false,
+      msg: "Sai tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại.",
+      place: "topRight",
+    })
+  }
+
+  const handleSuccess = () => {
+    Notice({
+      isSuccess: true,
+      msg: "Đăng nhập thành công!",
+      place: "topRight",
+    })
+  }
+
   const onLogin = async () => {
     try {
       setLoading(true)
@@ -84,12 +75,33 @@ const LoginPage = () => {
       dispatch(setUserInfo(decodedToken.payload))
       setRouterBeforeLogin(undefined)
       loginSuccess(decodedToken.payload)
+      console.log(res)
+      console.log(decodedToken.payload)
+      if (res) {
+        setStorage(STORAGE.TOKEN, res?.token)
+        setStorage(STORAGE.USER_INFO, decodedToken.payload)
+        dispatch(setUserInfo(decodedToken.payload))
+        setRouterBeforeLogin(undefined)
+        loginSuccess(decodedToken.payload)
+      } else if (res?.status === 500) {
+        Notice({
+          isSuccess: false,
+          msg: "Vui lòng thử lại.",
+          place: "topRight",
+        })
+      }
+    } catch (error) {
+      handleError(error)
     } finally {
       setLoading(false)
     }
   }
 
   const loginSuccess = data => {
+    console.log(userInfo)
+
+    handleSuccess()
+
     if (routerBeforeLogin) navigate(routerBeforeLogin)
 
     if (data?.role === "ADMIN") {
@@ -106,6 +118,7 @@ const LoginPage = () => {
       dispatch(setOpenChangePassModal(true))
     }
   }
+
   return (
     <div>
       <StyleLoginPage>
@@ -148,11 +161,6 @@ const LoginPage = () => {
                                 required: true,
                                 message: "Bạn chưa nhập mật khẩu!",
                               },
-                              // {
-                              //   pattern: getRegexPassword(),
-                              //   message:
-                              //     "Mật khẩu có chứa ít nhất 8 ký tự, trong đó có ít nhất một số và bao gồm cả chữ thường và chữ hoa và ký tự đặc biệt, ví dụ @, #, ?, !.",
-                              // },
                             ]}
                             name="password"
                           >
@@ -171,18 +179,6 @@ const LoginPage = () => {
                               Duy trì đăng nhập
                             </Checkbox>
                           </Form.Item>
-
-                          {/* <Row className="d-flex justify-content-flex-end">
-                  <Link
-                    onClick={() => {
-                      setOpenForgetPassModal()
-                      handleCancel()
-                    }}
-                    className="forget-pass"
-                  >
-                    <i>Quên mật khẩu?</i>
-                  </Link>
-                </Row> */}
                           <Row>
                             <Button
                               loading={loading}
@@ -195,19 +191,6 @@ const LoginPage = () => {
                               Đăng nhập
                             </Button>
                           </Row>
-                          {/* <Divider className="mt-10 mb-10 fs-13">Hoặc</Divider>
-                          <Row>
-                            <Button
-                              loading={loading}
-                              btntype="third"
-                              className="btn-login"
-                              type="submit"
-                              htmlType="submit"
-                              onClick={() => navigate(ROUTER.DANG_KY)}
-                            >
-                              Đăng ký
-                            </Button>
-                          </Row> */}
                         </Form>
                       </div>
                     </div>
@@ -228,15 +211,6 @@ const LoginPage = () => {
                       </div>
                     </Col>
                   )}
-                  {/* <Col lg={10} md={12} sm={20} xs={20}>
-                    <div className="d-flex justify-content-center">
-                      <img
-                        style={{ maxWidth: "100%", height: "auto" }}
-                        src={login}
-                        alt="login"
-                      />
-                    </div>
-                  </Col> */}
                 </Row>
               </Col>
             </Row>
@@ -248,4 +222,3 @@ const LoginPage = () => {
 }
 
 export default LoginPage
-

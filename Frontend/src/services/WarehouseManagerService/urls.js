@@ -6,4 +6,6 @@ export const apiGetListProductsNotInWarehouse =
 export const apiAddProductsToWarehouse = id => `api/shop/${id}/product
 `
 export const apiGetShopList = `api/shop`
+export const apiUpdateProductsInWarehouse = (shopId, productId) =>
+  `api/shop/${shopId}/product/${productId}`
 

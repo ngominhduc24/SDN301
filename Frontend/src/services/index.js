@@ -32,10 +32,11 @@ export function parseBody(response) {
     })
   }
   if (+response?.status < 500 && +response?.status !== 200) {
-    return notice({
-      msg: `Hệ thống xảy ra lỗi. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ (SC${response?.status})`,
-      isSuccess: false,
-    })
+    return
+    // notice({
+    //   msg: `Hệ thống xảy ra lỗi. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ (SC${response?.status})`,
+    //   isSuccess: false,
+    // })
   }
 
   if (response?.status === 200) {

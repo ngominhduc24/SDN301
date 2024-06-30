@@ -22,3 +22,4 @@ const ModalViewPdf = ({ open, onCancel }) => {
 }
 
 export default ModalViewPdf
+
