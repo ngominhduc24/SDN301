@@ -26,10 +26,11 @@ import {
 import { getListComboByKey, nest, normFile } from "src/lib/utils"
 import styled from "styled-components"
 import SvgIcon from "src/components/SvgIcon"
-import dayjs from "dayjs"
 // import SelectAddress from "src/components/SelectAddress"
 import { ButtonUploadStyle } from "src/components/Upload/styled"
 import STORAGE, { getStorage } from "src/lib/storage"
+import UserService from "src/services/UserService"
+import dayjs from "dayjs"
 const { Option } = Select
 const Styled = styled.div`
   .ant-upload.ant-upload-select-picture-card {
@@ -45,9 +46,9 @@ const Styled = styled.div`
 `
 const ModalInsertUpdate = ({ onOk, ...props }) => {
   const { listSystemKey } = useSelector(state => state.appGlobal)
-  const userInfo = getStorage(STORAGE.USER_INFO)
+  const userID = getStorage(STORAGE.USER_ID);
   const [form] = Form.useForm()
-
+  const [user, setUser] = useState({})
   const [listDept, setListDept] = useState([])
   const [listPosition, setListPosition] = useState([])
   const [listRole, setListRole] = useState([])
@@ -61,44 +62,38 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
     i => i?.CodeKey === "DEFAULT_PASSWORD",
   )
   useEffect(() => {
-    // getUserDetail()
+    getUserDetail();
   }, [])
 
-  useEffect(() => {
-    // getListSelect()
-    // getListRole()
-    // getListSelectSept()
-  }, [])
+  // useEffect(() => {
+  //   // getListSelect()
+  //   // getListRole()
+  //   // getListSelectSept()
+  // }, [])
 
-  // const getUserDetail = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const res = await UserService.getInforUser()
-  //     if (res?.isError) return
-  //     form.setFieldsValue({
-  //       ...res?.Object,
-  //       Birthday: !!res?.Object?.Birthday && moment(res?.Object?.Birthday),
-  //       DateParty: !!res?.Object?.DateParty && moment(res?.Object?.DateParty),
-  //       RoleID: res?.Object?.ListRole[0]?.RoleID || undefined,
-  //       Avatar: !!res?.Object?.Avatar ? [{ url: res?.Object?.Avatar }] : [],
-  //       Sex: !!res?.Object?.Sex ? res?.Object?.Sex : undefined,
-  //       DepartmentID: !!res?.Object?.ListUserManager?.length
-  //         ? res?.Object?.ListUserManager?.map(item => item?.DepartmentID)
-  //         : [],
-  //       MaccanType: !!res?.Object?.MaccanType
-  //         ? +res?.Object?.MaccanType
-  //         : undefined,
-  //     })
+  const getUserDetail = async () => {
+    try {
+      setLoading(true)
+      const res = await UserService.getUserById(userID)
+      if (res?.isError) return
 
-  //     setRegionCode({
-  //       ProvinceID: res?.Object?.ProvinceID,
-  //       DistrictID: res?.Object?.DistrictID,
-  //       WardID: res?.Object?.WardID,
-  //     })
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+      const dob = res.dob && dayjs(res.dob, "DD/MM/YYYY").isValid() ? dayjs(res.dob, "DD/MM/YYYY") : null
+      console.log("dayjs dob:", dob)
+      form.setFieldsValue({
+        FullName: res.fullname,
+        PhoneNumber: res.phone,
+        Email: res.email,
+        Birthday: dob
+      })
+      console.log("res: ", res);
+      setUser(res)
+      console.log("user: ", user);
+      const currentValues = form.getFieldsValue(["FullName", "PhoneNumber", "Email", "Birthday"]);
+      console.log("Current form values: ", currentValues);
+    } finally {
+      setLoading(false)
+    }
+  }
   // const getUserDetail = async () => {
   //   try {
   //     setLoading(true)
@@ -196,9 +191,28 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
   const onUpdateProfiile = async() => {
     try {
       setLoading(true);
-      // const values = await form.validateFields();
+      const values = await form.validateFields();
+      const res = await UserService.updateProfile(userID, {
+        fullname: values.FullName,
+        phone: values.PhoneNumber,
+        email: values.Email,
+        dob: values.Birthday ? values.Birthday.format("DD/MM/YYYY") : null
+      })
+      console.log("response: ", res);
+      if(!res?.isError){
+        Notice({ isSuccess: true, msg: "Cập nhật thành công!" })
+        onOk()
+      }else{
+        Notice({ isSuccess: false, msg: res?.message || "Cập nhật thất bại!" });
+      }
     } catch (error) {
-      
+      const errorMessage = error.message || "Có lỗi xảy ra!"
+      Notice({
+        isSuccess: false,
+        msg: errorMessage,
+      })
+    }finally{
+      setLoading(false)
     }
   }
 
@@ -209,7 +223,7 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
         className="btn-hover-shadow"
         onClick={onUpdateProfiile}
       >
-        Ghi lại
+        Cập nhật
       </Button>
     </div>
   )
@@ -226,14 +240,17 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
             form={form}
             layout="vertical"
             initialValues={{
-              Password: `${defaultPass?.Description}`,
-              PasswordConfirm: `${defaultPass?.Description}`,
+              // Password: `${defaultPass?.Description}`,
+              // PasswordConfirm: `${defaultPass?.Description}`,
               // ListUserManager: [
               //   {
               //     PositionID: undefined,
               //     DepartmentID: props?.open?.DepartmentID,
               //   },
               // ],
+              PhoneNumber: user?.phone,
+              Email: user?.email,
+              Birthday: user?.dob
             }}
           >
             <Row gutter={[16]}>
@@ -241,12 +258,12 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                 <Form.Item
                   label="Họ và tên"
                   name="FullName"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Thông tin không được để trống",
-                    },
-                  ]}
+                  // rules={[
+                  //   {
+                  //     required: true,
+                  //     message: "Thông tin không được để trống",
+                  //   },
+                  // ]}
                 >
                   <Input placeholder="Nhập tên" />
                 </Form.Item>
@@ -291,11 +308,12 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                 <Form.Item
                   label="Số điện thoại"
                   name="PhoneNumber"
+                  
                   rules={[
-                    {
-                      required: true,
-                      message: "Thông tin không được để trống",
-                    },
+                    // {
+                    //   required: true,
+                    //   message: "Thông tin không được để trống",
+                    // },
                     {
                       pattern: getRegexMobile(),
                       message:
@@ -311,10 +329,10 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                   label="Email"
                   name="Email"
                   rules={[
-                    {
-                      required: true,
-                      message: "Thông tin không được để trống",
-                    },
+                    // {
+                    //   required: true,
+                    //   message: "Thông tin không được để trống",
+                    // },
                     {
                       pattern: getRegexEmail(),
                       message: "Email sai định dạng",
@@ -369,49 +387,51 @@ const ModalInsertUpdate = ({ onOk, ...props }) => {
                   label="Ngày sinh"
                   name="Birthday"
                   rules={[
-                    {
-                      required: true,
-                      message: "Thông tin không được để trống",
-                    },
-                    () => ({
-                      validator(_, value) {
-                        if (!!value) {
-                          const today = dayjs()
-                          const birthDate = value
-                          let age
+                    // {
+                    //   required: true,
+                    //   message: "Thông tin không được để trống",
+                    // },
+                    // () => ({
+                    //   validator(_, value) {
+                    //     if (!!value) {
+                    //       const today = dayjs()
+                    //       const birthDate = dayjs(value, 'DD/MM/YYYY')
+                    //       let age
 
-                          if (today?.format("MM") > birthDate?.format("MM")) {
-                            // Calculate the age of the user
-                            age = today.diff(birthDate, "years") - 1
-                          } else if (
-                            today?.format("MM") === birthDate?.format("MM") &&
-                            today?.format("DD") > birthDate?.format("DD")
-                          ) {
-                            age = today.diff(birthDate, "years") - 1
-                          } else {
-                            age = today.diff(birthDate, "years")
-                          }
+                    //       if (today?.format("MM") > birthDate?.format("MM")) {
+                    //         // Calculate the age of the user
+                    //         age = today.diff(birthDate, "years") - 1
+                    //       } else if (
+                    //         today?.format("MM") === birthDate?.format("MM") &&
+                    //         today?.format("DD") > birthDate?.format("DD")
+                    //       ) {
+                    //         age = today.diff(birthDate, "years") - 1
+                    //       } else {
+                    //         age = today.diff(birthDate, "years")
+                    //       }
 
-                          // Check if the age is 14 or more
-                          if (age < 14) {
-                            // The user is over 14 years old
-                            return Promise.reject(
-                              new Error("Ngày sinh chưa đủ 14 tuổi"),
-                            )
-                          } else {
-                            // The user is under 14 years old
-                            return Promise.resolve()
-                          }
-                        }
-                        return Promise.resolve()
-                      },
-                    }),
+                    //       // Check if the age is 14 or more
+                    //       if (age < 14) {
+                    //         // The user is over 14 years old
+                    //         return Promise.reject(
+                    //           new Error("Ngày sinh chưa đủ 14 tuổi"),
+                    //         )
+                    //       } else {
+                    //         // The user is under 14 years old
+                    //         return Promise.resolve()
+                    //       }
+                    //     }
+                    //     return Promise.resolve()
+                    //   },
+                    // }),
                   ]}
                 >
                   <DatePicker
                     placeholder="Chọn"
                     format="DD/MM/YYYY"
                     allowClear
+                    value={form.getFieldValue('Birthday')}
+                    onChange={(date) => form.setFieldsValue({ Birthday: date })}
                   />
                 </Form.Item>
               </Col>

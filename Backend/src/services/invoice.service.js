@@ -1,10 +1,10 @@
-const Order = require("../models/order");
+const Invoice = require("../models/invoice");
 const Product = require("../models/product");
-const productService = require("../services/product.service");
-const ProductService = require("../services/product.service");
+const productService = require("./product.service");
+const ProductService = require("./product.service");
 const tokenUtils = require('../utils/jwt-handle');
 
-const getListOrders = async (params) => {
+const getListInvoices = async (params) => {
   try {
     let { page, limit, user_id, text_search } = params;
     page = parseInt(page) || 1;
@@ -20,23 +20,23 @@ const getListOrders = async (params) => {
       query.created_by = user_id;
     }
 
-    // Fetch orders from the database with pagination and optional user filter
-    const orders = await Order.find(query)
+    // Fetch Invoices from the database with pagination and optional user filter
+    const Invoices = await Invoice.find(query)
       .populate('created_by')
       .populate('shop')
       .skip(skip)
       .limit(limit)
       .exec();
-    const totalOrders = await Order.countDocuments(query);
+    const totalInvoices = await Invoice.countDocuments(query);
 
     return {
-      data: orders,
+      data: Invoices,
       meta: {
-        pageSize: orders.length,
+        pageSize: Invoices.length,
         page,
         limit,
-        totalPages: Math.ceil(totalOrders / limit),
-        totalOrders,
+        totalPages: Math.ceil(totalInvoices / limit),
+        totalInvoices,
         textSearch: text_search || '',
       },
     };
@@ -45,7 +45,7 @@ const getListOrders = async (params) => {
   }
 };
 
-const createOrder = (params, token) => {
+const createInvoice = (params, token) => {
   try {
     // const user = tokenUtils.getUserFromToken(token);
     const totalPrice = params.details.map((detail) => {
@@ -61,13 +61,13 @@ const createOrder = (params, token) => {
     // TO-DO: wait for getting user by token
     params.created_by = '666da0d2b11171a998827c9f';
 
-    // return Order.create(params);
+    // return Invoice.create(params);
   } catch (error) {
     throw error;
   }
 }
 
 module.exports = {
-  getListOrders,
-  createOrder,
+  getListInvoices,
+  createInvoice,
 };

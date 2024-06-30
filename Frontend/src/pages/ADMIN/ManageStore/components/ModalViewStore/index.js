@@ -10,7 +10,7 @@ import { SYSTEM_KEY } from "src/constants/constants"
 import { getListComboByKey } from "src/lib/utils"
 import InsertUpdateProgram from "../InsertUpdateProgram"
 
-const ModalViewProgram = ({ open, onCancel, onOk, buttonShow }) => {
+const ModalViewStore = ({ open, onCancel, onOk, buttonShow }) => {
   const { listSystemKey } = useSelector(state => state.appGlobal)
   const { userInfo } = useSelector(state => state.appGlobal)
   const [bookings, setBookings] = useState([])
@@ -246,5 +246,5 @@ const ModalViewProgram = ({ open, onCancel, onOk, buttonShow }) => {
   )
 }
 
-export default ModalViewProgram
+export default ModalViewStore
 

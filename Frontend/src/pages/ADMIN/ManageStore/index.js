@@ -1,4 +1,4 @@
-import { Col, Row, Space } from "antd"
+import { Col, Row, Space, Tooltip } from "antd"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import CB1 from "src/components/Modal/CB1"
@@ -10,10 +10,10 @@ import { SYSTEM_KEY } from "src/constants/constants"
 import { getListComboByKey } from "src/lib/utils"
 import SearchAndFilter from "./components/SearchAndFilter"
 import InsertUpdateProgram from "./components/InsertUpdateProgram"
-import ModalViewProgram from "./components/ModalViewProgram"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import AdminServices from "src/services/AdminService"
+import ModalViewStore from "./components/ModalViewStore"
 
 const ManageStore = () => {
   const [stores, setStores] = useState([]);
@@ -21,6 +21,9 @@ const ManageStore = () => {
   const [buttonShow, setButtonShow] = useState()
   const [openInsertUpdateBooking, setOpenInsertUpdateBooking] = useState(false)
   const [openViewStore, setOpenViewStore] = useState(false)
+  const [openViewManager, setOpenViewManager] = useState(false)
+  const [selectedStore, setSelectedStore] = useState(null)
+  const [selectedManager, setSelectedManager] = useState(null)
   const [loading, setLoading] = useState(false)
   const { listSystemKey } = useSelector(state => state.appGlobal)
   const { userInfo } = useSelector(state => state.appGlobal)
@@ -56,8 +59,9 @@ const ManageStore = () => {
       isEnable: true,
       name: "Xem cửa hàng",
       icon: "eye",
-      onClick: () => {setStores(record) //storeid
+      onClick: () => {setSelectedStore(record);
         console.log('store', record);
+        setOpenViewStore(true);
     }
     },
     {
@@ -88,7 +92,7 @@ const ManageStore = () => {
   const column = [
     {
       title: "STT",
-      key: ["shopId", "_id"],
+      key: "_id",
       width: 60,
       render: (_, record, index) => (
         <div className="text-center">{index + 1}</div>
@@ -96,13 +100,13 @@ const ManageStore = () => {
     },
     {
       title: "Tên cửa hàng",
-      dataIndex: ["shopId, name"],
+      dataIndex: "name",
       width: 200,
       key: "storeName",
     },
     {
       title: "Địa chỉ cửa hàng",
-      dataIndex: ["shopId", "location"],
+      dataIndex: "location",
       width: 200,
       key: "address",
       // render: (_, record) => (
@@ -111,39 +115,50 @@ const ManageStore = () => {
     },
     {
       title: "Số điện thoại",
-      dataIndex: ["shopId", "phone"],
+      dataIndex: "phone",
       width: 120,
       key: "phoneNumber",
-      render: (_, record) => <span>{userInfo?.FullName}</span>,
     },
     {
       title: "Email",
-      dataIndex: ["shopId", "email"],
+      dataIndex: "email",
       width: 120,
       align: "center",
       key: "email",
     },
     {
-      title: "Thời gian làm việc",
-      dataIndex: "OperatingHours",
+      title: "Manager",
+      dataIndex: ["manager", "email"],
       width: 120,
-      key: "OperatingHours",
-      render: (_, record) => <span>{userInfo?.FullName}</span>,
+      key: "managerEmail",
+      render: (text, record) => (
+        <Tooltip title="Click to view manager details">
+          <span
+            className="link"
+            onClick={() => {
+              setSelectedManager(record.manager)
+              setOpenViewManager(true)
+            }}
+          >
+            {text}
+          </span>
+        </Tooltip>
+      ),
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: ["shopId", "status"],
+      dataIndex: "status",
       align: "center",
       width: 100,
-      key: "Status",
+      key: "status",
       render: (_, record) => (
         <span
           className={[
             "no-color",
-            record?.shopId?.status === "open" ? "blue-text" : "red-text",
+            record?.status === "open" ? "blue-text" : "red-text",
           ].join(" ")}
         >
-          {record?.shopId?.status === "open" ? "Đang mở cửa" : "Đóng cửa"}
+          {record?.status === "open" ? "Đang mở cửa" : "Đóng cửa"}
         </span>
       ),
     },
@@ -208,7 +223,7 @@ const ManageStore = () => {
         <Col span={24} className="mt-30 mb-20">
           <TableCustom
             isPrimary
-            rowKey="shopId"
+            rowKey="_id"
             columns={column}
             textEmpty="Chưa có cửa hàng nào"
             dataSource={stores}
@@ -247,11 +262,12 @@ const ManageStore = () => {
         />
       )}
       {!!openViewStore && (
-        <ModalViewProgram
+        <ModalViewStore
           open={openViewStore}
           // onOk={() => getListBookings()}
           // handleDeleteBooking={handleDeleteBooking}
           onCancel={() => setOpenViewStore(false)}
+          store={selectedStore}
           buttonShow={buttonShow}
         />
       )}
