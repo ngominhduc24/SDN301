@@ -128,10 +128,6 @@ userRouter.post('/admin/users', UserController.AddNewUser);
 userRouter.get('/admin/users', verifyTokenHandle.verifyToken, UserController.ListAllUsers);
 userRouter.put('/admin/users/:id', UserController.updateUserById);
 
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
 userRouter.get('/admin/users/:id', UserController.getUserById);
 
 // MANAGER

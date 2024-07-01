@@ -23,9 +23,12 @@ import { ListUserStyled } from "./styled"
 import { getListComboByKey } from "src/lib/utils"
 import { SYSTEM_KEY } from "src/constants/constants"
 import { useSelector } from "react-redux"
+import AdminServices from "src/services/AdminService"
+import { jwtDecode } from "jwt-decode"
+import STORAGE, { getStorage } from "src/lib/storage"
 
 const ManageUser = () => {
-  const [dataSource, setDataSource] = useState([])
+  const [managers, setManagers] = useState([])
   const [total, setTotal] = useState([])
   const { listSystemKey } = useSelector(state => state.appGlobal)
   const [pagination, setPagination] = useState({
@@ -40,12 +43,13 @@ const ManageUser = () => {
   const [detailInfo, setDetailInfo] = useState()
   const [listButtonShow, setListButtonShow] = useState()
   const [selectedNode, setSelectedNote] = useState()
+  const [selectedUserId, setSelectedUserId] = useState(null)
   const [openModalUserDetail, setOpenModalUserDetail] = useState(false)
   const columns = [
     {
       title: "STT",
-      dataIndex: "Index",
-      key: "Index",
+      // dataIndex: "Index",
+      key: "_id",
       width: 60,
       align: "center",
 
@@ -62,17 +66,32 @@ const ManageUser = () => {
     {
       title: (
         <>
-          <MainTableHeader>Tài khoản</MainTableHeader>
-          <SubTableHeader>Họ tên</SubTableHeader>
+          <MainTableHeader>Họ tên</MainTableHeader>
+          {/* <SubTableHeader>Họ tên</SubTableHeader> */}
         </>
       ),
-      dataIndex: "FullName",
+      dataIndex: "fullname",
       key: "FullName",
       align: "center",
       render: (val, record) => (
         <>
-          <MainTableData>{record?.UserName}</MainTableData>
-          <SubTableData>{val}</SubTableData>
+          <MainTableData>{record?.fullname}</MainTableData>
+        </>
+      ),
+    },
+    {
+      title: (
+        <>
+          <MainTableHeader>Số điện thoại</MainTableHeader>
+          {/* <SubTableHeader>Họ tên</SubTableHeader> */}
+        </>
+      ),
+      dataIndex: "phobe",
+      key: "phone",
+      align: "center",
+      render: (val, record) => (
+        <>
+          <MainTableData>{record?.phone}</MainTableData>
         </>
       ),
     },
@@ -80,58 +99,80 @@ const ManageUser = () => {
       title: (
         <>
           <MainTableHeader>Email</MainTableHeader>
-          <SubTableHeader>Số điện thoại</SubTableHeader>
+          {/* <SubTableHeader>Số điện thoại</SubTableHeader> */}
         </>
       ),
-      dataIndex: "PhoneNumber",
-      key: "PhoneNumber",
+      dataIndex: "email",
+      key: "email",
       align: "center",
       render: (val, record) => (
         <>
-          <MainTableData>{record?.Email}</MainTableData>
-          <SubTableData>{val}</SubTableData>
+          <MainTableData>{record?.email}</MainTableData>
         </>
       ),
     },
+    // {
+    //   title: "Nhóm quyền",
+    //   dataIndex: "role",
+    //   key: "role",
+    // width: 180,
+    // align: "center",
+    // render: (text, record) => (
+    //   <Tooltip
+    //     title={
+    //       Array.isArray(text) && text.length > 0
+    //         ? text?.map((i, idx) => (
+    //             <span key={`${record?._id}-role-${idx}`}>
+    //               {i}
+    //               {!!(idx > 0 && idx < text?.length - 1) && " | "}
+    //             </span>
+    //           ))
+    //         : ""
+    //     }
+    //   >
+    //     <div className="max-line2">
+    //       {Array.isArray(text) && text.length > 0 &&
+    //         text.map((i, idx) => (
+    //           <span key={`${record?._id}-role-${idx}`}>
+    //             {!!(idx > 0) && " | "}
+    //             {i}
+    //           </span>
+    //         ))}
+    //     </div>
+    //   </Tooltip>
+    // ),
+    //   render: (val, record) => {
+    //     <>
+    //     <MainTableData>{record?.role}</MainTableData>
+    //     <SubTableData>{val}</SubTableData>
+    //     </>
+    //   }
+    // },
     {
-      title: "Nhóm quyền",
-      dataIndex: "RoleName",
-      key: "RoleName",
-      width: 180,
-      render: text => (
-        <Tooltip
-          title={
-            text?.length
-              ? text?.map((i, idx) => (
-                  <span key={`RoleNametooltip${idx}`}>
-                    {i}
-                    {!!(idx > 0 && idx < text?.length - 1) && " | "}
-                  </span>
-                ))
-              : ""
-          }
-        >
-          <div className="max-line2">
-            {text?.length &&
-              text?.map((i, idx) => (
-                <span key={`RoleName${idx}`}>
-                  {!!(idx > 0) && " | "}
-                  {i}
-                </span>
-              ))}
-          </div>
-        </Tooltip>
+      title: (
+        <>
+          <MainTableHeader>Nhóm quyền</MainTableHeader>
+          {/* <SubTableHeader>Số điện thoại</SubTableHeader> */}
+        </>
+      ),
+      dataIndex: "role",
+      key: "role",
+      align: "center",
+      render: (val, record) => (
+        <>
+          <MainTableData>{record?.role}</MainTableData>
+        </>
       ),
     },
     {
       title: "Trạng thái",
-      dataIndex: "Status",
-      key: "Status",
+      dataIndex: "status",
+      key: "status",
       width: 160,
-      render: (text, record) => (
+      render: (_, record) => (
         <div className="d-flex justify-content-center align-items-center mh-36">
           <div className="text-center">
-            {text === 1 ? "Đang hoạt động" : "Dừng hoạt động"}
+            {record?.status === "active" ? "Đang hoạt động" : "Dừng hoạt động"}
           </div>
           <FloatActionWrapper size="small" className="float-action__wrapper">
             {renderListButton(record)}
@@ -141,9 +182,9 @@ const ManageUser = () => {
     },
   ]
   useEffect(() => {
-    if (!!selectedNode?.DepartmentID) {
-      // getAllUser()
-    }
+    // if (!!selectedNode?.DepartmentID) {
+    getAllManagers()
+    // }
   }, [pagination])
   useEffect(() => {
     setPagination(pre => ({ ...pre, CurrentPage: 1 }))
@@ -214,6 +255,22 @@ const ManageUser = () => {
   //   }
   // }
 
+  const getAllManagers = async () => {
+    try {
+      setLoading(true)
+      const token = getStorage(STORAGE.TOKEN)
+      const res = await AdminServices.getAllManagers(token)
+      console.log("responses: ", res)
+      if (res) {
+        setManagers(res)
+        setTotal(res.length)
+      }
+    } catch (error) {
+      console.log("error")
+    } finally {
+      setLoading(false)
+    }
+  }
   // const getAllUser = async () => {
   //   try {
   //     setLoading(true)
@@ -237,27 +294,26 @@ const ManageUser = () => {
   //   }
   // }
 
-  const fakeData = [
-    {
-      UserID: 1,
-      UserName: "user1",
-      FullName: "User One",
-      Email: "user1@example.com",
-      PhoneNumber: "1234567890",
-      RoleName: ["Admin", "User"],
-      Status: 1,
-    },
-    {
-      UserID: 2,
-      UserName: "user2",
-      FullName: "User Two",
-      Email: "user2@example.com",
-      PhoneNumber: "1234567890",
-      RoleName: ["User"],
-      Status: 0,
-    },
-    // Add more fake data if needed
-  ]
+  // const fakeData = [
+  //   {
+  //     UserID: 1,
+  //     UserName: "user1",
+  //     FullName: "User One",
+  //     Email: "user1@example.com",
+  //     PhoneNumber: "1234567890",
+  //     RoleName: ["Admin", "User"],
+  //     Status: 1,
+  //   },
+  //   {
+  //     UserID: 2,
+  //     UserName: "user2",
+  //     FullName: "User Two",
+  //     Email: "user2@example.com",
+  //     PhoneNumber: "1234567890",
+  //     RoleName: ["User"],
+  //     Status: 0,
+  //   },
+  // ]
   // const exportUser = async () => {
   //   try {
   //     const res = await UserService.exportUser({
@@ -281,7 +337,7 @@ const ManageUser = () => {
         <Search setPagination={setPagination} pagination={pagination} />
         <Divider className="mv-16" />
         <div className="title-type-1 d-flex justify-content-space-between align-items-center pb-16 pt-0 mb-16">
-          <div className="fs-24">Danh sách nhân viên</div>
+          <div className="fs-24">Danh sách quản lý</div>
           <Row gutter={[16, 16]}>
             {!!listButtonShow?.IsInsert && (
               <Col>
@@ -328,14 +384,15 @@ const ManageUser = () => {
                   return {
                     onClick: () => {
                       setOpenModalUserDetail(record)
+                      setSelectedUserId(record._id)
                     },
                   }
                 }}
                 className="mb-6"
-                dataSource={fakeData}
+                dataSource={managers}
                 columns={columns}
                 textEmpty="Không có nhân viên"
-                rowKey="UserID"
+                rowKey="_id"
                 sticky={{ offsetHeader: -12 }}
                 scroll={{ x: "800px" }}
                 pagination={{
@@ -415,6 +472,7 @@ const ManageUser = () => {
           onOk={() => setPagination(pre => ({ ...pre }))}
           department={selectedNode}
           listButtonShow={listButtonShow}
+          userId={selectedUserId}
         />
       )}
     </ListUserStyled>
@@ -422,4 +480,3 @@ const ManageUser = () => {
 }
 
 export default ManageUser
-

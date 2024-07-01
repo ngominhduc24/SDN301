@@ -8,6 +8,8 @@ import Notice from "src/components/Notice"
 import styled from "styled-components"
 import ModalInsertUpdate from "./InsertUpdate"
 import { FAILBACK } from "src/constants/constants"
+import AdminServices from "src/services/AdminService"
+import STORAGE, { getStorage } from "src/lib/storage"
 
 const StyledUserDetail = styled.div`
   .img-user {
@@ -33,15 +35,30 @@ const StyledUserDetail = styled.div`
     }
   }
 `
-const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
+const UserDetail = ({ open, onCancel, onOk, listButtonShow, userId }) => {
   const [loading, setLoading] = useState(false)
   const [openInsert, setOpenInsert] = useState(false)
   const [customerInfo, setCustomerInfo] = useState(false)
-
+  const [userInfo, setUserInfo] = useState({})
+  // const UserID = getStorage(STORAGE.USER_ID)
   useEffect(() => {
-    // getUserDetail()
-  }, [])
+    if(userId){
+      getUserDetail(userId)
+    }
+    
+  }, [userId])
 
+  const getUserDetail = async (id) => {
+    try {
+      setLoading(true)
+      const res = await AdminServices.getManagerById(id)
+      setUserInfo(res)
+    } catch (error) {
+      console.log("error");
+    }finally{
+      setLoading(false)
+    }
+  }
   // const getUserDetail = async () => {
   //   try {
   //     setLoading(true)
@@ -55,7 +72,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
   const footer = (
     <div className="d-flex justify-content-space-between align-item-center">
       <div>
-        {!!listButtonShow?.IsUpdate && (
+        {/* {!!listButtonShow?.IsUpdate && (
           <Button
             loading={loading}
             btntype="primary"
@@ -73,10 +90,10 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
           >
             Reset mật khẩu
           </Button>
-        )}
+        )} */}
       </div>
       <div className="d-flex justify-content-flex-end">
-        {!!listButtonShow?.IsUpdate && (
+        {/* {!!listButtonShow?.IsUpdate && (
           <Button
             loading={loading}
             btntype="primary"
@@ -86,8 +103,8 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
           >
             Sửa
           </Button>
-        )}
-        {!!listButtonShow?.IsDelete && (
+        )} */}
+        {/* {!!listButtonShow?.IsDelete && (
           <Button
             loading={loading}
             onClick={() => {
@@ -104,7 +121,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
           >
             Xóa
           </Button>
-        )}
+        )} */}
       </div>
     </div>
   )
@@ -143,33 +160,15 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
           </Col>
           <Col span={14}>
             <Col span={24}>
-              <div className="account-name">{customerInfo?.FullName}</div>
+              <div className="account-name">{userInfo?.fullname}</div>
             </Col>
             <Col span={24}>
               <div className="mb-12 text-center ">
                 <span className="fw-600 ">Nhóm quyền:</span>{" "}
-                {customerInfo?.ListRole
-                  ? customerInfo?.ListRole?.map(item => item?.RoleName)?.join()
-                  : ""}
-              </div>
-            </Col>
-            <Col span={24} className="position">
-              <div
-                className="d-flex justify-content-center align-item-center"
-                style={{ gap: 10 }}
-              >
-                <div>
-                  <span className="fw-600">Chức vụ:</span>{" "}
-                  {customerInfo?.ListUserManager &&
-                    customerInfo?.ListUserManager?.length &&
-                    customerInfo?.ListUserManager[0]?.PositionName}
-                </div>
-                {/* <div>
-                  <span className="fw-600">Chức danh:</span>{" "}
-                  {customerInfo?.ListUserManager &&
-                    customerInfo?.ListUserManager?.length &&
-                    customerInfo?.ListUserManager[0]?.TitleName}
-                </div> */}
+                {/* {userInfo?.role
+                  ? userInfo?.role?.map(item => item?.role)?.join()
+                  : ""} */}
+                {userInfo?.role}
               </div>
             </Col>
             <Col span={24}>
@@ -180,69 +179,42 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
             <Row>
               <Col span={12}>
                 <div className="mb-12">
-                  <span className="fw-600 ">Tên đăng nhập:</span>{" "}
-                  {customerInfo?.UserName}
+                  <span className="fw-600 ">Họ tên:</span>{" "}
+                  {userInfo?.fullname}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
                   <span className="fw-600 ">Trạng thái:</span>{" "}
-                  {!!customerInfo?.Status
+                  {!!userInfo?.status
                     ? "Đang hoạt động"
                     : "Không hoạt động"}
-                </div>
-              </Col>
-              <Col span={12}>
-                <div className="mb-12">
-                  <span className="fw-600 ">Nhóm cán bộ:</span>{" "}
-                  {customerInfo?.ListUserManager &&
-                    customerInfo?.ListUserManager?.length &&
-                    customerInfo?.ListUserManager[0]?.DepartmentName}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
                   <span className="fw-600 ">Số điện thoại:</span>{" "}
-                  {customerInfo?.PhoneNumber}
+                  {userInfo?.phone}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
-                  <span className="fw-600 ">Email:</span> {customerInfo?.Email}
+                  <span className="fw-600 ">Email:</span> {userInfo?.email}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
                   <span className="fw-600 ">Ngày sinh:</span>{" "}
-                  {customerInfo?.Birthday
-                    ? moment(customerInfo?.Birthday)?.format("DD/MM/YYYY")
+                  {userInfo?.dob
+                    ? moment(userInfo?.dob)?.format("DD/MM/YYYY")
                     : ""}
                 </div>
               </Col>
-              <Col span={12}>
-                <div className="mb-12 ">
-                  <span className="fw-600 ">Giới tính: </span>{" "}
-                  {!!customerInfo?.Sex
-                    ? customerInfo?.Sex === 1
-                      ? "Nam"
-                      : "Nữ"
-                    : ""}
-                </div>
-              </Col>
-              <Col span={12}>
-                <div className="mb-12 d-flex justify-content-flex-start ">
-                  <Col span={5} className="fw-600 ">
-                    Địa chỉ:
-                  </Col>{" "}
-                  <Col span={18}>
-                    <span>{customerInfo?.Address}</span>
-                  </Col>
-                </div>
-              </Col>
+
             </Row>
           </Col>
         </Row>
@@ -251,7 +223,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow }) => {
       {!!openInsert && (
         <ModalInsertUpdate
           open={openInsert}
-          detailInfo={customerInfo}
+          detailInfo={userInfo}
           onOk={() => {
             onOk()
             // getUserDetail()

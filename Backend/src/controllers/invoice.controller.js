@@ -1,22 +1,4 @@
-<<<<<<< HEAD
-const InvoiceService = require("../services/invoice.service");
-const asyncHandler = require("../utils/async-handle");
 
-const index = asyncHandler((req, res) => {
-  InvoiceService.getListInvoices(req.params).then((data) => {
-    res.status(200).json(data);
-  });
-});
-
-const create = asyncHandler((req, res) => {
-  const token = req.headers.authorization;
-  InvoiceService.createInvoice(req.body, token).then((data) => {
-    res.status(201).json(data);
-  });
-});
-
-const invoiceController = { index, create };
-=======
 const invoiceService = require('../services/invoice.service');
 const ProductService = require("../services/product.service");
 const ShopService = require('../services/shop.service');
@@ -242,5 +224,4 @@ const invoiceController = {
     updateStatus
 };
 
->>>>>>> develop
 module.exports = invoiceController;

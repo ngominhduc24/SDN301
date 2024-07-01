@@ -28,7 +28,7 @@ const PersonProfile = () => {
   const [avatarUpload, setAvatarUpload] = useState("")
   const [showCancelButton, setShowCancelButton] = useState(false)
   const userID = getStorage(STORAGE.USER_ID);
-
+console.log("userid: ", userID);
   // const uploadImg = async file => {
   //   try {
   //     setLoading(true)
@@ -46,6 +46,7 @@ const PersonProfile = () => {
   const getInfo = async () => {
     try {
       setLoading(true)
+      // const res = await UserService.getUserById("667a3003848f2fe6f3fa6664")
       const res = await UserService.getUserById(userID)
       console.log('API response:', res) 
       if (res?.isError) return
@@ -288,7 +289,7 @@ const PersonProfile = () => {
         <UpdatePersonProfile
           open={modalUpdatePersonProfile}
           onCancel={() => setModalUpdatePersonProfile(false)}
-          onOk={() => {getInfo()
+          onOk={() => {getInfo();
             setModalUpdatePersonProfile(false)
           }}
         />

@@ -13,6 +13,7 @@ const updateProfile = (id, body) => {
   http.put(apiUpdateProfile(id), body);
 }
 
+
 const UserService = {
   changePassword, getUserById, updateProfile
 }
