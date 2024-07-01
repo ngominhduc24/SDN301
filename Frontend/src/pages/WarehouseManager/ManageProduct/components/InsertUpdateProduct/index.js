@@ -27,7 +27,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
   const [selectedProducts, setSelectedProducts] = useState([])
   const [openViewProducts, setOpenViewProducts] = useState(false)
   const [selectedProductView, setSelectedProductView] = useState(null)
-  const [stateBody, setStateBody] = useState({})
+  const [stateBody, setStateBody] = useState([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
@@ -45,6 +45,12 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
       isEnable: true,
       name: "Xem sản phẩm ",
       icon: "eye",
+      onClick: () => {
+        setSelectedProductView(record)
+        setOpenViewProducts(true)
+        console.log(record)
+        console.log("Products:", record)
+      },
     },
     {
       isEnable: true,
@@ -158,38 +164,18 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     },
   ]
 
-  // const handleRemoveProduct = record => {
-  //   setSelectedProducts(prev => prev.filter(item => item._id !== record._id))
-  //   setStateBody(prev => prev.filter(item => item.productId !== record._id))
-  // }
   const handleRemoveProduct = record => {
     setSelectedProducts(prev => prev.filter(item => item._id !== record._id))
-    setStateBody(prev => {
-      const newStateBody = { ...prev }
-      delete newStateBody[record._id]
-      return newStateBody
-    })
+    setStateBody(prev => prev.filter(item => item.productId !== record._id))
   }
 
-  // const handleProductChange = value => {
-  //   const selected = wareHouseProductsNotIn.find(
-  //     product => product._id === value,
-  //   )
-  //   if (selected) {
-  //     setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
-  //     setStateBody(prev => [...prev, { productId: selected._id, quantity: 0 }])
-  //   }
-  // }
   const handleProductChange = value => {
     const selected = wareHouseProductsNotIn.find(
       product => product._id === value,
     )
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
-      setStateBody({
-        productId: selected._id,
-        quantity: 0,
-      })
+      setStateBody(prev => [...prev, { productId: selected._id, quantity: 0 }])
     }
   }
 
@@ -229,7 +215,6 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
         id,
         stateBody,
       )
-      console.log("djt me response", response)
       if (response?.isError) {
         console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
         return
@@ -359,7 +344,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
         width="90vw"
         footer={renderFooter()}
       >
-        <StylesTabPattern>
+        <StylesTabPattern className="mr-12 ml-12">
           <Tabs type="card" defaultActiveKey="1" items={items} />
         </StylesTabPattern>
         {!!openViewProducts && selectedProductView && (

@@ -21,13 +21,13 @@ import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
 const { Option } = Select
 
-const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
+const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
   const [form] = Form.useForm()
-  const [wareHouseProductsNotIn, setWareHouseProductsNotIn] = useState([])
+  const [wareHouseProductsIn, setWareHouseProductsIn] = useState([])
   const [selectedProducts, setSelectedProducts] = useState([])
   const [openViewProducts, setOpenViewProducts] = useState(false)
   const [selectedProductView, setSelectedProductView] = useState(null)
-  const [stateBody, setStateBody] = useState({})
+  const [stateBody, setStateBody] = useState([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
@@ -39,6 +39,9 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     ApproveStatus: 0,
     Status: 0,
   })
+
+  const [shopList, setShopList] = useState([]) // State to hold shop list
+  const [selectedShop, setSelectedShop] = useState(null) // State to hold selected shop
 
   const listBtn = record => [
     {
@@ -65,7 +68,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     },
   ]
 
-  const column = [
+  const columns = [
     {
       title: "STT",
       key: "ProductID",
@@ -76,13 +79,13 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     },
     {
       title: "Tên sản phẩm",
-      dataIndex: ["name"],
+      dataIndex: ["productId", "name"],
       width: 200,
       key: "productName",
     },
     {
       title: "Mô tả",
-      dataIndex: ["description"],
+      dataIndex: ["productId", "description"],
       width: 200,
       key: "description",
       render: text => (
@@ -102,13 +105,13 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
         <InputNumber
           min={0}
           defaultValue={record.quantity}
-          onChange={value => handleQuantityChange(record._id, value)}
+          onChange={value => handleQuantityChange(record.productId._id, value)}
         />
       ),
     },
     {
       title: "Ảnh",
-      dataIndex: ["image"],
+      dataIndex: ["productId", "image"],
       width: 120,
       key: "image",
       render: text => (
@@ -158,39 +161,31 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     },
   ]
 
-  // const handleRemoveProduct = record => {
-  //   setSelectedProducts(prev => prev.filter(item => item._id !== record._id))
-  //   setStateBody(prev => prev.filter(item => item.productId !== record._id))
-  // }
   const handleRemoveProduct = record => {
-    setSelectedProducts(prev => prev.filter(item => item._id !== record._id))
-    setStateBody(prev => {
-      const newStateBody = { ...prev }
-      delete newStateBody[record._id]
-      return newStateBody
-    })
+    setSelectedProducts(prev =>
+      prev.filter(item => item.productId._id !== record.productId._id),
+    )
+    setStateBody(prev =>
+      prev.filter(item => item.productId !== record.productId._id),
+    )
   }
 
-  // const handleProductChange = value => {
-  //   const selected = wareHouseProductsNotIn.find(
-  //     product => product._id === value,
-  //   )
-  //   if (selected) {
-  //     setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
-  //     setStateBody(prev => [...prev, { productId: selected._id, quantity: 0 }])
-  //   }
-  // }
   const handleProductChange = value => {
-    const selected = wareHouseProductsNotIn.find(
-      product => product._id === value,
+    const selected = wareHouseProductsIn.find(
+      product => product.productId._id === value,
     )
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
-      setStateBody({
-        productId: selected._id,
-        quantity: 0,
-      })
+      setStateBody(prev => [
+        ...prev,
+        { productId: selected.productId._id, quantity: 0 },
+      ])
     }
+  }
+
+  const handleShopChange = value => {
+    const selected = shopList.find(shop => shop.id === value)
+    setSelectedShop(selected)
   }
 
   const handleQuantityChange = (productId, quantity) => {
@@ -201,26 +196,48 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     )
   }
 
-  const getProductsNotInWarehouse = async () => {
+  const getProductsInWarehouse = async () => {
     try {
       setLoading(true)
-      const warehouseProductsNotInRes =
-        await WarehouseManagerService.getListProductsNotInWarehouse(id)
-      if (warehouseProductsNotInRes?.isError) {
+      const warehouseProductsInRes =
+        await WarehouseManagerService.getListProductsWarehouse(id)
+      if (warehouseProductsInRes?.isError) {
         console.error(
           "Error fetching warehouse info:",
-          warehouseProductsNotInRes.message,
+          warehouseProductsInRes.message,
         )
         return
       }
-      setWareHouseProductsNotIn(warehouseProductsNotInRes)
-      setTotal(warehouseProductsNotInRes.length)
+      setWareHouseProductsIn(warehouseProductsInRes)
+      setTotal(warehouseProductsInRes.length)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
     } finally {
       setLoading(false)
     }
   }
+
+  const getShopList = async () => {
+    try {
+      setLoading(true)
+      const shopListRes = await WarehouseManagerService.getShopList()
+      if (shopListRes?.isError) {
+        console.error("Error fetching shop list:", shopListRes.message)
+        return
+      }
+      setShopList(shopListRes)
+      console.log(shopListRes)
+    } catch (error) {
+      console.error("Error in getShopList:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    getProductsInWarehouse()
+    getShopList()
+  }, [id])
 
   const addProductsToWarehouse = async () => {
     try {
@@ -229,13 +246,11 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
         id,
         stateBody,
       )
-      console.log("djt me response", response)
       if (response?.isError) {
         console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
         return
       }
-      // Xử lý khi thành công
-      getProductsNotInWarehouse()
+      getProductsInWarehouse()
       onOk()
       onCancel()
       Notice({
@@ -247,89 +262,6 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    console.log(id)
-    getProductsNotInWarehouse()
-  }, [pagination])
-
-  const items = [
-    {
-      key: 1,
-      label: <div>Sản phẩm</div>,
-      children: (
-        <PatentRegistrationChildBorder>
-          <Form form={form} onFinish={addProductsToWarehouse}>
-            <Row gutter={16} style={{ marginBottom: 16 }}>
-              <Col span={12}>
-                <Select
-                  showSearch
-                  placeholder="Chọn sản phẩm"
-                  optionFilterProp="children"
-                  onChange={handleProductChange}
-                  style={{ width: "100%" }}
-                >
-                  {wareHouseProductsNotIn.map(product => (
-                    <Option key={product._id} value={product._id}>
-                      {product.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Col>
-              {/* <Col span={12}>
-                <Form.Item
-                  name="quantity"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập số lượng" },
-                  ]}
-                >
-                  <InputNumber
-                    min={0}
-                    placeholder="Số lượng"
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col> */}
-            </Row>
-            <TableCustom
-              isPrimary
-              rowKey="ProductId"
-              columns={column}
-              dataSource={selectedProducts}
-              scroll={{ x: "800px" }}
-              pagination={{
-                hideOnSinglePage: total <= 10,
-                current: pagination?.CurrentPage,
-                pageSize: pagination?.PageSize,
-                responsive: true,
-                total: total,
-                locale: { items_per_page: "" },
-                showSizeChanger: total > 10,
-                onChange: (CurrentPage, PageSize) =>
-                  setPagination({
-                    ...pagination,
-                    CurrentPage,
-                    PageSize,
-                  }),
-              }}
-            />
-            {/* <Form.Item>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Thêm sản phẩm
-              </Button>
-            </Form.Item> */}
-          </Form>
-          <Modal
-            visible={imageModalVisible}
-            footer={null}
-            onCancel={() => setImageModalVisible(false)}
-          >
-            <img alt="product" style={{ width: "100%" }} src={selectedImage} />
-          </Modal>
-        </PatentRegistrationChildBorder>
-      ),
-    },
-  ]
 
   const renderFooter = () => (
     <div className="lstBtn d-flex-sb">
@@ -355,24 +287,88 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
         open={open}
         onCancel={onCancel}
         onOk={onOk}
-        title={id ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm"}
+        title={"Thêm mới sản phẩm"}
         width="90vw"
         footer={renderFooter()}
       >
-        <StylesTabPattern>
-          <Tabs type="card" defaultActiveKey="1" items={items} />
+        <StylesTabPattern className="mr-12 ml-12">
+          <Tabs type="card" defaultActiveKey="1">
+            <Tabs.TabPane key="1" tab="Sản phẩm">
+              <PatentRegistrationChildBorder>
+                <Form form={form} onFinish={addProductsToWarehouse}>
+                  <Row gutter={16} style={{ marginBottom: 16 }}>
+                    <Col span={12}>
+                      <Select
+                        showSearch
+                        placeholder="Chọn sản phẩm"
+                        optionFilterProp="children"
+                        onChange={handleProductChange}
+                        style={{ width: "100%" }}
+                      >
+                        {wareHouseProductsIn.map(product => (
+                          <Option
+                            key={product.productId._id}
+                            value={product.productId._id}
+                          >
+                            {product.productId.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Col>
+                    <Col span={12}>
+                      <Select
+                        showSearch
+                        placeholder="Chọn shop"
+                        optionFilterProp="children"
+                        onChange={handleShopChange}
+                        style={{ width: "100%" }}
+                      >
+                        {shopList.map(shop => (
+                          <Option key={shop._id} value={shop._id}>
+                            {shop.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Col>
+                  </Row>
+                  <TableCustom
+                    isPrimary
+                    rowKey={record => record.productId._id}
+                    columns={columns}
+                    dataSource={selectedProducts}
+                    scroll={{ x: "800px" }}
+                    pagination={{
+                      hideOnSinglePage: total <= 10,
+                      current: pagination?.CurrentPage,
+                      pageSize: pagination?.PageSize,
+                      responsive: true,
+                      total: total,
+                      locale: { items_per_page: "" },
+                      showSizeChanger: total > 10,
+                      pageSizeOptions: ["10", "20", "50", "100"],
+                    }}
+                  />
+                </Form>
+              </PatentRegistrationChildBorder>
+            </Tabs.TabPane>
+          </Tabs>
         </StylesTabPattern>
-        {!!openViewProducts && selectedProductView && (
-          <ModalViewProduct
-            visible={openViewProducts}
-            onCancel={() => setOpenViewProducts(false)}
-            product={selectedProductView}
-          />
-        )}
+        <ModalViewProduct
+          visible={openViewProducts}
+          onCancel={() => setOpenViewProducts(false)}
+          product={selectedProductView}
+        />
       </CustomModal>
+      <Modal
+        visible={imageModalVisible}
+        onCancel={() => setImageModalVisible(false)}
+        footer={null}
+      >
+        <img src={selectedImage} alt="Selected" style={{ width: "100%" }} />
+      </Modal>
     </div>
   )
 }
 
-export default InsertUpdateProduct
+export default InsertUpdateInvoice
 

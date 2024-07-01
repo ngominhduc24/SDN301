@@ -1,4 +1,4 @@
-import { Col, Row, Space, Tooltip, Modal } from "antd"
+import { Col, Row, Space, Tooltip, Modal, Switch } from "antd"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import CB1 from "src/components/Modal/CB1"
@@ -13,15 +13,21 @@ import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
 import UpdateProduct from "./components/UpdateProduct"
+import {
+  MainTableData,
+  MainTableHeader,
+  SubTableData,
+  SubTableHeader,
+} from "src/components/Table/CustomTable/styled"
 const ManageInvoiceWarehouse = () => {
-  const [wareHouseProducts, setWareHouseProducts] = useState([])
-  const [wareHouseId, setWareHouseId] = useState("")
+  const [invoices, setInvoices] = useState([])
+  const [invoiceId, setInvoiceId] = useState("")
   const [total, setTotal] = useState(0)
-  const [openInsertUpdateProducts, setOpenInsertUpdateProducts] =
+  const [openInsertUpdateInvoices, setOpenInsertUpdateInvoices] =
     useState(false)
-  const [openUpdateProducts, setOpenUpdateProducts] = useState(false)
-  const [openViewProducts, setOpenViewProducts] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [openUpdateInvoices, setOpenUpdateInvoices] = useState(false)
+  const [openViewInvoice, setOpenViewInvoice] = useState(false)
+  const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -41,22 +47,18 @@ const ManageInvoiceWarehouse = () => {
   const getWarehouseInfo = async () => {
     try {
       setLoading(true)
-      const warehouseInfoRes = await WarehouseManagerService.getInfoWareHouse()
-      console.log("API Response:", warehouseInfoRes)
-      if (warehouseInfoRes?.isError) {
+      const warehouseInvoice = await WarehouseManagerService.getAllInvoice()
+      console.log("API Response:", warehouseInvoice)
+      if (warehouseInvoice?.isError) {
         console.error(
           "Error fetching warehouse info:",
-          warehouseInfoRes.message,
+          warehouseInvoice.message,
         )
         return
       }
-      const warehouseId = warehouseInfoRes?._id
-      const productsRes =
-        await WarehouseManagerService.getListProductsWarehouse(warehouseId)
-      console.log("Products:", productsRes)
-      setWareHouseId(warehouseId)
-      setWareHouseProducts(productsRes)
-      setTotal(productsRes.length) // Assuming productsRes is an array of products
+      setInvoices(warehouseInvoice)
+      setInvoiceId(warehouseInvoice?._id)
+      setTotal(warehouseInvoice.length)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
     } finally {
@@ -67,11 +69,11 @@ const ManageInvoiceWarehouse = () => {
   const listBtn = record => [
     {
       isEnable: true,
-      name: "Xem sản phẩm ",
+      name: "Xem chi tiết hóa đơn ",
       icon: "eye",
       onClick: () => {
-        setSelectedProduct(record)
-        setOpenViewProducts(true)
+        setSelectedInvoice(record)
+        setOpenViewInvoice(true)
         console.log("Products:", record)
       },
     },
@@ -80,8 +82,8 @@ const ManageInvoiceWarehouse = () => {
       name: "Chỉnh sửa",
       icon: "edit-green",
       onClick: () => {
-        setSelectedProduct(record)
-        setOpenUpdateProducts(true)
+        setSelectedInvoice(record)
+        setOpenUpdateInvoices(true)
       },
     },
     // {
@@ -102,27 +104,118 @@ const ManageInvoiceWarehouse = () => {
     //     }),
     // },
   ]
+  const toggleStatus = async (id, checked) => {
+    setLoading(true)
+    try {
+      const updatedStatus = checked ? "completed" : "cancelled"
+      await WarehouseManagerService.updateStatusInvoice(id, {
+        status: updatedStatus,
+      })
+      const updatedInvoices = invoices.map(invoice =>
+        invoice._id === id ? { ...invoice, status: updatedStatus } : invoice,
+      )
+      setInvoices(updatedInvoices)
+      Notice({
+        isSuccess: true,
+        msg: "Cập nhật trạng thái thành công",
+      })
+    } catch (error) {
+      Notice({
+        isSuccess: false,
+        msg: "Cập nhật trạng thái thất bại",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  const column = [
+  const columns = [
     {
       title: "STT",
-      key: ["productId", "_id"],
+      key: "_id",
       width: 60,
-      render: (_, record, index) => (
-        <div className="text-center">{index + 1}</div>
+      render: (_, __, index) => <div className="text-center">{index + 1}</div>,
+    },
+    {
+      title: (
+        <>
+          <MainTableHeader>Tên kho xuất</MainTableHeader>
+          <SubTableHeader>Số điện thoại</SubTableHeader>
+          <SubTableHeader>Email</SubTableHeader>
+        </>
+      ),
+      dataIndex: ["from", "name"],
+      width: 300,
+      align: "center",
+      key: "from_name",
+      render: (val, record) => (
+        <>
+          <MainTableData>{val}</MainTableData>
+          <SubTableData>{record.from?.phone}</SubTableData>
+          <SubTableData>{record.from?.email}</SubTableData>
+        </>
       ),
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: ["productId", "name"],
-      width: 200,
-      key: "productName",
+      title: (
+        <>
+          <MainTableHeader>Tên kho cửa hàng đến</MainTableHeader>
+          <SubTableHeader>Số điện thoại</SubTableHeader>
+          <SubTableHeader>Email</SubTableHeader>
+        </>
+      ),
+      dataIndex: ["to", "name"],
+      width: 300,
+      align: "center",
+      key: "to_name",
+      render: (val, record) => (
+        <>
+          <MainTableData>{val}</MainTableData>
+          <SubTableData>{record.to?.phone}</SubTableData>
+          <SubTableData>{record.to?.email}</SubTableData>
+        </>
+      ),
     },
     {
-      title: "Mô tả",
-      dataIndex: ["productId", "description"],
+      title: "Tổng hóa đơn",
+      dataIndex: "sub_total",
       width: 200,
-      key: "description",
+      align: "center",
+      key: "sub_total",
+      render: value =>
+        value.toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
+    },
+    {
+      title: "Giảm giá",
+      dataIndex: "discount",
+      align: "center",
+      width: 100,
+      key: "discount",
+      render: value => `${value}%`,
+    },
+    {
+      title: "Phí vận chuyển",
+      align: "center",
+      dataIndex: "shipping_charge",
+      width: 100,
+      key: "shipping_charge",
+      render: value =>
+        value.toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
+    },
+    {
+      title: "Tổng hóa đơn cuối",
+      align: "center",
+      dataIndex: "total_price",
+      width: 200,
+      key: "total_price",
+      render: value =>
+        value.toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "note",
+      width: 200,
+      key: "note",
       render: text => (
         <Tooltip title={text}>
           <span>
@@ -132,51 +225,50 @@ const ManageInvoiceWarehouse = () => {
       ),
     },
     {
-      title: "Số lượng",
-      dataIndex: "quantity",
+      title: "Action",
+      dataIndex: "status",
       width: 120,
-      key: "quantity",
-    },
-    {
-      title: "Ảnh",
-      dataIndex: ["productId", "image"],
-      width: 120,
-      key: "image",
-      render: text => (
-        <img
-          src={text}
-          alt="product"
-          style={{ width: 50, height: 50, cursor: "pointer" }}
-          onClick={() => {
-            setSelectedImage(text)
-            setImageModalVisible(true)
+      key: "status",
+      align: "center",
+      render: (_, record) => (
+        <Switch
+          checked={record.status === "active"}
+          onChange={(checked, e) => {
+            e.stopPropagation()
+            toggleStatus(record._id, checked)
           }}
         />
       ),
     },
     {
-      title: "Trạng thái hoạt động",
-      dataIndex: ["productId", "status"],
+      title: "Trạng thái hoá đơn",
+      dataIndex: "status",
       align: "center",
-      width: 100,
-      key: "Status",
+      width: 150,
+      key: "status",
       render: (_, record) => (
         <span
           className={[
             "no-color",
-            record?.productId?.status === "active" ? "blue-text" : "red-text",
+            record?.status === "pending"
+              ? "blue-text"
+              : record?.status === "completed"
+              ? "green-text"
+              : "red-text",
           ].join(" ")}
         >
-          {record?.productId?.status === "active"
-            ? "Đang hoạt động"
-            : "Dừng Hoạt Động"}
+          {record?.status === "pending"
+            ? "Đang chờ xác nhận"
+            : record?.status === "completed"
+            ? "Đã hoàn thành"
+            : "Đã hủy"}
         </span>
       ),
     },
     {
       title: "Chức năng",
       align: "center",
-      key: "Action",
+      key: "action",
       width: 100,
       render: (_, record) => (
         <Space>
@@ -199,11 +291,11 @@ const ManageInvoiceWarehouse = () => {
   return (
     <SpinCustom spinning={loading}>
       <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
-        <div>Quản lý tổng sản phẩm</div>
+        <div>Quản lý hóa đơn xuất kho</div>
         <div>
           <Button
             btntype="third"
-            onClick={() => setOpenInsertUpdateProducts(true)}
+            onClick={() => setOpenInsertUpdateInvoices(true)}
           >
             Thêm mới
           </Button>
@@ -215,9 +307,9 @@ const ManageInvoiceWarehouse = () => {
           <TableCustom
             isPrimary
             rowKey="ProductId"
-            columns={column}
+            columns={columns}
             textEmpty="Chưa có sản phẩm nào trong kho"
-            dataSource={wareHouseProducts}
+            dataSource={invoices}
             scroll={{ x: "800px" }}
             pagination={{
               hideOnSinglePage: total <= 10,
@@ -244,7 +336,7 @@ const ManageInvoiceWarehouse = () => {
       >
         <img alt="product" style={{ width: "100%" }} src={selectedImage} />
       </Modal>
-      {!!openInsertUpdateProducts && (
+      {/* {!!openInsertUpdateProducts && (
         <InsertUpdateProduct
           id={wareHouseId}
           open={openInsertUpdateProducts}
@@ -267,7 +359,7 @@ const ManageInvoiceWarehouse = () => {
           onCancel={() => setOpenUpdateProducts(false)}
           onOk={() => getWarehouseInfo()}
         />
-      )}
+      )} */}
     </SpinCustom>
   )
 }

@@ -22,7 +22,7 @@ import IOSSwitch from "src/components/IOSSwitch"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
 const { Option } = Select
 
-const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
+const UpdateInvoice = ({ open, onCancel, onOk, product, id }) => {
   const [imageModalVisible, setImageModalVisible] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -242,5 +242,5 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
   )
 }
 
-export default UpdateProduct
+export default UpdateInvoice
 
