@@ -10,6 +10,7 @@ import ModalInsertUpdate from "./InsertUpdate"
 import { FAILBACK } from "src/constants/constants"
 import AdminServices from "src/services/AdminService"
 import STORAGE, { getStorage } from "src/lib/storage"
+import ManageUser from ".."
 
 const StyledUserDetail = styled.div`
   .img-user {
@@ -35,18 +36,15 @@ const StyledUserDetail = styled.div`
     }
   }
 `
-const UserDetail = ({ open, onCancel, onOk, listButtonShow, userId }) => {
+const UserDetail = ({ open, onCancel, onOk, data }) => {
   const [loading, setLoading] = useState(false)
   const [openInsert, setOpenInsert] = useState(false)
-  const [customerInfo, setCustomerInfo] = useState(false)
   const [userInfo, setUserInfo] = useState({})
   // const UserID = getStorage(STORAGE.USER_ID)
   useEffect(() => {
-    if(userId){
-      getUserDetail(userId)
-    }
+      // getUserDetail(userId)
     
-  }, [userId])
+  }, [])
 
   const getUserDetail = async (id) => {
     try {
@@ -59,6 +57,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow, userId }) => {
       setLoading(false)
     }
   }
+
   // const getUserDetail = async () => {
   //   try {
   //     setLoading(true)
@@ -93,35 +92,23 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow, userId }) => {
         )} */}
       </div>
       <div className="d-flex justify-content-flex-end">
-        {/* {!!listButtonShow?.IsUpdate && (
           <Button
             loading={loading}
             btntype="primary"
             onClick={() => {
-              setOpenInsert(customerInfo)
+              setOpenInsert(data)
             }}
           >
             Sửa
           </Button>
-        )} */}
-        {/* {!!listButtonShow?.IsDelete && (
           <Button
             loading={loading}
             onClick={() => {
-              CB1({
-                title: `Bạn có chắc chắn muốn xóa tài khoản này không?`,
-                icon: "warning-usb",
-                okText: "Đồng ý",
-                onOk: async close => {
-                  // onDeleteUser(customerInfo?.UserID)
-                  close()
-                },
-              })
+              onCancel()
             }}
           >
-            Xóa
+            Đóng
           </Button>
-        )} */}
       </div>
     </div>
   )
@@ -152,7 +139,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow, userId }) => {
         <Row gutter={[20, 8]}>
           <Col span={10}>
             <Image
-              src={customerInfo?.Avatar}
+              src={data?.Avatar || FAILBACK}
               fallback={FAILBACK}
               alt={"ảnh tài khoản"}
               className="img-user"
@@ -160,7 +147,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow, userId }) => {
           </Col>
           <Col span={14}>
             <Col span={24}>
-              <div className="account-name">{userInfo?.fullname}</div>
+              <div className="account-name">{data?.fullname}</div>
             </Col>
             <Col span={24}>
               <div className="mb-12 text-center ">
@@ -168,7 +155,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow, userId }) => {
                 {/* {userInfo?.role
                   ? userInfo?.role?.map(item => item?.role)?.join()
                   : ""} */}
-                {userInfo?.role}
+                {data?.role}
               </div>
             </Col>
             <Col span={24}>
@@ -180,14 +167,14 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow, userId }) => {
               <Col span={12}>
                 <div className="mb-12">
                   <span className="fw-600 ">Họ tên:</span>{" "}
-                  {userInfo?.fullname}
+                  {data?.fullname}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
                   <span className="fw-600 ">Trạng thái:</span>{" "}
-                  {!!userInfo?.status
+                  {!!data?.status
                     ? "Đang hoạt động"
                     : "Không hoạt động"}
                 </div>
@@ -196,21 +183,21 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow, userId }) => {
               <Col span={12}>
                 <div className="mb-12">
                   <span className="fw-600 ">Số điện thoại:</span>{" "}
-                  {userInfo?.phone}
+                  {data?.phone}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
-                  <span className="fw-600 ">Email:</span> {userInfo?.email}
+                  <span className="fw-600 ">Email:</span> {data?.email}
                 </div>
               </Col>
 
               <Col span={12}>
                 <div className="mb-12">
                   <span className="fw-600 ">Ngày sinh:</span>{" "}
-                  {userInfo?.dob
-                    ? moment(userInfo?.dob)?.format("DD/MM/YYYY")
+                  {data?.dob
+                    ? moment(data?.dob)?.format("DD/MM/YYYY")
                     : ""}
                 </div>
               </Col>
@@ -223,7 +210,7 @@ const UserDetail = ({ open, onCancel, onOk, listButtonShow, userId }) => {
       {!!openInsert && (
         <ModalInsertUpdate
           open={openInsert}
-          detailInfo={userInfo}
+          detailInfo={data}
           onOk={() => {
             onOk()
             // getUserDetail()

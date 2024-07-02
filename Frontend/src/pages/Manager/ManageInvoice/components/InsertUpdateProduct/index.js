@@ -16,19 +16,18 @@ import TableCustom from "src/components/Table/CustomTable"
 import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Button from "src/components/MyButton/Button"
-import ManagerService from "src/services/ManagerService"
+import WarehouseManagerService from "src/services/WarehouseManagerService"
 import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
-
 const { Option } = Select
 
 const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
   const [form] = Form.useForm()
-  const [shopProductsNotIn, setShopProductsNotIn] = useState([])
+  const [wareHouseProductsNotIn, setWareHouseProductsNotIn] = useState([])
   const [selectedProducts, setSelectedProducts] = useState([])
   const [openViewProducts, setOpenViewProducts] = useState(false)
   const [selectedProductView, setSelectedProductView] = useState(null)
-  const [stateBody, setStateBody] = useState([])
+  const [stateBody, setStateBody] = useState({})
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
@@ -46,12 +45,6 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
       isEnable: true,
       name: "Xem sản phẩm ",
       icon: "eye",
-      onClick: () => {
-        setSelectedProductView(record)
-        setOpenViewProducts(true)
-        console.log(record)
-        console.log("Products:", record)
-      },
     },
     {
       isEnable: true,
@@ -110,7 +103,6 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
           min={0}
           defaultValue={record.quantity}
           onChange={value => handleQuantityChange(record._id, value)}
-          disabled
         />
       ),
     },
@@ -166,16 +158,38 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     },
   ]
 
+  // const handleRemoveProduct = record => {
+  //   setSelectedProducts(prev => prev.filter(item => item._id !== record._id))
+  //   setStateBody(prev => prev.filter(item => item.productId !== record._id))
+  // }
   const handleRemoveProduct = record => {
     setSelectedProducts(prev => prev.filter(item => item._id !== record._id))
-    setStateBody(prev => prev.filter(item => item.productId !== record._id))
+    setStateBody(prev => {
+      const newStateBody = { ...prev }
+      delete newStateBody[record._id]
+      return newStateBody
+    })
   }
 
+  // const handleProductChange = value => {
+  //   const selected = wareHouseProductsNotIn.find(
+  //     product => product._id === value,
+  //   )
+  //   if (selected) {
+  //     setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
+  //     setStateBody(prev => [...prev, { productId: selected._id, quantity: 0 }])
+  //   }
+  // }
   const handleProductChange = value => {
-    const selected = shopProductsNotIn.find(product => product._id === value)
+    const selected = wareHouseProductsNotIn.find(
+      product => product._id === value,
+    )
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
-      setStateBody(prev => [...prev, { productId: selected._id, quantity: 0 }])
+      setStateBody({
+        productId: selected._id,
+        quantity: 0,
+      })
     }
   }
 
@@ -187,20 +201,20 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     )
   }
 
-  const getProductsNotInShop = async () => {
+  const getProductsNotInWarehouse = async () => {
     try {
       setLoading(true)
-      const shopProductsNotInRes =
-        await ManagerService.getListProductsNotInShop(id)
-      if (shopProductsNotInRes?.isError) {
+      const warehouseProductsNotInRes =
+        await WarehouseManagerService.getListProductsNotInWarehouse(id)
+      if (warehouseProductsNotInRes?.isError) {
         console.error(
           "Error fetching warehouse info:",
-          shopProductsNotInRes.message,
+          warehouseProductsNotInRes.message,
         )
         return
       }
-      setShopProductsNotIn(shopProductsNotInRes)
-      setTotal(shopProductsNotInRes.length)
+      setWareHouseProductsNotIn(warehouseProductsNotInRes)
+      setTotal(warehouseProductsNotInRes.length)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
     } finally {
@@ -208,24 +222,20 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     }
   }
 
-  const addProductsToShop = async () => {
+  const addProductsToWarehouse = async () => {
     try {
       setLoading(true)
-      const response = await ManagerService.addProductsToShop(id, stateBody)
-      console.log("API2 response:", response) // Log the entire response object
-      if (response && response.data) {
-        // Assuming response.data is where the expected data resides
-        console.log("Data received:", response.data)
-        // Further processing of response.data here
-      } else {
-        console.error("Unexpected response structure:", response)
-      }
+      const response = await WarehouseManagerService.addProductsToWarehouse(
+        id,
+        stateBody,
+      )
+      console.log("djt me response", response)
       if (response?.isError) {
         console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
         return
       }
       // Xử lý khi thành công
-      getProductsNotInShop()
+      getProductsNotInWarehouse()
       onOk()
       onCancel()
       Notice({
@@ -240,7 +250,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
 
   useEffect(() => {
     console.log(id)
-    getProductsNotInShop()
+    getProductsNotInWarehouse()
   }, [pagination])
 
   const items = [
@@ -249,7 +259,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
       label: <div>Sản phẩm</div>,
       children: (
         <PatentRegistrationChildBorder>
-          <Form form={form} onFinish={addProductsToShop}>
+          <Form form={form} onFinish={addProductsToWarehouse}>
             <Row gutter={16} style={{ marginBottom: 16 }}>
               <Col span={12}>
                 <Select
@@ -259,7 +269,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
                   onChange={handleProductChange}
                   style={{ width: "100%" }}
                 >
-                  {shopProductsNotIn.map(product => (
+                  {wareHouseProductsNotIn.map(product => (
                     <Option key={product._id} value={product._id}>
                       {product.name}
                     </Option>
@@ -328,7 +338,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={addProductsToShop}
+          onClick={addProductsToWarehouse}
         >
           Lưu
         </Button>
@@ -349,7 +359,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
         width="90vw"
         footer={renderFooter()}
       >
-        <StylesTabPattern className="mr-12 ml-12">
+        <StylesTabPattern>
           <Tabs type="card" defaultActiveKey="1" items={items} />
         </StylesTabPattern>
         {!!openViewProducts && selectedProductView && (

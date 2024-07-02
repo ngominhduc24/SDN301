@@ -22,50 +22,54 @@ const ModalViewProduct = ({ visible, onCancel, product }) => {
         </div>
       }
     >
-      <Row gutter={[16, 16]}>
-        {/* Product Details */}
-        <Col span={12}>
-          <Row gutter={[16, 16]}>
-            <Col span={24}>
-              <strong>Tên sản phẩm:</strong> {product?.productId?.name}
-            </Col>
-            <Col span={24}>
-              <strong>Mô tả:</strong>{" "}
-              <Tooltip title={product?.productId?.description}>
-                <span>
-                  {product?.productId?.description?.length > 100
-                    ? `${product?.productId?.description.substring(0, 100)}...`
-                    : product?.productId?.description}
+      <div className="mr-16 ml-16 flex">
+        <Row gutter={[16, 16]}>
+          {/* Product Details */}
+          <Col span={12} className="mt-40">
+            <Row gutter={[16, 16]}>
+              <Col span={24}>
+                <strong>Tên sản phẩm:</strong> {product?.productId?.name}
+              </Col>
+              <Col span={24}>
+                <strong>Mô tả:</strong>{" "}
+                <Tooltip title={product?.productId?.description}>
+                  <span>
+                    {product?.productId?.description?.length > 100
+                      ? `${product?.productId?.description.substring(
+                          0,
+                          100,
+                        )}...`
+                      : product?.productId?.description}
+                  </span>
+                </Tooltip>
+              </Col>
+              <Col span={24}>
+                <strong>Số lượng:</strong> {product?.quantity}
+              </Col>
+              <Col span={24}>
+                <strong>Trạng thái:</strong>{" "}
+                <span
+                  className={
+                    product?.status === "active" ? "blue-text" : "red-text"
+                  }
+                >
+                  {product?.status === "active"
+                    ? "Đang hoạt động"
+                    : "Dừng hoạt động"}
                 </span>
-              </Tooltip>
-            </Col>
-            <Col span={24}>
-              <strong>Số lượng:</strong> {product?.quantity}
-            </Col>
-            <Col span={24}>
-              <strong>Trạng thái:</strong>{" "}
-              <span
-                className={
-                  product?.status === "active" ? "blue-text" : "red-text"
-                }
-              >
-                {product?.status === "active"
-                  ? "Đang hoạt động"
-                  : "Dừng hoạt động"}
-              </span>
-            </Col>
-          </Row>
-        </Col>
-
-        {/* Product Image */}
-        <Col span={12} style={{ textAlign: "center" }}>
-          <img
-            src={product?.productId?.image}
-            alt="product"
-            style={{ width: "80%", height: "auto", maxHeight: "400px" }}
-          />
-        </Col>
-      </Row>
+              </Col>
+            </Row>
+          </Col>
+          {/* Product Image */}
+          <Col span={12} style={{ textAlign: "center" }}>
+            <img
+              src={product?.productId?.image}
+              alt="product"
+              style={{ width: "80%", height: "auto", maxHeight: "400px" }}
+            />
+          </Col>
+        </Row>
+      </div>
     </Modal>
   )
 }

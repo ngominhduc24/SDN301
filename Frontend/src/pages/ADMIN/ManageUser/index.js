@@ -1,5 +1,5 @@
 import { UserOutlined } from "@ant-design/icons"
-import { Anchor, Avatar, Col, Divider, Row, Space, Tooltip } from "antd"
+import { Anchor, Avatar, Col, Divider, Row, Space, Switch, Tooltip } from "antd"
 import { useEffect, useState } from "react"
 import { FloatActionWrapper } from "src/components/FloatAction/styles"
 import CB1 from "src/components/Modal/CB1"
@@ -111,6 +111,38 @@ const ManageUser = () => {
         </>
       ),
     },
+    {
+      title: (
+        <>
+          <MainTableHeader>Ngày sinh</MainTableHeader>
+          {/* <SubTableHeader>Số điện thoại</SubTableHeader> */}
+        </>
+      ),
+      dataIndex: "dob",
+      key: "dob",
+      align: "center",
+      render: (val, record) => (
+        <>
+          <MainTableData>{record?.dob}</MainTableData>
+        </>
+      ),
+    },
+    {
+      title: (
+        <>
+          <MainTableHeader>Lương</MainTableHeader>
+          {/* <SubTableHeader>Số điện thoại</SubTableHeader> */}
+        </>
+      ),
+      dataIndex: "salary",
+      key: "salary",
+      align: "center",
+      render: (val, record) => (
+        <>
+          <MainTableData>{record?.salary}</MainTableData>
+        </>
+      ),
+    },
     // {
     //   title: "Nhóm quyền",
     //   dataIndex: "role",
@@ -165,6 +197,30 @@ const ManageUser = () => {
       ),
     },
     {
+      title: "Action",
+      dataIndex: "status",
+      key: "status",
+      width: 120,
+      align: "center",
+      render: (_, record) => (
+        // <div className="d-flex justify-content-center align-items-center mh-36">
+        //   <div className="text-center">
+        //     {record?.status === "active" ? "Đang hoạt động" : "Dừng hoạt động"}
+        //   </div>
+        //   <FloatActionWrapper size="small" className="float-action__wrapper">
+        //     {renderListButton(record)}
+        //   </FloatActionWrapper>
+        // </div>
+        <Switch
+          checked={record.status === "active"}
+          onChange={(checked, e) => {
+            e.stopPropagation()
+            toggleStatus(record._id, checked)
+          }}
+        />
+      ),
+    },
+    {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
@@ -174,11 +230,15 @@ const ManageUser = () => {
           <div className="text-center">
             {record?.status === "active" ? "Đang hoạt động" : "Dừng hoạt động"}
           </div>
-          <FloatActionWrapper size="small" className="float-action__wrapper">
-            {renderListButton(record)}
-          </FloatActionWrapper>
         </div>
       ),
+    },
+    {
+      title: "Chức năng",
+      align: "center",
+      key: "Action",
+      width: 100,
+      render: (_, record) => <Space>{renderListButton(record)}</Space>,
     },
   ]
   useEffect(() => {
@@ -196,64 +256,56 @@ const ManageUser = () => {
   // }
   const renderListButton = record => (
     <Space>
-      {!!listButtonShow?.IsUpdate && (
-        <ButtonCircle
-          title="Cập nhật"
-          iconName="edit"
-          onClick={() => {
-            setOpenInsertUpdate(true)
-            setDetailInfo(record)
-          }}
-        />
-      )}
-      {!!listButtonShow?.IsDelete && (
-        <ButtonCircle
-          title="Xóa"
-          iconName="bin"
-          onClick={() => {
-            CB1({
-              title: `Bạn có chắc chắn muốn xoá người dùng
-              <strong> ${record?.UserName}</strong> không?`,
-              icon: "warning-usb",
-              okText: "Đồng ý",
-              onOk: async close => {
-                // onDeleteUser(record?.UserID)
-                close()
-              },
-            })
-          }}
-        />
-      )}
-      {!!listButtonShow?.IsResetPass && (
-        <ButtonCircle
-          title="Reset mật khẩu"
-          iconName="reset-pass"
-          style={{ background: "#fff" }}
-          onClick={() =>
-            CB1({
-              title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.UserName} không?`,
-              icon: "warning-usb",
-              okText: "Đồng ý",
-              onOk: async close => {
-                // onReset(record?.UserID)
-                close()
-              },
-            })
-          }
-        />
-      )}
+      <ButtonCircle
+        title="Cập nhật"
+        iconName="edit"
+        onClick={() => {
+          setOpenInsertUpdate(true)
+          setDetailInfo(record)
+        }}
+      />
+      <ButtonCircle
+        title="Reset mật khẩu"
+        iconName="reset-pass"
+        style={{ background: "#fff" }}
+        onClick={e => {
+          e.stopPropagation()
+          CB1({
+            title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.UserName} không?`,
+            icon: "warning-usb",
+            okText: "Đồng ý",
+            onOk: async close => {
+              // onReset(record?.UserID)
+              close()
+            },
+          })
+        }}
+      />
     </Space>
   )
 
-  // const onDeleteUser = async UserID => {
-  //   try {
-  //     const res = await UserService.deleteUser({ UserID })
-  //     if (res?.isError) return
-  //     Notice({ msg: "Xóa người dùng thành công !" })
-  //     getAllUser()
-  //   } finally {
-  //   }
-  // }
+  const toggleStatus = async (userId, checked) => {
+    setLoading(true)
+    try {
+      const updatedStatus = checked ? "active" : "inactive"
+      await AdminServices.updateStatusUsers(userId, { status: updatedStatus })
+      const updatedDataSource = managers.map(user =>
+        user._id === userId ? { ...user, status: updatedStatus } : user,
+      )
+      setManagers(updatedDataSource)
+      Notice({
+        isSuccess: true,
+        msg: "Cập nhật trạng thái thành công",
+      })
+    } catch (error) {
+      Notice({
+        isSuccess: true,
+        msg: "Cập nhật trạng thái thất bại",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const getAllManagers = async () => {
     try {
@@ -263,7 +315,7 @@ const ManageUser = () => {
       console.log("responses: ", res)
       if (res) {
         setManagers(res)
-        setTotal(res.length)
+        setTotal(res?.length)
       }
     } catch (error) {
       console.log("error")
@@ -271,49 +323,7 @@ const ManageUser = () => {
       setLoading(false)
     }
   }
-  // const getAllUser = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const res = await UserService.getAllUserByDept({
-  //       ...pagination,
-  //       DepartmentID: selectedNode?.DepartmentID,
-  //     })
-  //     setListButtonShow(res?.Object?.ButtonShows)
-  //     setDataSource(res?.Object?.lt || [])
-  //     setTotal(res?.Object?.Total || [])
-  //     // setDataSource(
-  //     //   res?.Object?.Data?.length
-  //     //     ? res?.Object?.Data?.map(i => ({
-  //     //         ...i,
-  //     //         UserInfoOutputList: i?.UserInfoOutputList,
-  //     //       }))
-  //     //     : [],
-  //     // )
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
 
-  // const fakeData = [
-  //   {
-  //     UserID: 1,
-  //     UserName: "user1",
-  //     FullName: "User One",
-  //     Email: "user1@example.com",
-  //     PhoneNumber: "1234567890",
-  //     RoleName: ["Admin", "User"],
-  //     Status: 1,
-  //   },
-  //   {
-  //     UserID: 2,
-  //     UserName: "user2",
-  //     FullName: "User Two",
-  //     Email: "user2@example.com",
-  //     PhoneNumber: "1234567890",
-  //     RoleName: ["User"],
-  //     Status: 0,
-  //   },
-  // ]
   // const exportUser = async () => {
   //   try {
   //     const res = await UserService.exportUser({
@@ -339,7 +349,6 @@ const ManageUser = () => {
         <div className="title-type-1 d-flex justify-content-space-between align-items-center pb-16 pt-0 mb-16">
           <div className="fs-24">Danh sách quản lý</div>
           <Row gutter={[16, 16]}>
-            {!!listButtonShow?.IsInsert && (
               <Col>
                 <Button
                   btntype="primary"
@@ -349,8 +358,6 @@ const ManageUser = () => {
                   Thêm nhân viên
                 </Button>
               </Col>
-            )}
-            {!!listButtonShow?.IsExcel && (
               <Col>
                 <Button
                   // onClick={exportUser}
@@ -360,7 +367,6 @@ const ManageUser = () => {
                   Xuất Excel
                 </Button>
               </Col>
-            )}
           </Row>
         </div>
       </div>
@@ -384,7 +390,7 @@ const ManageUser = () => {
                   return {
                     onClick: () => {
                       setOpenModalUserDetail(record)
-                      setSelectedUserId(record._id)
+                      // setSelectedUserId(record._id)
                     },
                   }
                 }}
@@ -448,7 +454,7 @@ const ManageUser = () => {
         <ModalInsertUpdate
           open={openInsertUpdate}
           detailInfo={detailInfo}
-          // onOk={getAllUser}
+          onOk={getAllManagers}
           onCancel={() => {
             setDetailInfo(undefined)
             setOpenInsertUpdate(false)
@@ -460,19 +466,20 @@ const ManageUser = () => {
         <ImportUser
           open={openImportUser}
           onCancel={() => setOpenImportUser(false)}
-          // onOk={getAllUser}
-          department={selectedNode}
+          onOk={getAllManagers}
+          // department={selectedNode}
         />
       )}
 
       {!!openModalUserDetail && (
         <UserDetail
-          open={openModalUserDetail}
+          open={!!openModalUserDetail}
           onCancel={() => setOpenModalUserDetail(false)}
-          onOk={() => setPagination(pre => ({ ...pre }))}
-          department={selectedNode}
-          listButtonShow={listButtonShow}
-          userId={selectedUserId}
+          data = {openModalUserDetail}
+          onOk={getAllManagers}
+          // department={selectedNode}
+          // listButtonShow={listButtonShow}
+          // userId={selectedUserId}
         />
       )}
     </ListUserStyled>

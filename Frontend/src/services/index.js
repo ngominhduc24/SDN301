@@ -4,9 +4,9 @@ import STORAGE, { deleteStorage, getStorage } from "src/lib/storage"
 import { getMsgClient } from "src/lib/stringsUtils"
 import { trimData } from "src/lib/utils"
 import ROUTER from "src/router"
+
 /**
- *
- * parse error response
+ * Parse error response
  */
 function parseError(messages) {
   // error
@@ -20,9 +20,8 @@ function parseError(messages) {
 }
 
 /**
- * parse response
+ * Parse response
  */
-
 export function parseBody(response) {
   const resData = response.data
   if (+response?.status >= 500) {
@@ -36,7 +35,7 @@ export function parseBody(response) {
     // notice({
     //   msg: `Hệ thống xảy ra lỗi. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ (SC${response?.status})`,
     //   isSuccess: false,
-    // })
+    // });
   }
 
   if (response?.status === 200) {
@@ -65,24 +64,30 @@ export function parseBody(response) {
 }
 
 /**
- * axios instance
+ * Axios instance
  */
-// const baseURL = ''
 const instance = axios.create({
   // baseURL: '',
   timeout: 60000,
 })
 
-// request header
+// Request header
 instance.interceptors.request.use(
   config => {
     config.baseURL = process.env.REACT_APP_ROOT_API
+
+    // Lấy token từ storage
+    const token = getStorage(STORAGE.TOKEN)
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+
     return config
   },
   error => Promise.reject(error.message),
 )
 
-// response parse
+// Response parse
 instance.interceptors.response.use(
   response => parseBody(response),
   error => {
@@ -118,11 +123,12 @@ instance.interceptors.response.use(
         isSuccess: false,
       })
       return parseError(error.response.data)
-    } else
+    } else {
       notice({
         msg: `Hệ thống đang tạm thời gián đoạn. Xin vui lòng trở lại sau hoặc thông báo với ban quản trị để được hỗ trợ `,
         isSuccess: false,
       })
+    }
     return Promise.reject(error)
   },
 )
