@@ -77,7 +77,7 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
   const columns = [
     {
       title: "STT",
-      key: ["productId", "_id"],
+      key: "ProductID",
       width: 60,
       render: (_, record, index) => (
         <div className="text-center">{index + 1}</div>
@@ -180,7 +180,6 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     const selected = wareHouseProductsIn.find(
       product => product.productId._id === value,
     )
-    console.log(selected)
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
       setStateBody(prev => [

@@ -184,7 +184,7 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
       <SpinCustom spinning={loading}>
         <div className="mr-12 ml-12">
           <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
-            <div>Xem chi tiết Hóa Đơn</div>
+            <div>Xem chi tiết hóa đơn</div>
           </div>
           <SearchAndFilter
             pagination={pagination}

@@ -8,7 +8,9 @@ import {
   Tooltip,
   InputNumber,
   Modal,
-  Switch,
+  Card,
+  Typography,
+  Input,
 } from "antd"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
@@ -17,54 +19,97 @@ import TableCustom from "src/components/Table/CustomTable"
 import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Button from "src/components/MyButton/Button"
-import Notice from "src/components/Notice"
-import IOSSwitch from "src/components/IOSSwitch"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
+import Notice from "src/components/Notice"
+import ModalViewProduct from "./components/modal/ModalViewProduct"
 const { Option } = Select
 
-const UpdateInvoice = ({ open, onCancel, onOk, product, id }) => {
+const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
+  const [form] = Form.useForm()
+  const [wareHouse, setWareHouse] = useState({})
+  const [wareHouseProductsIn, setWareHouseProductsIn] = useState([])
+  const [selectedProducts, setSelectedProducts] = useState([])
+  const [openViewProducts, setOpenViewProducts] = useState(false)
+  const [selectedProductView, setSelectedProductView] = useState(null)
+  const [stateBody, setStateBody] = useState([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState([])
-  const [stateBody, setStateBody] = useState({})
-
+  const [pagination, setPagination] = useState({
+    PageSize: 10,
+    CurrentPage: 1,
+    TextSearch: "",
+    ApproveStatus: 0,
+    Status: 0,
+  })
+  const { Title, Text } = Typography
+  const [shopList, setShopList] = useState([])
+  const [selectedShop, setSelectedShop] = useState(null)
+  const [note, setNote] = useState("")
+  const [discount, setDiscount] = useState(0)
+  const [shippingCharge, setShippingCharge] = useState(0)
   useEffect(() => {
-    if (product) {
-      setSelectedProduct([product])
-      setStateBody({
-        [product._id]: {
-          quantity: product.quantity,
-          status: product.status,
-        },
+    getProductsInWarehouse()
+    getShopList()
+    getWarehouse()
+    console.log(invoice)
+  }, [id])
+  useEffect(() => {
+    if (open && invoice) {
+      form.setFieldsValue({
+        shop: invoice.to._id,
+        note: invoice.note,
+        discount: invoice.discount,
+        shippingCharge: invoice.shipping_charge,
       })
+
+      setSelectedShop(invoice.to)
+      setStateBody(
+        invoice.details.map(item => ({
+          productId: item.product._id,
+          quantity: item.quantity,
+        })),
+      )
+
+      setSelectedProducts(
+        invoice.details.map(item => ({
+          ...item.product,
+          quantity: item.quantity,
+        })),
+      )
     }
-  }, [product])
+  }, [open, invoice, form])
 
-  const handleQuantityChange = (productId, quantity) => {
-    setStateBody(prev => ({
-      ...prev,
-      [productId]: {
-        ...prev[productId],
-        quantity: quantity,
-      },
-    }))
-  }
+  const listBtn = record => [
+    {
+      isEnable: true,
+      name: "Xem sản phẩm ",
+      icon: "eye",
+    },
+    {
+      isEnable: true,
+      name: "Xóa",
+      icon: "delete-red-row",
+      onClick: () =>
+        CB1({
+          record,
+          title: `Bạn chắc chắn muốn xóa?`,
+          icon: "warning-usb",
+          okText: "Có",
+          cancelText: "Không",
+          onOk: close => {
+            handleRemoveProduct(record)
+            close()
+          },
+        }),
+    },
+  ]
 
-  const toggleStatus = (productId, checked) => {
-    setStateBody(prevStatus => ({
-      ...prevStatus,
-      [productId]: {
-        ...prevStatus[productId],
-        status: checked ? "active" : "inactive",
-      },
-    }))
-  }
-
-  const column = [
+  const columns = [
     {
       title: "STT",
-      key: "ProductID",
+      key: ["productId", "_id"],
       width: 60,
       render: (_, record, index) => (
         <div className="text-center">{index + 1}</div>
@@ -74,7 +119,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, product, id }) => {
       title: "Tên sản phẩm",
       dataIndex: ["productId", "name"],
       width: 200,
-      key: "productName",
+      key: "name",
     },
     {
       title: "Mô tả",
@@ -98,7 +143,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, product, id }) => {
         <InputNumber
           min={0}
           defaultValue={record.quantity}
-          onChange={value => handleQuantityChange(record._id, value)}
+          onChange={value => handleQuantityChange(record.productId._id, value)}
         />
       ),
     },
@@ -121,61 +166,177 @@ const UpdateInvoice = ({ open, onCancel, onOk, product, id }) => {
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: "status",
+      dataIndex: ["status"],
       align: "center",
       width: 100,
       key: "Status",
-      render: (_, record) => (
-        <span
-          className={[
-            "no-color",
-            record?.productId?.status === "active" ? "blue-text" : "red-text",
-          ].join(" ")}
-        >
-          {record?.productId?.status === "active"
-            ? "Đang hoạt động"
-            : "Dừng Hoạt Động"}
+      render: status => (
+        <span className={status === "active" ? "blue-text" : "red-text"}>
+          {status === "active" ? "Đang hoạt động" : "Dừng Hoạt Động"}
         </span>
       ),
     },
     {
-      title: "Action",
-      dataIndex: "status",
-      width: 120,
-      key: "status",
+      title: "Chức năng",
+      align: "center",
+      key: "Action",
+      width: 100,
       render: (_, record) => (
-        <Switch
-          checked={stateBody[record._id]?.status === "active"}
-          onChange={checked => toggleStatus(record._id, checked)}
-        />
+        <Space>
+          {listBtn(record).map(
+            (i, idx) =>
+              !!i?.isEnable && (
+                <ButtonCircle
+                  key={idx}
+                  title={i.name}
+                  iconName={i.icon}
+                  onClick={i.onClick}
+                />
+              ),
+          )}
+        </Space>
       ),
     },
   ]
 
-  const items = [
-    {
-      key: 1,
-      label: <div>Sản phẩm</div>,
-      children: (
-        <PatentRegistrationChildBorder>
-          <TableCustom
-            isPrimary
-            rowKey="ProductId"
-            columns={column}
-            dataSource={selectedProduct}
-            scroll={{ x: "800px" }}
-          />
-          <Modal
-            visible={imageModalVisible}
-            footer={null}
-            onCancel={() => setImageModalVisible(false)}
-          >
-            <img alt="product" style={{ width: "100%" }} src={selectedImage} />
-          </Modal>
-        </PatentRegistrationChildBorder>
+  const handleRemoveProduct = record => {
+    setSelectedProducts(prev =>
+      prev.filter(item => item.productId._id !== record.productId._id),
+    )
+    setStateBody(prev =>
+      prev.filter(item => item.productId !== record.productId._id),
+    )
+  }
+
+  const handleProductChange = value => {
+    const selected = wareHouseProductsIn.find(
+      product => product.productId._id === value,
+    )
+    console.log("hihu", wareHouseProductsIn)
+    console.log("hiha", value)
+    console.log("hihi", selected)
+    if (selected) {
+      setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
+      setStateBody(prev => [
+        ...prev,
+        { productId: selected.productId._id, quantity: 0 },
+      ])
+    }
+  }
+
+  const handleShopChange = value => {
+    const selected = shopList.find(shop => shop._id === value)
+    setSelectedShop(selected)
+  }
+
+  const handleQuantityChange = (productId, quantity) => {
+    setStateBody(prev =>
+      prev.map(item =>
+        item.productId === productId ? { ...item, quantity } : item,
       ),
-    },
-  ]
+    )
+  }
+  const handleNoteChange = e => {
+    setNote(e.target.value)
+  }
+
+  const handleDiscountChange = value => {
+    setDiscount(value)
+  }
+
+  const handleShippingChargeChange = value => {
+    setShippingCharge(value)
+  }
+
+  const getWarehouse = async () => {
+    try {
+      setLoading(true)
+      const wareHouseInfo = await WarehouseManagerService.getInfoWareHouse()
+      console.log(wareHouseInfo)
+      if (wareHouseInfo?.isError) {
+        console.error("Error fetching warehouse info:", wareHouseInfo.message)
+        return
+      }
+      setWareHouse(wareHouseInfo)
+    } catch (error) {
+      console.error("Error in getWarehouseInfo:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getProductsInWarehouse = async () => {
+    try {
+      setLoading(true)
+      const warehouseProductsInRes =
+        await WarehouseManagerService.getListProductsWarehouse(id)
+      if (warehouseProductsInRes?.isError) {
+        console.error(
+          "Error fetching warehouse info:",
+          warehouseProductsInRes.message,
+        )
+        return
+      }
+      setWareHouseProductsIn(warehouseProductsInRes || [])
+      setTotal(warehouseProductsInRes.length)
+    } catch (error) {
+      console.error("Error in getWarehouseInfo:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getShopList = async () => {
+    try {
+      setLoading(true)
+      const shopListRes = await WarehouseManagerService.getShopList()
+      console.log(shopListRes)
+      if (shopListRes?.isError) {
+        console.error("Error fetching shop list:", shopListRes.message)
+        return
+      }
+      setShopList(shopListRes)
+      console.log(shopListRes)
+    } catch (error) {
+      console.error("Error in getShopList:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const createInvoice = async () => {
+    try {
+      setLoading(true)
+      const invoiceData = {
+        from: id,
+        to: selectedShop._id,
+        details: stateBody.map(item => ({
+          product: item.productId,
+          quantity: item.quantity,
+        })),
+        note: note,
+        discount: discount,
+        shipping_charge: shippingCharge,
+        created_by: wareHouse?.manager?._id,
+      }
+      console.log(invoiceData)
+      const response = await WarehouseManagerService.createInvoice(invoiceData)
+      if (response?.isError) {
+        console.error("Error creating invoice:", response.message)
+        return
+      }
+      onOk()
+      onCancel()
+      Notice({
+        isSuccess: true,
+        msg: "Tạo hóa đơn thành công",
+      })
+    } catch (error) {
+      console.error("Error in createInvoice:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const renderFooter = () => (
     <div className="lstBtn d-flex-sb">
@@ -184,7 +345,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, product, id }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={updateProductsToWarehouse}
+          onClick={createInvoice}
         >
           Lưu
         </Button>
@@ -194,51 +355,177 @@ const UpdateInvoice = ({ open, onCancel, onOk, product, id }) => {
       </div>
     </div>
   )
-
-  const updateProductsToWarehouse = async () => {
-    try {
-      setLoading(true)
-      const response = await WarehouseManagerService.updateProductsToWarehouse(
-        id,
-        product?.productId?._id,
-        stateBody[product._id],
-      )
-      console.log("Response:", response)
-      if (response?.isError) {
-        console.error("Lỗi khi cập nhật sản phẩm:", response.message)
-        return
-      }
-      onOk()
-      onCancel()
-      Notice({
-        msg: "Chỉnh sửa thành công.",
-      })
-    } catch (error) {
-      console.error("Lỗi trong quá trình cập nhật sản phẩm:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
+  const items = [
+    {
+      key: 1,
+      label: <div>Cửa hàng</div>,
+      children: (
+        <PatentRegistrationChildBorder>
+          <Form form={form}>
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Select
+                  showSearch
+                  placeholder="Chọn shop"
+                  optionFilterProp="children"
+                  onChange={handleShopChange}
+                  style={{ width: "100%" }}
+                >
+                  {shopList.map(shop => (
+                    <Option key={shop._id} value={shop._id}>
+                      {shop.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+            </Row>
+            {selectedShop && (
+              <Card
+                title="Thông tin cửa hàng đã chọn"
+                style={{ marginTop: 20 }}
+              >
+                <Title level={5}>{selectedShop.name}</Title>
+                <div style={{ marginBottom: 10 }}>
+                  <Text strong>Email: </Text>
+                  <Text>{selectedShop.email}</Text>
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <Text strong>Số điện thoại: </Text>
+                  <Text>{selectedShop.phone}</Text>
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <Text strong>Địa chỉ: </Text>
+                  <Text>{selectedShop.location}</Text>
+                </div>
+              </Card>
+            )}
+          </Form>
+        </PatentRegistrationChildBorder>
+      ),
+    },
+    {
+      key: 2,
+      label: <div>Sản phẩm</div>,
+      children: (
+        <PatentRegistrationChildBorder>
+          <Form form={form}>
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Select
+                  showSearch
+                  placeholder="Chọn sản phẩm"
+                  optionFilterProp="children"
+                  onChange={handleProductChange}
+                  style={{ width: "100%" }}
+                >
+                  {wareHouseProductsIn.map(product => (
+                    <Option
+                      key={product.productId._id}
+                      value={product.productId._id}
+                    >
+                      {product.productId.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+            </Row>
+            {selectedProducts && (
+              <TableCustom
+                isPrimary
+                rowKey={record =>
+                  record.productId ? record.productId._id : record.key
+                }
+                columns={columns}
+                dataSource={
+                  selectedProducts.length > 0 ? selectedProducts : undefined
+                }
+                scroll={{ x: "800px" }}
+                pagination={{
+                  hideOnSinglePage: total <= 10,
+                  current: pagination?.CurrentPage,
+                  pageSize: pagination?.PageSize,
+                  responsive: true,
+                  total: total,
+                  locale: { items_per_page: "" },
+                  showSizeChanger: total > 10,
+                  pageSizeOptions: ["10", "20", "50", "100"],
+                }}
+              />
+            )}
+          </Form>
+        </PatentRegistrationChildBorder>
+      ),
+    },
+    {
+      key: 3,
+      label: <div>Ghi chú</div>,
+      children: (
+        <Card>
+          <Form form={form} layout="vertical">
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item name="note" label="Ghi chú">
+                  <Input.TextArea
+                    onChange={handleNoteChange}
+                    rows={4}
+                    placeholder="Nhập ghi chú"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="discount" label="Chiết khấu (%)">
+                  <InputNumber
+                    min={0}
+                    value={discount}
+                    onChange={handleDiscountChange}
+                    placeholder="Chiết khấu"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="shippingCharge" label="Phí vận chuyển">
+                  <InputNumber
+                    min={0}
+                    value={shippingCharge}
+                    onChange={handleShippingChargeChange}
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </Card>
+      ),
+    },
+  ]
   return (
-    <CustomModal
-      open={open}
-      onCancel={onCancel}
-      onOk={onOk}
-      title={"Chỉnh sửa sản phẩm"}
-      width="90vw"
-      footer={renderFooter()}
-    >
-      <StylesTabPattern>
-        <Tabs type="card" defaultActiveKey="1">
-          {items.map(item => (
-            <Tabs.TabPane tab={item.label} key={item.key}>
-              {item.children}
-            </Tabs.TabPane>
-          ))}
-        </Tabs>
-      </StylesTabPattern>
-    </CustomModal>
+    <div>
+      <CustomModal
+        open={open}
+        onCancel={onCancel}
+        onOk={onOk}
+        title={"Thêm mới sản phẩm"}
+        width="90vw"
+        footer={renderFooter()}
+      >
+        <StylesTabPattern className="mr-12 ml-12">
+          <Tabs type="card" defaultActiveKey="1" items={items} />
+        </StylesTabPattern>
+        <ModalViewProduct
+          visible={openViewProducts}
+          onCancel={() => setOpenViewProducts(false)}
+          product={selectedProductView}
+        />
+      </CustomModal>
+      <Modal
+        visible={imageModalVisible}
+        onCancel={() => setImageModalVisible(false)}
+        footer={null}
+      >
+        <img src={selectedImage} alt="Selected" style={{ width: "100%" }} />
+      </Modal>
+    </div>
   )
 }
 

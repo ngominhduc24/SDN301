@@ -1,37 +1,40 @@
 import { Col, Row, Space, Tooltip, Modal, Switch } from "antd"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
-import CB1 from "src/components/Modal/CB1"
 import Button from "src/components/MyButton/Button"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Notice from "src/components/Notice"
 import TableCustom from "src/components/Table/CustomTable"
 import SearchAndFilter from "./components/SearchAndFilter"
-import InsertUpdateProduct from "./components/InsertUpdateProduct"
-import ModalViewProduct from "./components/ModalViewProduct"
+import ModalViewDetailInvoice from "./components/ModalViewDetailInvoice"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
-import UpdateProduct from "./components/UpdateProduct"
+import UpdateProduct from "./components/UpdateInvoice"
+import InsertUpdateInvoice from "./components/InsertUpdateInvoice"
+import ModalViewWarehouse from "./components/ModalViewWarehouse"
+import ModalViewStore from "./components/ModalViewStore"
 import {
   MainTableData,
   MainTableHeader,
   SubTableData,
   SubTableHeader,
 } from "src/components/Table/CustomTable/styled"
-const ManageInvoiceWarehouse = () => {
+
+const ManageInvoiceManager = () => {
   const [invoices, setInvoices] = useState([])
-  const [invoiceId, setInvoiceId] = useState("")
-  const [total, setTotal] = useState(0)
+  const [selectedInvoice, setSelectedInvoice] = useState(null)
+  const [loading, setLoading] = useState(false)
   const [openInsertUpdateInvoices, setOpenInsertUpdateInvoices] =
     useState(false)
   const [openUpdateInvoices, setOpenUpdateInvoices] = useState(false)
   const [openViewInvoice, setOpenViewInvoice] = useState(false)
-  const [selectedInvoice, setSelectedInvoice] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [imageModalVisible, setImageModalVisible] = useState(false)
-  const [selectedImage, setSelectedImage] = useState(null)
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null)
+  const [selectedStore, setSelectedStore] = useState(null)
+  const [openViewWarehouse, setOpenViewWarehouse] = useState(false)
+  const [openViewStore, setOpenViewStore] = useState(false)
   const { userInfo } = useSelector(state => state.appGlobal)
+  const [wareHouseId, setWareHouseId] = useState(null)
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -41,10 +44,10 @@ const ManageInvoiceWarehouse = () => {
   })
 
   useEffect(() => {
-    getWarehouseInfo()
+    getAllInvoice()
   }, [pagination])
 
-  const getWarehouseInfo = async () => {
+  const getAllInvoice = async () => {
     try {
       setLoading(true)
       const warehouseInvoice = await WarehouseManagerService.getAllInvoice()
@@ -57,8 +60,7 @@ const ManageInvoiceWarehouse = () => {
         return
       }
       setInvoices(warehouseInvoice)
-      setInvoiceId(warehouseInvoice?._id)
-      setTotal(warehouseInvoice.length)
+      setWareHouseId(warehouseInvoice[0]?.from?._id)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
     } finally {
@@ -86,47 +88,16 @@ const ManageInvoiceWarehouse = () => {
         setOpenUpdateInvoices(true)
       },
     },
-    // {
-    //   isEnable: true,
-    //   name: "Xóa",
-    //   icon: "delete-red-row",
-    //   onClick: () =>
-    //     CB1({
-    //       record,
-    //       title: `bạn chắc chắn muốn xóa?`,
-    //       icon: "warning-usb",
-    //       okText: "Có",
-    //       cancelText: "Không",
-    //       onOk: async close => {
-    //         // handleDeleteBooking(record)
-    //         close()
-    //       },
-    //     }),
-    // },
   ]
-  const toggleStatus = async (id, checked) => {
-    setLoading(true)
-    try {
-      const updatedStatus = checked ? "completed" : "cancelled"
-      await WarehouseManagerService.updateStatusInvoice(id, {
-        status: updatedStatus,
-      })
-      const updatedInvoices = invoices.map(invoice =>
-        invoice._id === id ? { ...invoice, status: updatedStatus } : invoice,
-      )
-      setInvoices(updatedInvoices)
-      Notice({
-        isSuccess: true,
-        msg: "Cập nhật trạng thái thành công",
-      })
-    } catch (error) {
-      Notice({
-        isSuccess: false,
-        msg: "Cập nhật trạng thái thất bại",
-      })
-    } finally {
-      setLoading(false)
-    }
+
+  const handleViewWarehouse = record => {
+    setSelectedWarehouse(record.from)
+    setOpenViewWarehouse(true)
+  }
+
+  const handleViewStore = record => {
+    setSelectedStore(record.to)
+    setOpenViewStore(true)
   }
 
   const columns = [
@@ -150,7 +121,9 @@ const ManageInvoiceWarehouse = () => {
       key: "from_name",
       render: (val, record) => (
         <>
-          <MainTableData>{val}</MainTableData>
+          <MainTableData onClick={() => handleViewWarehouse(record)}>
+            {val}
+          </MainTableData>
           <SubTableData>{record.from?.phone}</SubTableData>
           <SubTableData>{record.from?.email}</SubTableData>
         </>
@@ -170,7 +143,9 @@ const ManageInvoiceWarehouse = () => {
       key: "to_name",
       render: (val, record) => (
         <>
-          <MainTableData>{val}</MainTableData>
+          <MainTableData onClick={() => handleViewStore(record)}>
+            {val}
+          </MainTableData>
           <SubTableData>{record.to?.phone}</SubTableData>
           <SubTableData>{record.to?.email}</SubTableData>
         </>
@@ -222,22 +197,6 @@ const ManageInvoiceWarehouse = () => {
             {text.length > 100 ? `${text.substring(0, 100)}...` : text}
           </span>
         </Tooltip>
-      ),
-    },
-    {
-      title: "Action",
-      dataIndex: "status",
-      width: 120,
-      key: "status",
-      align: "center",
-      render: (_, record) => (
-        <Switch
-          checked={record.status === "active"}
-          onChange={(checked, e) => {
-            e.stopPropagation()
-            toggleStatus(record._id, checked)
-          }}
-        />
       ),
     },
     {
@@ -312,13 +271,13 @@ const ManageInvoiceWarehouse = () => {
             dataSource={invoices}
             scroll={{ x: "800px" }}
             pagination={{
-              hideOnSinglePage: total <= 10,
+              hideOnSinglePage: invoices.length <= 10,
               current: pagination?.CurrentPage,
               pageSize: pagination?.PageSize,
               responsive: true,
-              total: total,
+              total: invoices.length,
               locale: { items_per_page: "" },
-              showSizeChanger: total > 10,
+              showSizeChanger: invoices.length > 10,
               onChange: (CurrentPage, PageSize) =>
                 setPagination({
                   ...pagination,
@@ -329,40 +288,39 @@ const ManageInvoiceWarehouse = () => {
           />
         </Col>
       </Row>
-      <Modal
-        visible={imageModalVisible}
-        footer={null}
-        onCancel={() => setImageModalVisible(false)}
-      >
-        <img alt="product" style={{ width: "100%" }} src={selectedImage} />
-      </Modal>
-      {/* {!!openInsertUpdateProducts && (
-        <InsertUpdateProduct
-          id={wareHouseId}
-          open={openInsertUpdateProducts}
-          onCancel={() => setOpenInsertUpdateProducts(false)}
-          onOk={() => getWarehouseInfo()}
+      {!!openViewInvoice && selectedInvoice && (
+        <ModalViewDetailInvoice
+          open={openViewInvoice}
+          visible={openViewInvoice}
+          onCancel={() => setOpenViewInvoice(false)}
+          data={selectedInvoice}
         />
       )}
-      {!!openViewProducts && selectedProduct && (
-        <ModalViewProduct
-          visible={openViewProducts}
-          onCancel={() => setOpenViewProducts(false)}
-          product={selectedProduct}
+      {!!openViewWarehouse && selectedWarehouse && (
+        <ModalViewWarehouse
+          visible={openViewWarehouse}
+          onCancel={() => setOpenViewWarehouse(false)}
+          warehouse={selectedWarehouse}
         />
       )}
-      {!!openUpdateProducts && selectedProduct && (
-        <UpdateProduct
-          id={wareHouseId}
-          product={selectedProduct}
-          open={openUpdateProducts}
-          onCancel={() => setOpenUpdateProducts(false)}
-          onOk={() => getWarehouseInfo()}
+      {!!openViewStore && selectedStore && (
+        <ModalViewStore
+          visible={openViewStore}
+          onCancel={() => setOpenViewStore(false)}
+          store={selectedStore}
         />
-      )} */}
+      )}
+      {!!openInsertUpdateInvoices && (
+        <InsertUpdateInvoice
+          id={wareHouseId}
+          open={openInsertUpdateInvoices}
+          onCancel={() => setOpenInsertUpdateInvoices(false)}
+          onOk={() => getAllInvoice()}
+        />
+      )}
     </SpinCustom>
   )
 }
 
-export default ManageInvoiceWarehouse
+export default ManageInvoiceManager
 

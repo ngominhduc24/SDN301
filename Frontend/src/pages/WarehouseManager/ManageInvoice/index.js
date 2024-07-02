@@ -10,10 +10,10 @@ import ModalViewDetailInvoice from "./components/ModalViewDetailInvoice"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
-import UpdateProduct from "./components/UpdateInvoice"
 import InsertUpdateInvoice from "./components/InsertUpdateInvoice"
 import ModalViewWarehouse from "./components/ModalViewWarehouse"
 import ModalViewStore from "./components/ModalViewStore"
+import UpdateInvoice from "./components/UpdateInvoice"
 import {
   MainTableData,
   MainTableHeader,
@@ -316,6 +316,15 @@ const ManageInvoiceWarehouse = () => {
           open={openInsertUpdateInvoices}
           onCancel={() => setOpenInsertUpdateInvoices(false)}
           onOk={() => getAllInvoice()}
+        />
+      )}
+      {!!openUpdateInvoices && (
+        <UpdateInvoice
+          open={openUpdateInvoices}
+          onCancel={() => setOpenUpdateInvoices(false)}
+          onOk={() => getAllInvoice()}
+          invoice={selectedInvoice}
+          id={wareHouseId}
         />
       )}
     </SpinCustom>

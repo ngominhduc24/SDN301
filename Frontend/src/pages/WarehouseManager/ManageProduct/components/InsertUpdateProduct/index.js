@@ -192,6 +192,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
       setLoading(true)
       const warehouseProductsNotInRes =
         await WarehouseManagerService.getListProductsNotInWarehouse(id)
+      console.log(warehouseProductsNotInRes)
       if (warehouseProductsNotInRes?.isError) {
         console.error(
           "Error fetching warehouse info:",
