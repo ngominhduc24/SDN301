@@ -94,13 +94,13 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
   const renderFooter = () => (
     <div className={!!detailInfo ? "d-flex-sb" : "d-flex-end"}>
       {!detailInfo && (
-        <Button btntype="primary" className="btn-hover-shadow">
+        <Button btntype="primary" className="btn-hover-shadow mr-12 mb-12">
           Reset mật khẩu mặc định
         </Button>
       )}
       <Button
         btntype="primary"
-        className="btn-hover-shadow"
+        className="btn-hover-shadow mb-12"
         onClick={onContinue}
       >
         Ghi lại
@@ -118,7 +118,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
       <SpinCustom spinning={loading}>
         <Styled>
           <Form form={form} layout="vertical">
-            <Row gutter={[16]}>
+            <Row gutter={[16]} className="mr-12 ml-12 mt-12 mb-12">
               <Col span={24}>
                 <Form.Item
                   label="Hình đại diện"

@@ -46,6 +46,7 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
   const footer = (
     <div className="d-flex justify-content-flex-end">
       <Button
+        className="mb-12 mr-12"
         loading={loading}
         btntype="primary"
         onClick={() => {
@@ -56,6 +57,7 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
       </Button>
 
       <Button
+        className="mb-12"
         loading={loading}
         onClick={() => {
           onCancel()
@@ -74,7 +76,7 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
       title="Chi tiết nhân viên"
     >
       <StyledUserDetail>
-        <Row gutter={[20, 8]}>
+        <Row gutter={[20, 8]} className="mr-12 ml-12">
           <Col span={10}>
             <Image
               src={data?.avatar || FAILBACK}
