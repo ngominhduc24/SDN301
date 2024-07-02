@@ -93,12 +93,17 @@ async function getProductNotAddedByShop(req, res, next) {
     // Get all products
     const allProducts = await ProductService.listAllProducts();
 
-    // Filter products not added by the shop
-    const productsNotAdded = allProducts.filter(product => {
-      return !productsAdded.some(addedProduct => addedProduct.productId.equals(product._id));
-    });
+    if(productsAdded != null) {
+      // Filter products not added by the shop
+      const productsNotAdded = allProducts.filter(product => {
+        return !productsAdded.some(addedProduct => addedProduct.productId.equals(product._id));
+      });
 
-    res.status(200).json(productsNotAdded);
+      res.status(200).json(productsNotAdded);
+    } else {
+      res.status(200).json(allProducts);
+    }
+   
   } catch (error) {
     next(error);
   }

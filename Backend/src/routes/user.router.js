@@ -90,7 +90,7 @@ userRouter.post('/auth/login',  UserController.AuthenLogin);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRouter.post('/admin/users', UserController.AddNewUser);
+userRouter.post('/admin/users', verifyTokenHandle.verifyTokenAdmin, UserController.AddNewUser);
 
 
 /**
