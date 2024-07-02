@@ -37,6 +37,7 @@ const ManageUser = () => {
   const [openImportUser, setOpenImportUser] = useState(false)
   const [detailInfo, setDetailInfo] = useState()
   const [selectedNode, setSelectedNode] = useState()
+  const [selectedUser, setSelectedUser] = useState()
   const [openModalUserDetail, setOpenModalUserDetail] = useState(false)
 
   const columns = [
@@ -144,7 +145,7 @@ const ManageUser = () => {
       dataIndex: "status",
       key: "status",
       width: 160,
-      render: (text, record) => (
+      render: text => (
         <div className="d-flex justify-content-center align-items-center mh-36">
           <div className="text-center">
             {text === "active" ? "Đang hoạt động" : "Dừng hoạt động"}
@@ -162,35 +163,45 @@ const ManageUser = () => {
   ]
 
   const renderListButton = record => (
-    <Space>
-      <ButtonCircle
-        title="Cập nhật"
-        iconName="edit"
-        onClick={e => {
-          e.stopPropagation()
-          setOpenInsertUpdate(true)
-          setDetailInfo(record)
-        }}
-      />
+    {
+      isEnable: true,
+      name: "Xem sản phẩm ",
+      icon: "eye",
+      onClick: () => {
+        setSelectedUser(record)
+        setOpenModalUserDetail(true)
+        console.log("Products:", record)
+      },
+    },
+    (
+      <Space>
+        <ButtonCircle
+          title="Cập nhật"
+          iconName="edit"
+          onClick={e => {
+            setOpenInsertUpdate(true)
+            setDetailInfo(record)
+          }}
+        />
 
-      <ButtonCircle
-        title="Reset mật khẩu"
-        iconName="reset-pass"
-        style={{ background: "#fff" }}
-        onClick={e => {
-          e.stopPropagation()
-          CB1({
-            title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.UserName} không?`,
-            icon: "warning-usb",
-            okText: "Đồng ý",
-            onOk: async close => {
-              // onReset(record?.UserID)
-              close()
-            },
-          })
-        }}
-      />
-    </Space>
+        <ButtonCircle
+          title="Reset mật khẩu"
+          iconName="reset-pass"
+          style={{ background: "#fff" }}
+          onClick={e => {
+            CB1({
+              title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.UserName} không?`,
+              icon: "warning-usb",
+              okText: "Đồng ý",
+              onOk: async close => {
+                // onReset(record?.UserID)
+                close()
+              },
+            })
+          }}
+        />
+      </Space>
+    )
   )
 
   const toggleStatus = async (userId, checked) => {
@@ -220,6 +231,7 @@ const ManageUser = () => {
     try {
       setLoading(true)
       const res = await ManagerService.getListStaff()
+      console.log(res)
       setDataSource(res)
       setTotal(res?.length)
     } finally {
