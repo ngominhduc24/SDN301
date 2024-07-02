@@ -34,6 +34,7 @@ import { ButtonUploadStyle } from "../styled"
 import SvgIcon from "src/components/SvgIcon"
 import dayjs from "dayjs"
 import AdminServices from "src/services/AdminService"
+import STORAGE, { getStorage } from "src/lib/storage"
 // import SelectAddress from "src/components/SelectAddress"
 const { Option } = Select
 const Styled = styled.div`
@@ -49,11 +50,9 @@ const Styled = styled.div`
   }
 `
 const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
-  const { listSystemKey } = useSelector(state => state.appGlobal)
   const [form] = Form.useForm()
-
   const [loading, setLoading] = useState(false)
-
+  const token = getStorage(STORAGE.TOKEN)
   useEffect(() => {
     if (detailInfo && props?.open)
        getUserDetail()
@@ -75,7 +74,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
       }
       form.setFieldsValue({
         ...res,
-        dob: !!res?.dob && moment(res?.dob)
+        dob: res?.dob && moment(res.dob, "DD/MM/YYYY").isValid() ? moment(res.dob, "DD/MM/YYYY"): null
       })
     } catch (error) {
       console.log("error");
@@ -129,9 +128,12 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
       } else {
         if (!!values?.Avatar) urlAvatar = values?.Avatar[0]?.url
       }
-      // const res = detailInfo ? await AdminServices.updateStatusUsers(detailInfo?._id, {...values}) : await 
+      const res = detailInfo ? await AdminServices.updateStatusUsers(detailInfo?._id, {...values}) : await AdminServices.addnewUsers({
+        ...values,
+        dob: values.dob ? values.dob.format("DD/MM/YYYY") : null
+      })
 
-      // if (res?.isError) return
+      if (res?.isError) return
       onOk && onOk()
       Notice({
         msg: `${detailInfo ? "Cập nhật" : "Thêm"} cán bộ thành công !`,
@@ -155,7 +157,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
       <Button
         btntype="primary"
         className="btn-hover-shadow"
-        // onClick={onContinue}
+        onClick={onContinue}
       >
         Ghi lại
       </Button>
@@ -223,7 +225,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
               <Col md={24} xs={24}>
                 <Form.Item
                   label="Họ và tên"
-                  name="FullName"
+                  name="fullname"
                   rules={[
                     {
                       required: true,
@@ -303,24 +305,8 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
 
               <Col md={8} xs={24}>
                 <Form.Item
-                  label="Họ tên"
-                  name="fullname"
-                  rules={
-                    [
-                      // {
-                      //   required: true,
-                      //   message: "Thông tin không được để trống",
-                      // },
-                    ]
-                  }
-                >
-                  <Input placeholder="Nhập tên" />
-                </Form.Item>
-              </Col>
-              <Col md={8} xs={24}>
-                <Form.Item
                   label="Số điện thoại"
-                  name="PhoneNumber"
+                  name="phone"
                   rules={[
                     {
                       required: true,

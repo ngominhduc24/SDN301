@@ -139,7 +139,7 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
         <Row gutter={[20, 8]}>
           <Col span={10}>
             <Image
-              src={data?.Avatar || FAILBACK}
+              src={data?.avatar || FAILBACK}
               fallback={FAILBACK}
               alt={"ảnh tài khoản"}
               className="img-user"
@@ -152,9 +152,6 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
             <Col span={24}>
               <div className="mb-12 text-center ">
                 <span className="fw-600 ">Nhóm quyền:</span>{" "}
-                {/* {userInfo?.role
-                  ? userInfo?.role?.map(item => item?.role)?.join()
-                  : ""} */}
                 {data?.role}
               </div>
             </Col>
@@ -197,7 +194,7 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
                 <div className="mb-12">
                   <span className="fw-600 ">Ngày sinh:</span>{" "}
                   {data?.dob
-                    ? moment(data?.dob)?.format("DD/MM/YYYY")
+                    ? moment(data?.dob, "DD/MM/YYYY").format("DD/MM/YYYY")
                     : ""}
                 </div>
               </Col>
