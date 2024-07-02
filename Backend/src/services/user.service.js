@@ -4,7 +4,7 @@ const hashPassword = require('../utils/security');
 class UserService {
     // Authentication login service
     async CreateUser(req) {
-        const { fullname, email, password, dob, phone, status, role } = req.body;
+        const { fullname, email, password, dob, phone, status, role, manager} = req.body;
         try {
             const hashedPassword = hashPassword(password);
             const user = new User({
@@ -14,7 +14,8 @@ class UserService {
                 dob: dob,
                 phone: phone,
                 status: status,
-                role: role
+                role: role,
+                createBy: manager
               });
               const userData = await user.save();
             return userData;
