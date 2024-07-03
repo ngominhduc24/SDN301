@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react"
-import WarehouseManagerService from "src/services/WarehouseManagerService"
-
+import ManagerService from "src/services/ManagerService"
 const ManagerDashBoard = () => {
   const [loading, setLoading] = useState(false)
-  const [infoWareHouse, setInfoWareHouse] = useState(null) // Sử dụng null thay vì một mảng rỗng []
+  const [infoShop, setInfoShop] = useState(null)
 
   const getWarehouseInfo = async () => {
     try {
       setLoading(true)
-      const res = await WarehouseManagerService.getInfoWareHouse()
+      const res = await ManagerService.getShop("666da2c059207cb17349144a")
       if (res?.isError) return
-      setInfoWareHouse(res)
+      setInfoShop(res)
     } catch (error) {
       console.error("Error fetching warehouse info:", error)
     } finally {
@@ -26,29 +25,29 @@ const ManagerDashBoard = () => {
     return <div>Loading...</div>
   }
 
-  if (!infoWareHouse) {
+  if (!infoShop) {
     return null
   }
 
   return (
     <div>
-      <h2>Thông tin kho hàng: {infoWareHouse.name}</h2>
+      <h2>Thông tin kho hàng: {infoShop.name}</h2>
       <p>
-        <strong>Địa chỉ:</strong> {infoWareHouse.location}
+        <strong>Địa chỉ:</strong> {infoShop.location}
       </p>
       <p>
-        <strong>Số điện thoại:</strong> {infoWareHouse.phone}
+        <strong>Số điện thoại:</strong> {infoShop.phone}
       </p>
       <p>
-        <strong>Email:</strong> {infoWareHouse.email}
+        <strong>Email:</strong> {infoShop.email}
       </p>
       <p>
         <strong>Trạng thái:</strong>{" "}
-        {infoWareHouse.status === "open" ? "Đang mở" : "Đang đóng"}
+        {infoShop.status === "open" ? "Đang mở" : "Đang đóng"}
       </p>
       <p>
         <strong>Ngày tạo:</strong>{" "}
-        {new Date(infoWareHouse.createdAt).toLocaleDateString()}
+        {new Date(infoShop.createdAt).toLocaleDateString()}
       </p>
     </div>
   )

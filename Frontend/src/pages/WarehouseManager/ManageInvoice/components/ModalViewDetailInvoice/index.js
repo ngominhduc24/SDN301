@@ -50,8 +50,10 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
       title: "STT",
       key: ["productId", "_id"],
       width: 60,
-      render: (_, record, index) => (
-        <div className="text-center">{index + 1}</div>
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
       ),
     },
     {
@@ -165,7 +167,7 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
     <Modal
       visible={visible}
       onCancel={onCancel}
-      title="Chi tiết sản phẩm"
+      title="Chi tiết hóa đơn"
       width="120vw"
       footer={
         <div className="lstBtn d-flex-sb">
@@ -196,7 +198,7 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
                 isPrimary
                 rowKey="ProductId"
                 columns={column}
-                textEmpty="Chưa có sản phẩm nào trong kho"
+                textEmpty="Chưa có sản phẩm nào trong hóa đơn"
                 dataSource={data?.details}
                 scroll={{ x: "800px" }}
                 pagination={{
@@ -238,3 +240,4 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
 }
 
 export default ModalViewDetailInvoice
+

@@ -9,9 +9,10 @@ import TableCustom from "src/components/Table/CustomTable"
 import SearchAndFilter from "../SearchAndFilter"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
-import WarehouseManagerService from "src/services/WarehouseManagerService"
 import ModalViewProduct from "../ModalViewProduct"
-const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
+import ModalNoteStatus from "../ModalNoteStatus"
+import ManagerService from "src/services/ManagerService"
+const ModalViewDetailInvoice = ({ visible, onCancel, data, open, onOk }) => {
   const [openViewProducts, setOpenViewProducts] = useState(false)
   const [total, setTotal] = useState(0)
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -19,6 +20,8 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
   const [imageModalVisible, setImageModalVisible] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const { userInfo } = useSelector(state => state.appGlobal)
+  const [cancelModalVisible, setCancelModalVisible] = useState(false)
+
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -50,8 +53,10 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
       title: "STT",
       key: ["productId", "_id"],
       width: 60,
-      render: (_, record, index) => (
-        <div className="text-center">{index + 1}</div>
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
       ),
     },
     {
@@ -160,16 +165,60 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
       ),
     },
   ]
-
+  const updateStatusInvoice = async () => {
+    try {
+      setLoading(true)
+      const body = {
+        status: "completed",
+      }
+      console.log(body)
+      const response = await ManagerService.updateStatusInvoice(data?._id, body)
+      if (response?.isError) {
+        console.error("Error creating invoice:", response.message)
+        return
+      }
+      onOk()
+      onCancel()
+      Notice({
+        isSuccess: true,
+        msg: "Xác nhận đơn hàng thành công",
+      })
+    } catch (error) {
+      console.error("Error in createInvoice:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
   return (
     <Modal
       visible={visible}
       onCancel={onCancel}
-      title="Chi tiết sản phẩm"
+      title="Chi tiết hóa đơn"
       width="120vw"
       footer={
         <div className="lstBtn d-flex-sb">
           <div className="lstBtn-right d-flex-end">
+            {data.status !== "cancelled" && data.status !== "completed" && (
+              <>
+                <Button
+                  btntype="third"
+                  className="ml-8 mt-12 mb-12"
+                  onClick={updateStatusInvoice}
+                >
+                  Xác nhận đơn hàng
+                </Button>
+                <Button
+                  btntype="danger"
+                  className="ml-8 mt-12 mb-12"
+                  loading={loading}
+                  onClick={() => {
+                    setCancelModalVisible(true)
+                  }}
+                >
+                  Hủy Đơn Hàng
+                </Button>
+              </>
+            )}
             <Button
               btntype="third"
               className="ml-8 mt-12 mb-12"
@@ -184,7 +233,7 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
       <SpinCustom spinning={loading}>
         <div className="mr-12 ml-12">
           <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
-            <div>Xem chi tiết hóa đơn</div>
+            <div>Xem chi tiết Hóa Đơn</div>
           </div>
           <SearchAndFilter
             pagination={pagination}
@@ -231,6 +280,12 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
               product={selectedProduct}
             />
           )}
+          <ModalNoteStatus
+            visible={cancelModalVisible}
+            onCancel={onCancel}
+            invoice={data}
+            onOk={onOk}
+          />
         </div>
       </SpinCustom>
     </Modal>
@@ -238,3 +293,4 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
 }
 
 export default ModalViewDetailInvoice
+

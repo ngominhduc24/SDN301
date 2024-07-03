@@ -27,7 +27,7 @@ const ManageUser = () => {
   const [dataSource, setDataSource] = useState([])
   const [total, setTotal] = useState(0)
   const [pagination, setPagination] = useState({
-    PageSize: 20,
+    PageSize: 10,
     CurrentPage: 1,
     TextSearch: "",
   })
@@ -43,11 +43,15 @@ const ManageUser = () => {
   const columns = [
     {
       title: "STT",
-      dataIndex: "Index",
-      key: "Index",
+      dataIndex: "_id",
+      key: "_id",
       width: 60,
       align: "center",
-      render: (value, record, idx) => idx + 1,
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
+      ),
     },
     {
       title: "Ảnh",
@@ -347,3 +351,4 @@ const ManageUser = () => {
 }
 
 export default ManageUser
+

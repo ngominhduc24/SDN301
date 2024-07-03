@@ -74,10 +74,12 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
   const column = [
     {
       title: "STT",
-      key: "ProductID",
+      key: "_id",
       width: 60,
-      render: (_, record, index) => (
-        <div className="text-center">{index + 1}</div>
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
       ),
     },
     {
@@ -341,7 +343,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
         open={open}
         onCancel={onCancel}
         onOk={onOk}
-        title={id ? "Chỉnh sửa sản phẩm" : "Thêm mới sản phẩm"}
+        title={"Thêm mới sản phẩm"}
         width="90vw"
         footer={renderFooter()}
       >

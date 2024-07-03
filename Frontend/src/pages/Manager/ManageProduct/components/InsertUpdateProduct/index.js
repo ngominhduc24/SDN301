@@ -77,8 +77,10 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
       title: "STT",
       key: "ProductID",
       width: 60,
-      render: (_, record, index) => (
-        <div className="text-center">{index + 1}</div>
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
       ),
     },
     {

@@ -28,7 +28,13 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
   const [loading, setLoading] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState([])
   const [stateBody, setStateBody] = useState({})
-
+  const [pagination, setPagination] = useState({
+    PageSize: 10,
+    CurrentPage: 1,
+    TextSearch: "",
+    ApproveStatus: 0,
+    Status: 0,
+  })
   useEffect(() => {
     if (product) {
       setSelectedProduct([product])
@@ -66,8 +72,10 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
       title: "STT",
       key: "ProductID",
       width: 60,
-      render: (_, record, index) => (
-        <div className="text-center">{index + 1}</div>
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
       ),
     },
     {

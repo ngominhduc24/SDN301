@@ -22,6 +22,7 @@ import Button from "src/components/MyButton/Button"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
 import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
+import ModalNoteStatus from "../ModalNoteStatus"
 const { Option } = Select
 
 const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
@@ -49,6 +50,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
   const [note, setNote] = useState("")
   const [discount, setDiscount] = useState(0)
   const [shippingCharge, setShippingCharge] = useState(0)
+  const [cancelModalVisible, setCancelModalVisible] = useState(false)
   useEffect(() => {
     getProductsInWarehouse()
     getShopList()
@@ -63,7 +65,9 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
         discount: invoice.discount,
         shippingCharge: invoice.shipping_charge,
       })
-
+      setNote(invoice.note)
+      setDiscount(invoice.discount)
+      setShippingCharge(invoice.shipping_charge)
       setSelectedShop(invoice.to)
       setStateBody(
         invoice.details.map(item => ({
@@ -71,7 +75,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           quantity: item.quantity,
         })),
       )
-
       setSelectedProducts(
         invoice.details.map(item => ({
           ...item.product,
@@ -111,8 +114,10 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       title: "STT",
       key: ["productId", "_id"],
       width: 60,
-      render: (_, record, index) => (
-        <div className="text-center">{index + 1}</div>
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
       ),
     },
     {
@@ -212,9 +217,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     const selected = wareHouseProductsIn.find(
       product => product.productId._id === value,
     )
-    console.log("hihu", wareHouseProductsIn)
-    console.log("hiha", value)
-    console.log("hihi", selected)
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
       setStateBody(prev => [
@@ -304,7 +306,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     }
   }
 
-  const createInvoice = async () => {
+  const updateInvoice = async () => {
     try {
       setLoading(true)
       const invoiceData = {
@@ -320,7 +322,10 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
         created_by: wareHouse?.manager?._id,
       }
       console.log(invoiceData)
-      const response = await WarehouseManagerService.createInvoice(invoiceData)
+      const response = await WarehouseManagerService.updateInfoInvoice(
+        invoice?._id,
+        invoiceData,
+      )
       if (response?.isError) {
         console.error("Error creating invoice:", response.message)
         return
@@ -329,7 +334,34 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       onCancel()
       Notice({
         isSuccess: true,
-        msg: "Tạo hóa đơn thành công",
+        msg: "Chỉnh sửa đơn hàng thành công",
+      })
+    } catch (error) {
+      console.error("Error in createInvoice:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const cancelInvoice = async () => {
+    try {
+      setLoading(true)
+      const body = {
+        status: "cancelled",
+      }
+      console.log(body)
+      const response = await WarehouseManagerService.updateInfoInvoice(
+        invoice?._id,
+        body,
+      )
+      if (response?.isError) {
+        console.error("Error creating invoice:", response.message)
+        return
+      }
+      onOk()
+      onCancel()
+      Notice({
+        isSuccess: true,
+        msg: "Chỉnh sửa đơn hàng thành công",
       })
     } catch (error) {
       console.error("Error in createInvoice:", error)
@@ -345,9 +377,19 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={createInvoice}
+          onClick={updateInvoice}
         >
           Lưu
+        </Button>
+        <Button
+          btntype="danger"
+          className="ml-8 mt-12 mb-12"
+          loading={loading}
+          onClick={() => {
+            setCancelModalVisible(true)
+          }}
+        >
+          Hủy Đơn Hàng
         </Button>
         <Button btntype="third" className="ml-8 mt-12 mb-12" onClick={onCancel}>
           Đóng
@@ -505,7 +547,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
         open={open}
         onCancel={onCancel}
         onOk={onOk}
-        title={"Thêm mới sản phẩm"}
+        title={"Chỉnh sửa hóa đơn"}
         width="90vw"
         footer={renderFooter()}
       >
@@ -516,6 +558,12 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           visible={openViewProducts}
           onCancel={() => setOpenViewProducts(false)}
           product={selectedProductView}
+        />
+        <ModalNoteStatus
+          visible={cancelModalVisible}
+          onCancel={onCancel}
+          invoice={invoice}
+          onOk={onOk}
         />
       </CustomModal>
       <Modal

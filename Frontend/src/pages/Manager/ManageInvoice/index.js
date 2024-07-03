@@ -9,11 +9,12 @@ import SearchAndFilter from "./components/SearchAndFilter"
 import ModalViewDetailInvoice from "./components/ModalViewDetailInvoice"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
-import WarehouseManagerService from "src/services/WarehouseManagerService"
-import UpdateProduct from "./components/UpdateInvoice"
+// import WarehouseManagerService from "src/services/WarehouseManagerService"
+import ManagerService from "src/services/ManagerService"
 import InsertUpdateInvoice from "./components/InsertUpdateInvoice"
 import ModalViewWarehouse from "./components/ModalViewWarehouse"
 import ModalViewStore from "./components/ModalViewStore"
+import UpdateInvoice from "./components/UpdateInvoice"
 import {
   MainTableData,
   MainTableHeader,
@@ -50,17 +51,14 @@ const ManageInvoiceManager = () => {
   const getAllInvoice = async () => {
     try {
       setLoading(true)
-      const warehouseInvoice = await WarehouseManagerService.getAllInvoice()
-      console.log("API Response:", warehouseInvoice)
-      if (warehouseInvoice?.isError) {
-        console.error(
-          "Error fetching warehouse info:",
-          warehouseInvoice.message,
-        )
+      const managerInvoice = await ManagerService.getAllInvoice()
+      console.log("API Response:", managerInvoice)
+      if (managerInvoice?.isError) {
+        console.error("Error fetching warehouse info:", managerInvoice.message)
         return
       }
-      setInvoices(warehouseInvoice)
-      setWareHouseId(warehouseInvoice[0]?.from?._id)
+      setInvoices(managerInvoice)
+      setWareHouseId(managerInvoice[0]?.from?._id)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
     } finally {
@@ -68,27 +66,34 @@ const ManageInvoiceManager = () => {
     }
   }
 
-  const listBtn = record => [
-    {
-      isEnable: true,
-      name: "Xem chi tiết hóa đơn ",
-      icon: "eye",
-      onClick: () => {
-        setSelectedInvoice(record)
-        setOpenViewInvoice(true)
-        console.log("Products:", record)
+  const listBtn = record => {
+    const buttons = [
+      {
+        isEnable: true,
+        name: "Xem chi tiết hóa đơn",
+        icon: "eye",
+        onClick: () => {
+          setSelectedInvoice(record)
+          setOpenViewInvoice(true)
+          console.log("Products:", record)
+        },
       },
-    },
-    {
-      isEnable: true,
-      name: "Chỉnh sửa",
-      icon: "edit-green",
-      onClick: () => {
-        setSelectedInvoice(record)
-        setOpenUpdateInvoices(true)
-      },
-    },
-  ]
+    ]
+
+    // if (record.status !== "cancelled") {
+    //   buttons.push({
+    //     isEnable: true,
+    //     name: "Chỉnh sửa",
+    //     icon: "edit-green",
+    //     onClick: () => {
+    //       setSelectedInvoice(record)
+    //       setOpenUpdateInvoices(true)
+    //     },
+    //   })
+    // }
+
+    return buttons
+  }
 
   const handleViewWarehouse = record => {
     setSelectedWarehouse(record.from)
@@ -105,7 +110,11 @@ const ManageInvoiceManager = () => {
       title: "STT",
       key: "_id",
       width: 60,
-      render: (_, __, index) => <div className="text-center">{index + 1}</div>,
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
+      ),
     },
     {
       title: (
@@ -213,7 +222,7 @@ const ManageInvoiceManager = () => {
               ? "blue-text"
               : record?.status === "completed"
               ? "green-text"
-              : "red-text",
+              : "red",
           ].join(" ")}
         >
           {record?.status === "pending"
@@ -250,14 +259,14 @@ const ManageInvoiceManager = () => {
   return (
     <SpinCustom spinning={loading}>
       <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
-        <div>Quản lý hóa đơn xuất kho</div>
+        <div>Quản lý hóa đơn cửa hàng</div>
         <div>
-          <Button
+          {/* <Button
             btntype="third"
             onClick={() => setOpenInsertUpdateInvoices(true)}
           >
             Thêm mới
-          </Button>
+          </Button> */}
         </div>
       </div>
       <SearchAndFilter pagination={pagination} setPagination={setPagination} />
@@ -267,7 +276,7 @@ const ManageInvoiceManager = () => {
             isPrimary
             rowKey="ProductId"
             columns={columns}
-            textEmpty="Chưa có sản phẩm nào trong kho"
+            textEmpty="Chưa có hóa đơn nào"
             dataSource={invoices}
             scroll={{ x: "800px" }}
             pagination={{
@@ -294,6 +303,7 @@ const ManageInvoiceManager = () => {
           visible={openViewInvoice}
           onCancel={() => setOpenViewInvoice(false)}
           data={selectedInvoice}
+          onOk={() => getAllInvoice()}
         />
       )}
       {!!openViewWarehouse && selectedWarehouse && (
@@ -310,7 +320,7 @@ const ManageInvoiceManager = () => {
           store={selectedStore}
         />
       )}
-      {!!openInsertUpdateInvoices && (
+      {/* {!!openInsertUpdateInvoices && (
         <InsertUpdateInvoice
           id={wareHouseId}
           open={openInsertUpdateInvoices}
@@ -318,6 +328,15 @@ const ManageInvoiceManager = () => {
           onOk={() => getAllInvoice()}
         />
       )}
+      {!!openUpdateInvoices && (
+        <UpdateInvoice
+          open={openUpdateInvoices}
+          onCancel={() => setOpenUpdateInvoices(false)}
+          onOk={() => getAllInvoice()}
+          invoice={selectedInvoice}
+          id={wareHouseId}
+        />
+      )} */}
     </SpinCustom>
   )
 }

@@ -66,8 +66,10 @@ const ModalViewStore = ({ visible, onCancel, store }) => {
       title: "STT",
       key: ["productId", "_id"],
       width: 60,
-      render: (_, record, index) => (
-        <div className="text-center">{index + 1}</div>
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
       ),
     },
     {
@@ -153,7 +155,7 @@ const ModalViewStore = ({ visible, onCancel, store }) => {
         </div>
       }
     >
-      <Row gutter={[16, 16]} justify="center">
+      <Row gutter={[16, 16]} justify="center" className="mr-12 ml-12">
         <Col span={12}>
           <Row gutter={[16, 16]}>
             <Col span={24}>
@@ -183,7 +185,7 @@ const ModalViewStore = ({ visible, onCancel, store }) => {
           </Row>
         </Col>
       </Row>
-      <Row gutter={[16, 16]} justify="center">
+      <Row gutter={[16, 16]} justify="center" className="mr-12 ml-12">
         <Col span={24}>
           <SpinCustom spinning={loading}>
             <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
@@ -199,7 +201,7 @@ const ModalViewStore = ({ visible, onCancel, store }) => {
                   isPrimary
                   rowKey="ProductId"
                   columns={column}
-                  textEmpty="Chưa có sản phẩm nào trong kho"
+                  textEmpty="Chưa có sản phẩm nào trong cửa hàng"
                   dataSource={storeProducts}
                   scroll={{ x: "800px" }}
                   pagination={{
