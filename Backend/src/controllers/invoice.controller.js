@@ -19,22 +19,22 @@ async function create(req, res, next) {
         let sub_total = 0;
         if (invoiceData.details && invoiceData.details.length > 0) {
             for (const detail of invoiceData.details) {
-                const product = await ProductService.getProductById(detail.product); 
+                const product = await ProductService.getProductById(detail.productId); 
                 if (!product) {
-                    throw new Error('Not exists productId: ' + detail.product);
+                    throw new Error('Not exists productId: ' + detail.productId);
                 }
 
-                var productFrom = await ShopService.getProductById(invoiceData.from, detail.product);
+                var productFrom = await ShopService.getProductById(invoiceData.from, detail.productId);
                 if (!productFrom) {
-                    throw new Error('Not exists productId' + detail.product + 'in shop: ' + invoiceData.from);
+                    throw new Error('Not exists productId' + detail.productId + 'in shop: ' + invoiceData.from);
                 }
 
                 if (product.status === 'inactive' || productFrom.status === 'inactive') {
-                    throw new Error('Invalid status for productId: ' + detail.product);
+                    throw new Error('Invalid status for productId: ' + detail.productId);
                 }
 
                 if (productFrom.quantity - detail.quantity < 0) {
-                    throw new Error('Invalid quantity for productId: ' + detail.product);
+                    throw new Error('Invalid quantity for productId: ' + detail.productId);
                 }
 
                 detail.unit_price = product.price;
@@ -53,7 +53,7 @@ async function create(req, res, next) {
         // Update product quantity
         if (invoiceData.details && invoiceData.details.length > 0) {
             await Promise.all(invoiceData.details.map(detail =>
-                ShopService.updateProductById(invoiceData.from, detail.product, -detail.quantity)
+                ShopService.updateProductById(invoiceData.from, detail.productId, -detail.quantity)
             ));
         }
 
@@ -96,7 +96,7 @@ async function updateInfo(req, res, next) {
         //Reset quantity in from shop
         if (invoice.details && invoice.details.length > 0) {
             await Promise.all(invoice.details.map(detail =>
-                ShopService.updateProductById(invoice.from, detail.product, detail.quantity)
+                ShopService.updateProductById(invoice.from, detail.productId, detail.quantity)
             ));
         }
 
@@ -113,22 +113,22 @@ async function updateInfo(req, res, next) {
         let sub_total = 0;
         if (updateInvoice.details && updateInvoice.details.length > 0) {
             for (const detail of updateInvoice.details) {
-                const product = await ProductService.getProductById(detail.product); 
+                const product = await ProductService.getProductById(detail.productId); 
                 if (!product) {
-                    throw new Error('Not exists productId: ' + detail.product);
+                    throw new Error('Not exists productId: ' + detail.productId);
                 }
 
-                var productFrom = await ShopService.getProductById(invoice.from, detail.product);
+                var productFrom = await ShopService.getProductById(invoice.from, detail.productId);
                 if (!productFrom) {
-                    throw new Error('Not exists productId' + detail.product + 'in shop: ' + invoice.from);
+                    throw new Error('Not exists productId' + detail.productId + 'in shop: ' + invoice.from);
                 }
 
                 if (product.status === 'inactive' || productFrom.status === 'inactive') {
-                    throw new Error('Invalid status for productId: ' + detail.product);
+                    throw new Error('Invalid status for productId: ' + detail.productId);
                 }
 
                 if (productFrom.quantity - detail.quantity < 0) {
-                    throw new Error('Invalid quantity for productId: ' + detail.product);
+                    throw new Error('Invalid quantity for productId: ' + detail.productId);
                 }
 
                 detail.unit_price = product.price;
@@ -149,7 +149,7 @@ async function updateInfo(req, res, next) {
         // Update product quantity
         if (updateInvoice.details && updateInvoice.details.length > 0) {
             await Promise.all(updateInvoice.details.map(detail =>
-                ShopService.updateProductById(invoice.from, detail.product, -detail.quantity)
+                ShopService.updateProductById(invoice.from, detail.productId, -detail.quantity)
             ));
         }
 
@@ -176,36 +176,36 @@ async function updateStatus(req, res, next) {
 
         if (invoice.status === 'pending' && newStatus==='completed' && invoice.details && invoice.details.length > 0) {
             await Promise.all(invoice.details.map(detail =>{
-                const product = ShopService.getProductById(invoice.to, detail.product);
+                const product = ShopService.getProductById(invoice.to, detail.productId);
                 if (product) {
-                    ShopService.updateProductById(invoice.to, detail.product, detail.quantity);
+                    ShopService.updateProductById(invoice.to, detail.productId, detail.quantity);
                 } else {
-                    ShopService.createOneProduct(invoice.to, {productId: detail.product, quantity: detail.quantity});
+                    ShopService.createOneProduct(invoice.to, {productId: detail.productId, quantity: detail.quantity});
                 }
             }));
         }
 
         if (invoice.status === 'pending' && newStatus==='cancelled' && invoice.details && invoice.details.length > 0) {
             await Promise.all(invoice.details.map(detail =>
-                ShopService.updateProductById(invoice.from, detail.product, detail.quantity)
+                ShopService.updateProductById(invoice.from, detail.productId, detail.quantity)
             ));
         }
 
         if (invoice.status === 'cancelled' && invoice.details && invoice.details.length > 0) {
             for (const detail of invoice.details) {
-                const product = await ProductService.getProductById(detail.product); 
-                const productFrom = await ShopService.getProductById(invoice.from, detail.product);
+                const product = await ProductService.getProductById(detail.productId); 
+                const productFrom = await ShopService.getProductById(invoice.from, detail.productId);
 
                 if (product.status === 'inactive' || productFrom.status === 'inactive') {
-                    throw new Error('Can\'t change this to pending because productId: ' + detail.product+ ' is already active');
+                    throw new Error('Can\'t change this to pending because productId: ' + detail.productId+ ' is already active');
                 }
 
                 if (productFrom.quantity - detail.quantity < 0) {
-                    throw new Error('Can\'t change this to pending because productId: ' + detail.product+ ' is not enough quantity');
+                    throw new Error('Can\'t change this to pending because productId: ' + detail.productId+ ' is not enough quantity');
                 }
             }
             await Promise.all(invoice.details.map(detail =>
-                ShopService.updateProductById(invoice.from, detail.product, -detail.quantity)
+                ShopService.updateProductById(invoice.from, detail.productId, -detail.quantity)
             ));
         }
         const updatedInvoice = await invoiceService.updateInvoice(req.params.id, {status: newStatus});
