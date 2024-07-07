@@ -71,19 +71,22 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       setSelectedShop(invoice.to)
       setStateBody(
         invoice.details.map(item => ({
-          productId: item.product._id,
+          productId: item.productId._id,
           quantity: item.quantity,
         })),
       )
       setSelectedProducts(
         invoice.details.map(item => ({
-          ...item.product,
+          ...item,
           quantity: item.quantity,
         })),
       )
     }
+    console.log(invoice)
   }, [open, invoice, form])
-
+  useEffect(() => {
+    console.log(selectedProducts)
+  }, [selectedProducts])
   const listBtn = record => [
     {
       isEnable: true,
@@ -134,11 +137,12 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       render: text => (
         <Tooltip title={text}>
           <span>
-            {text.length > 100 ? `${text.substring(0, 100)}...` : text}
+            {text && text.length > 100 ? `${text.substring(0, 100)}...` : text}
           </span>
         </Tooltip>
       ),
     },
+
     {
       title: "Số lượng",
       dataIndex: "quantity",
@@ -171,7 +175,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: ["status"],
+      dataIndex: ["productId", "status"],
       align: "center",
       width: 100,
       key: "Status",
@@ -307,13 +311,14 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
   }
 
   const updateInvoice = async () => {
+    console.log(stateBody)
     try {
       setLoading(true)
       const invoiceData = {
         from: id,
         to: selectedShop._id,
         details: stateBody.map(item => ({
-          product: item.productId,
+          productId: item.productId,
           quantity: item.quantity,
         })),
         note: note,
@@ -478,9 +483,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
                   record.productId ? record.productId._id : record.key
                 }
                 columns={columns}
-                dataSource={
-                  selectedProducts.length > 0 ? selectedProducts : undefined
-                }
+                dataSource={selectedProducts}
                 scroll={{ x: "800px" }}
                 pagination={{
                   hideOnSinglePage: total <= 10,

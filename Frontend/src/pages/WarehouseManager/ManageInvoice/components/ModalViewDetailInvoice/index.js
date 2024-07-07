@@ -58,13 +58,13 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
     },
     {
       title: "Tên sản phẩm",
-      dataIndex: ["product", "name"],
+      dataIndex: ["productId", "name"],
       width: 200,
       key: "name",
     },
     {
       title: "Mô tả",
-      dataIndex: ["product", "description"],
+      dataIndex: ["productId", "description"],
       width: 200,
       key: "description",
       render: text => (
@@ -78,7 +78,7 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
     {
       title: "Giá tiền trên từng sản phẩm",
       align: "center",
-      dataIndex: ["product", "price"],
+      dataIndex: ["productId", "price"],
       width: 100,
       key: "price",
       render: value =>
@@ -97,7 +97,7 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
       width: 100,
       key: "total_price",
       render: (_, record) => {
-        const totalPrice = record.product.price * record.quantity
+        const totalPrice = record.productId.price * record.quantity
         return totalPrice.toLocaleString("vi-VN", {
           style: "currency",
           currency: "VND",
@@ -106,7 +106,7 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: ["product", "status"],
+      dataIndex: ["productId", "status"],
       align: "center",
       width: 100,
       key: "status",
@@ -125,7 +125,7 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
     },
     {
       title: "Ảnh",
-      dataIndex: ["product", "image"],
+      dataIndex: ["productId", "image"],
       width: 120,
       key: "image",
       render: text => (

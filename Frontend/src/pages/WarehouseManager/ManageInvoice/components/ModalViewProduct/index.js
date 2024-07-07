@@ -28,15 +28,18 @@ const ModalViewProduct = ({ visible, onCancel, product }) => {
           <Col span={12} className="mt-40">
             <Row gutter={[16, 16]}>
               <Col span={24}>
-                <strong>Tên sản phẩm:</strong> {product?.product?.name}
+                <strong>Tên sản phẩm:</strong> {product?.productId?.name}
               </Col>
               <Col span={24}>
                 <strong>Mô tả:</strong>{" "}
-                <Tooltip title={product?.product?.description}>
+                <Tooltip title={product?.productId?.description}>
                   <span>
-                    {product?.product?.description?.length > 100
-                      ? `${product?.product?.description.substring(0, 100)}...`
-                      : product?.product?.description}
+                    {product?.productId?.description?.length > 100
+                      ? `${product?.productId?.description.substring(
+                          0,
+                          100,
+                        )}...`
+                      : product?.productId?.description}
                   </span>
                 </Tooltip>
               </Col>
@@ -47,12 +50,12 @@ const ModalViewProduct = ({ visible, onCancel, product }) => {
                 <strong>Trạng thái:</strong>{" "}
                 <span
                   className={
-                    product?.product?.status === "active"
+                    product?.productId?.status === "active"
                       ? "blue-text"
                       : "red-text"
                   }
                 >
-                  {product?.product?.status === "active"
+                  {product?.productId?.status === "active"
                     ? "Đang hoạt động"
                     : "Dừng hoạt động"}
                 </span>
@@ -62,7 +65,7 @@ const ModalViewProduct = ({ visible, onCancel, product }) => {
           {/* Product Image */}
           <Col span={12} style={{ textAlign: "center" }}>
             <img
-              src={product?.product?.image}
+              src={product?.productId?.image}
               alt="product"
               style={{ width: "80%", height: "auto", maxHeight: "400px" }}
             />
