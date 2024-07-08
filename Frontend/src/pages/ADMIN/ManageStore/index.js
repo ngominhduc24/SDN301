@@ -19,14 +19,12 @@ const ManageStore = () => {
   const [stores, setStores] = useState([]);
   const [total, setTotal] = useState(0)
   const [buttonShow, setButtonShow] = useState()
-  const [openInsertUpdateBooking, setOpenInsertUpdateBooking] = useState(false)
+  const [openInsertUpdateStore, setOpenInsertUpdateStore] = useState(false)
   const [openViewStore, setOpenViewStore] = useState(false)
   const [openViewManager, setOpenViewManager] = useState(false)
   const [selectedStore, setSelectedStore] = useState(null)
   const [selectedManager, setSelectedManager] = useState(null)
   const [loading, setLoading] = useState(false)
-  const { listSystemKey } = useSelector(state => state.appGlobal)
-  const { userInfo } = useSelector(state => state.appGlobal)
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -68,7 +66,7 @@ const ManageStore = () => {
       isEnable: true,
       name: "Chỉnh sửa",
       icon: "edit-green",
-      onClick: () => setOpenInsertUpdateBooking(record),
+      onClick: () => setOpenInsertUpdateStore(record),
     },
     {
       isEnable: true,
@@ -109,9 +107,6 @@ const ManageStore = () => {
       dataIndex: "location",
       width: 200,
       key: "address",
-      // render: (_, record) => (
-      //   <span>{moment(record?.StartDate).format("DD/MM/YYYY HH:mm")}</span>
-      // ),
     },
     {
       title: "Số điện thoại",
@@ -184,26 +179,6 @@ const ManageStore = () => {
       ),
     },
   ]
-  // const fakeData = [
-  //   {
-  //     StoreID: 1,
-  //     StoreName: "user1",
-  //     Address: "User One",
-  //     Email: "user1@example.com",
-  //     PhoneNumber: "1234567890",
-  //     OperatingHours: "",
-  //     Status: 1,
-  //   },
-  //   {
-  //     StoreID: 2,
-  //     StoreName: "user2",
-  //     Address: "User One",
-  //     Email: "user1@example.com",
-  //     PhoneNumber: "1234567890",
-  //     OperatingHours: "",
-  //     Status: 1,
-  //   },
-  // ]
 
   return (
     <SpinCustom spinning={loading}>
@@ -212,7 +187,7 @@ const ManageStore = () => {
         <div>
           <Button
             btntype="third"
-            onClick={() => setOpenInsertUpdateBooking(true)}
+            onClick={() => setOpenInsertUpdateStore(true)}
           >
             Thêm mới
           </Button>
@@ -228,13 +203,13 @@ const ManageStore = () => {
             textEmpty="Chưa có cửa hàng nào"
             dataSource={stores}
             scroll={{ x: "800px" }}
-            onRow={record => {
-              return {
-                onClick: () => {
-                  setOpenViewStore(record)
-                },
-              }
-            }}
+            // onRow={record => {
+            //   return {
+            //     onClick: () => {
+            //       setOpenViewStore(record)
+            //     },
+            //   }
+            // }}
             pagination={{
               hideOnSinglePage: total <= 10,
               current: pagination?.CurrentPage,
@@ -253,23 +228,24 @@ const ManageStore = () => {
           />
         </Col>
       </Row>
-      {!!openInsertUpdateBooking && (
         <InsertUpdateProgram
-          open={openInsertUpdateBooking}
+          visible={openInsertUpdateStore}
           // onOk={() => getListBookings()}
-          onCancel={() => setOpenInsertUpdateBooking(false)}
+          onCancel={() => setOpenInsertUpdateStore(false)}
           onOk={() => getAllShops()}
         />
-      )}
-      {!!openViewStore && (
+      {!!openViewStore && selectedStore && (
         <ModalViewStore
-          open={openViewStore}
+          visible={openViewStore}
           // onOk={() => getListBookings()}
           // handleDeleteBooking={handleDeleteBooking}
           onCancel={() => setOpenViewStore(false)}
           store={selectedStore}
-          buttonShow={buttonShow}
+          // buttonShow={buttonShow}
         />
+      )}
+      {!!openViewManager && selectedManager && (
+        <></>
       )}
     </SpinCustom>
   )
