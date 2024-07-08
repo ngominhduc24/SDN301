@@ -30,7 +30,7 @@ const getInvoiceById = id => http.get(apiGetInvoiceById(id))
 const updateInfoInvoice = (id, body) => http.put(apiUpdateInfoInvoice(id), body)
 const updateStatusInvoice = (id, body) =>
   http.put(apiUpdateStatusInvoice(id), body)
-const createInvoice = () => http.post(apiCreateInvoice)
+const createInvoice = body => http.post(apiCreateInvoice, body)
 
 const WarehouseManagerService = {
   getInfoWareHouse,

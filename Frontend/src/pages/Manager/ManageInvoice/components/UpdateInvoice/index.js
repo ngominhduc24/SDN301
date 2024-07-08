@@ -22,7 +22,6 @@ import Button from "src/components/MyButton/Button"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
 import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
-import ModalNoteStatus from "../ModalNoteStatus"
 const { Option } = Select
 
 const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
@@ -50,7 +49,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
   const [note, setNote] = useState("")
   const [discount, setDiscount] = useState(0)
   const [shippingCharge, setShippingCharge] = useState(0)
-  const [cancelModalVisible, setCancelModalVisible] = useState(false)
   useEffect(() => {
     getProductsInWarehouse()
     getShopList()
@@ -71,22 +69,19 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       setSelectedShop(invoice.to)
       setStateBody(
         invoice.details.map(item => ({
-          productId: item.productId._id,
+          productId: item.product._id,
           quantity: item.quantity,
         })),
       )
       setSelectedProducts(
         invoice.details.map(item => ({
-          ...item,
+          ...item.product,
           quantity: item.quantity,
         })),
       )
     }
-    console.log(invoice)
   }, [open, invoice, form])
-  useEffect(() => {
-    console.log(selectedProducts)
-  }, [selectedProducts])
+
   const listBtn = record => [
     {
       isEnable: true,
@@ -137,12 +132,11 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       render: text => (
         <Tooltip title={text}>
           <span>
-            {text && text.length > 100 ? `${text.substring(0, 100)}...` : text}
+            {text.length > 100 ? `${text.substring(0, 100)}...` : text}
           </span>
         </Tooltip>
       ),
     },
-
     {
       title: "Số lượng",
       dataIndex: "quantity",
@@ -175,7 +169,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: ["productId", "status"],
+      dataIndex: ["status"],
       align: "center",
       width: 100,
       key: "Status",
@@ -311,14 +305,13 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
   }
 
   const updateInvoice = async () => {
-    console.log(stateBody)
     try {
       setLoading(true)
       const invoiceData = {
         from: id,
         to: selectedShop._id,
         details: stateBody.map(item => ({
-          productId: item.productId,
+          product: item.productId,
           quantity: item.quantity,
         })),
         note: note,
@@ -374,7 +367,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       setLoading(false)
     }
   }
-
   const renderFooter = () => (
     <div className="lstBtn d-flex-sb">
       <div className="lstBtn-right d-flex-end">
@@ -391,7 +383,16 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           className="ml-8 mt-12 mb-12"
           loading={loading}
           onClick={() => {
-            setCancelModalVisible(true)
+            CB1({
+              title: `Bạn chắc chắn muốn hủy đơn hàng này không?`,
+              icon: "warning-usb",
+              okText: "Có",
+              cancelText: "Không",
+              onOk: close => {
+                cancelInvoice()
+                close()
+              },
+            })
           }}
         >
           Hủy Đơn Hàng
@@ -483,7 +484,9 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
                   record.productId ? record.productId._id : record.key
                 }
                 columns={columns}
-                dataSource={selectedProducts}
+                dataSource={
+                  selectedProducts.length > 0 ? selectedProducts : undefined
+                }
                 scroll={{ x: "800px" }}
                 pagination={{
                   hideOnSinglePage: total <= 10,
@@ -561,12 +564,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           visible={openViewProducts}
           onCancel={() => setOpenViewProducts(false)}
           product={selectedProductView}
-        />
-        <ModalNoteStatus
-          visible={cancelModalVisible}
-          onCancel={onCancel}
-          invoice={invoice}
-          onOk={onOk}
         />
       </CustomModal>
       <Modal

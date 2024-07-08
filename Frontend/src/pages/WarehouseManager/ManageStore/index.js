@@ -96,8 +96,10 @@ const ManageStore = () => {
       title: "STT",
       key: "_id",
       width: 60,
-      render: (_, record, index) => (
-        <div className="text-center">{index + 1}</div>
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
       ),
     },
     {
@@ -202,7 +204,7 @@ const ManageStore = () => {
             isPrimary
             rowKey="_id"
             columns={column}
-            textEmpty="Chưa có sản phẩm nào trong kho"
+            textEmpty="Không có cửa hàng nào"
             dataSource={shopList}
             scroll={{ x: "800px" }}
             pagination={{

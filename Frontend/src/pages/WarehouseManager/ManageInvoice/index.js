@@ -10,10 +10,10 @@ import ModalViewDetailInvoice from "./components/ModalViewDetailInvoice"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
-import UpdateProduct from "./components/UpdateInvoice"
 import InsertUpdateInvoice from "./components/InsertUpdateInvoice"
 import ModalViewWarehouse from "./components/ModalViewWarehouse"
 import ModalViewStore from "./components/ModalViewStore"
+import UpdateInvoice from "./components/UpdateInvoice"
 import {
   MainTableData,
   MainTableHeader,
@@ -68,27 +68,34 @@ const ManageInvoiceWarehouse = () => {
     }
   }
 
-  const listBtn = record => [
-    {
-      isEnable: true,
-      name: "Xem chi tiết hóa đơn ",
-      icon: "eye",
-      onClick: () => {
-        setSelectedInvoice(record)
-        setOpenViewInvoice(true)
-        console.log("Products:", record)
+  const listBtn = record => {
+    const buttons = [
+      {
+        isEnable: true,
+        name: "Xem chi tiết hóa đơn",
+        icon: "eye",
+        onClick: () => {
+          setSelectedInvoice(record)
+          setOpenViewInvoice(true)
+          console.log("Products:", record)
+        },
       },
-    },
-    {
-      isEnable: true,
-      name: "Chỉnh sửa",
-      icon: "edit-green",
-      onClick: () => {
-        setSelectedInvoice(record)
-        setOpenUpdateInvoices(true)
-      },
-    },
-  ]
+    ]
+
+    if (record.status !== "cancelled" && record.status !== "completed") {
+      buttons.push({
+        isEnable: true,
+        name: "Chỉnh sửa",
+        icon: "edit-green",
+        onClick: () => {
+          setSelectedInvoice(record)
+          setOpenUpdateInvoices(true)
+        },
+      })
+    }
+
+    return buttons
+  }
 
   const handleViewWarehouse = record => {
     setSelectedWarehouse(record.from)
@@ -105,7 +112,11 @@ const ManageInvoiceWarehouse = () => {
       title: "STT",
       key: "_id",
       width: 60,
-      render: (_, __, index) => <div className="text-center">{index + 1}</div>,
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
+      ),
     },
     {
       title: (
@@ -213,7 +224,7 @@ const ManageInvoiceWarehouse = () => {
               ? "blue-text"
               : record?.status === "completed"
               ? "green-text"
-              : "red-text",
+              : "red",
           ].join(" ")}
         >
           {record?.status === "pending"
@@ -267,7 +278,7 @@ const ManageInvoiceWarehouse = () => {
             isPrimary
             rowKey="ProductId"
             columns={columns}
-            textEmpty="Chưa có sản phẩm nào trong kho"
+            textEmpty="Chưa có hóa đơn nào "
             dataSource={invoices}
             scroll={{ x: "800px" }}
             pagination={{
@@ -316,6 +327,15 @@ const ManageInvoiceWarehouse = () => {
           open={openInsertUpdateInvoices}
           onCancel={() => setOpenInsertUpdateInvoices(false)}
           onOk={() => getAllInvoice()}
+        />
+      )}
+      {!!openUpdateInvoices && (
+        <UpdateInvoice
+          open={openUpdateInvoices}
+          onCancel={() => setOpenUpdateInvoices(false)}
+          onOk={() => getAllInvoice()}
+          invoice={selectedInvoice}
+          id={wareHouseId}
         />
       )}
     </SpinCustom>

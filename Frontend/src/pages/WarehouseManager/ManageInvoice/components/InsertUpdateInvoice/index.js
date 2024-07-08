@@ -8,6 +8,9 @@ import {
   Tooltip,
   InputNumber,
   Modal,
+  Card,
+  Typography,
+  Input,
 } from "antd"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
@@ -23,6 +26,7 @@ const { Option } = Select
 
 const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
   const [form] = Form.useForm()
+  const [wareHouse, setWareHouse] = useState({})
   const [wareHouseProductsIn, setWareHouseProductsIn] = useState([])
   const [selectedProducts, setSelectedProducts] = useState([])
   const [openViewProducts, setOpenViewProducts] = useState(false)
@@ -39,10 +43,12 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     ApproveStatus: 0,
     Status: 0,
   })
-
-  const [shopList, setShopList] = useState([]) // State to hold shop list
-  const [selectedShop, setSelectedShop] = useState(null) // State to hold selected shop
-
+  const { Title, Text } = Typography
+  const [shopList, setShopList] = useState([])
+  const [selectedShop, setSelectedShop] = useState(null)
+  const [note, setNote] = useState("")
+  const [discount, setDiscount] = useState(0)
+  const [shippingCharge, setShippingCharge] = useState(0)
   const listBtn = record => [
     {
       isEnable: true,
@@ -71,10 +77,12 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
   const columns = [
     {
       title: "STT",
-      key: "ProductID",
+      key: ["productId", "_id"],
       width: 60,
-      render: (_, record, index) => (
-        <div className="text-center">{index + 1}</div>
+      render: (text, row, idx) => (
+        <div className="text-center">
+          {idx + 1 + pagination.PageSize * (pagination.CurrentPage - 1)}
+        </div>
       ),
     },
     {
@@ -174,6 +182,7 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     const selected = wareHouseProductsIn.find(
       product => product.productId._id === value,
     )
+    console.log(selected)
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
       setStateBody(prev => [
@@ -184,7 +193,7 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
   }
 
   const handleShopChange = value => {
-    const selected = shopList.find(shop => shop.id === value)
+    const selected = shopList.find(shop => shop._id === value)
     setSelectedShop(selected)
   }
 
@@ -194,6 +203,34 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
         item.productId === productId ? { ...item, quantity } : item,
       ),
     )
+  }
+  const handleNoteChange = e => {
+    setNote(e.target.value)
+  }
+
+  const handleDiscountChange = value => {
+    setDiscount(value)
+  }
+
+  const handleShippingChargeChange = value => {
+    setShippingCharge(value)
+  }
+
+  const getWarehouse = async () => {
+    try {
+      setLoading(true)
+      const wareHouseInfo = await WarehouseManagerService.getInfoWareHouse()
+      console.log(wareHouseInfo)
+      if (wareHouseInfo?.isError) {
+        console.error("Error fetching warehouse info:", wareHouseInfo.message)
+        return
+      }
+      setWareHouse(wareHouseInfo)
+    } catch (error) {
+      console.error("Error in getWarehouseInfo:", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const getProductsInWarehouse = async () => {
@@ -208,7 +245,7 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
         )
         return
       }
-      setWareHouseProductsIn(warehouseProductsInRes)
+      setWareHouseProductsIn(warehouseProductsInRes || [])
       setTotal(warehouseProductsInRes.length)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
@@ -221,6 +258,7 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     try {
       setLoading(true)
       const shopListRes = await WarehouseManagerService.getShopList()
+      console.log(shopListRes)
       if (shopListRes?.isError) {
         console.error("Error fetching shop list:", shopListRes.message)
         return
@@ -234,9 +272,44 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     }
   }
 
+  const createInvoice = async () => {
+    console.log(stateBody)
+    try {
+      setLoading(true)
+      const invoiceData = {
+        from: id,
+        to: selectedShop._id,
+        details: stateBody.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+        note: note,
+        discount: discount,
+        shipping_charge: shippingCharge,
+        created_by: wareHouse?.manager?._id,
+      }
+      console.log(invoiceData)
+      const response = await WarehouseManagerService.createInvoice(invoiceData)
+      if (response?.isError) {
+        console.error("Error creating invoice:", response.message)
+        return
+      }
+      onOk()
+      onCancel()
+      Notice({
+        isSuccess: true,
+        msg: "Tạo hóa đơn thành công",
+      })
+    } catch (error) {
+      console.error("Error in createInvoice:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
   useEffect(() => {
     getProductsInWarehouse()
     getShopList()
+    getWarehouse()
   }, [id])
 
   const addProductsToWarehouse = async () => {
@@ -270,7 +343,7 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={addProductsToWarehouse}
+          onClick={createInvoice}
         >
           Lưu
         </Button>
@@ -280,78 +353,160 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
       </div>
     </div>
   )
-
+  const items = [
+    {
+      key: 1,
+      label: <div>Cửa hàng</div>,
+      children: (
+        <PatentRegistrationChildBorder>
+          <Form form={form}>
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Select
+                  showSearch
+                  placeholder="Chọn shop"
+                  optionFilterProp="children"
+                  onChange={handleShopChange}
+                  style={{ width: "100%" }}
+                >
+                  {shopList.map(shop => (
+                    <Option key={shop._id} value={shop._id}>
+                      {shop.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+            </Row>
+            {selectedShop && (
+              <Card
+                title="Thông tin cửa hàng đã chọn"
+                style={{ marginTop: 20 }}
+              >
+                <Title level={5}>{selectedShop.name}</Title>
+                <div style={{ marginBottom: 10 }}>
+                  <Text strong>Email: </Text>
+                  <Text>{selectedShop.email}</Text>
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <Text strong>Số điện thoại: </Text>
+                  <Text>{selectedShop.phone}</Text>
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <Text strong>Địa chỉ: </Text>
+                  <Text>{selectedShop.location}</Text>
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <Text strong>Chủ cửa hàng: </Text>
+                  <Text>{selectedShop.manager.email}</Text>
+                </div>
+              </Card>
+            )}
+          </Form>
+        </PatentRegistrationChildBorder>
+      ),
+    },
+    {
+      key: 2,
+      label: <div>Sản phẩm</div>,
+      children: (
+        <PatentRegistrationChildBorder>
+          <Form form={form}>
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Select
+                  showSearch
+                  placeholder="Chọn sản phẩm"
+                  optionFilterProp="children"
+                  onChange={handleProductChange}
+                  style={{ width: "100%" }}
+                >
+                  {wareHouseProductsIn.map(product => (
+                    <Option
+                      key={product.productId._id}
+                      value={product.productId._id}
+                    >
+                      {product.productId.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+            </Row>
+            <TableCustom
+              isPrimary
+              rowKey={record => record.productId._id}
+              columns={columns}
+              dataSource={selectedProducts}
+              scroll={{ x: "800px" }}
+              pagination={{
+                hideOnSinglePage: total <= 10,
+                current: pagination?.CurrentPage,
+                pageSize: pagination?.PageSize,
+                responsive: true,
+                total: total,
+                locale: { items_per_page: "" },
+                showSizeChanger: total > 10,
+                pageSizeOptions: ["10", "20", "50", "100"],
+              }}
+            />
+          </Form>
+        </PatentRegistrationChildBorder>
+      ),
+    },
+    {
+      key: 3,
+      label: <div>Ghi chú</div>,
+      children: (
+        <Card>
+          <Form form={form} layout="vertical">
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item label="Ghi chú">
+                  <Input.TextArea
+                    onChange={handleNoteChange}
+                    rows={4}
+                    placeholder="Nhập ghi chú"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="Chiết khấu (%)">
+                  <InputNumber
+                    min={0}
+                    value={discount}
+                    onChange={handleDiscountChange}
+                    placeholder="Chiết khấu"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="Phí vận chuyển">
+                  <InputNumber
+                    min={0}
+                    value={shippingCharge}
+                    onChange={handleShippingChargeChange}
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </Card>
+      ),
+    },
+  ]
   return (
     <div>
       <CustomModal
         open={open}
         onCancel={onCancel}
         onOk={onOk}
-        title={"Thêm mới sản phẩm"}
+        title={"Thêm mới hóa đơn"}
         width="90vw"
         footer={renderFooter()}
       >
         <StylesTabPattern className="mr-12 ml-12">
-          <Tabs type="card" defaultActiveKey="1">
-            <Tabs.TabPane key="1" tab="Sản phẩm">
-              <PatentRegistrationChildBorder>
-                <Form form={form} onFinish={addProductsToWarehouse}>
-                  <Row gutter={16} style={{ marginBottom: 16 }}>
-                    <Col span={12}>
-                      <Select
-                        showSearch
-                        placeholder="Chọn sản phẩm"
-                        optionFilterProp="children"
-                        onChange={handleProductChange}
-                        style={{ width: "100%" }}
-                      >
-                        {wareHouseProductsIn.map(product => (
-                          <Option
-                            key={product.productId._id}
-                            value={product.productId._id}
-                          >
-                            {product.productId.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Col>
-                    <Col span={12}>
-                      <Select
-                        showSearch
-                        placeholder="Chọn shop"
-                        optionFilterProp="children"
-                        onChange={handleShopChange}
-                        style={{ width: "100%" }}
-                      >
-                        {shopList.map(shop => (
-                          <Option key={shop._id} value={shop._id}>
-                            {shop.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Col>
-                  </Row>
-                  <TableCustom
-                    isPrimary
-                    rowKey={record => record.productId._id}
-                    columns={columns}
-                    dataSource={selectedProducts}
-                    scroll={{ x: "800px" }}
-                    pagination={{
-                      hideOnSinglePage: total <= 10,
-                      current: pagination?.CurrentPage,
-                      pageSize: pagination?.PageSize,
-                      responsive: true,
-                      total: total,
-                      locale: { items_per_page: "" },
-                      showSizeChanger: total > 10,
-                      pageSizeOptions: ["10", "20", "50", "100"],
-                    }}
-                  />
-                </Form>
-              </PatentRegistrationChildBorder>
-            </Tabs.TabPane>
-          </Tabs>
+          <Tabs type="card" defaultActiveKey="1" items={items} />
         </StylesTabPattern>
         <ModalViewProduct
           visible={openViewProducts}

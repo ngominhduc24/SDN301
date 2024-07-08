@@ -22,10 +22,9 @@ import Button from "src/components/MyButton/Button"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
 import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
-import ModalNoteStatus from "../ModalNoteStatus"
 const { Option } = Select
 
-const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
+const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
   const [form] = Form.useForm()
   const [wareHouse, setWareHouse] = useState({})
   const [wareHouseProductsIn, setWareHouseProductsIn] = useState([])
@@ -50,43 +49,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
   const [note, setNote] = useState("")
   const [discount, setDiscount] = useState(0)
   const [shippingCharge, setShippingCharge] = useState(0)
-  const [cancelModalVisible, setCancelModalVisible] = useState(false)
-  useEffect(() => {
-    getProductsInWarehouse()
-    getShopList()
-    getWarehouse()
-    console.log(invoice)
-  }, [id])
-  useEffect(() => {
-    if (open && invoice) {
-      form.setFieldsValue({
-        shop: invoice.to._id,
-        note: invoice.note,
-        discount: invoice.discount,
-        shippingCharge: invoice.shipping_charge,
-      })
-      setNote(invoice.note)
-      setDiscount(invoice.discount)
-      setShippingCharge(invoice.shipping_charge)
-      setSelectedShop(invoice.to)
-      setStateBody(
-        invoice.details.map(item => ({
-          productId: item.productId._id,
-          quantity: item.quantity,
-        })),
-      )
-      setSelectedProducts(
-        invoice.details.map(item => ({
-          ...item,
-          quantity: item.quantity,
-        })),
-      )
-    }
-    console.log(invoice)
-  }, [open, invoice, form])
-  useEffect(() => {
-    console.log(selectedProducts)
-  }, [selectedProducts])
   const listBtn = record => [
     {
       isEnable: true,
@@ -127,7 +89,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       title: "Tên sản phẩm",
       dataIndex: ["productId", "name"],
       width: 200,
-      key: "name",
+      key: "productName",
     },
     {
       title: "Mô tả",
@@ -137,12 +99,11 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       render: text => (
         <Tooltip title={text}>
           <span>
-            {text && text.length > 100 ? `${text.substring(0, 100)}...` : text}
+            {text.length > 100 ? `${text.substring(0, 100)}...` : text}
           </span>
         </Tooltip>
       ),
     },
-
     {
       title: "Số lượng",
       dataIndex: "quantity",
@@ -175,7 +136,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: ["productId", "status"],
+      dataIndex: ["status"],
       align: "center",
       width: 100,
       key: "Status",
@@ -221,6 +182,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     const selected = wareHouseProductsIn.find(
       product => product.productId._id === value,
     )
+    console.log(selected)
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
       setStateBody(prev => [
@@ -310,15 +272,14 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     }
   }
 
-  const updateInvoice = async () => {
-    console.log(stateBody)
+  const createInvoice = async () => {
     try {
       setLoading(true)
       const invoiceData = {
         from: id,
         to: selectedShop._id,
         details: stateBody.map(item => ({
-          productId: item.productId,
+          product: item.productId,
           quantity: item.quantity,
         })),
         note: note,
@@ -327,10 +288,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
         created_by: wareHouse?.manager?._id,
       }
       console.log(invoiceData)
-      const response = await WarehouseManagerService.updateInfoInvoice(
-        invoice?._id,
-        invoiceData,
-      )
+      const response = await WarehouseManagerService.createInvoice(invoiceData)
       if (response?.isError) {
         console.error("Error creating invoice:", response.message)
         return
@@ -339,7 +297,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       onCancel()
       Notice({
         isSuccess: true,
-        msg: "Chỉnh sửa đơn hàng thành công",
+        msg: "Tạo hóa đơn thành công",
       })
     } catch (error) {
       console.error("Error in createInvoice:", error)
@@ -347,29 +305,31 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       setLoading(false)
     }
   }
-  const cancelInvoice = async () => {
+  useEffect(() => {
+    getProductsInWarehouse()
+    getShopList()
+    getWarehouse()
+  }, [id])
+
+  const addProductsToWarehouse = async () => {
     try {
       setLoading(true)
-      const body = {
-        status: "cancelled",
-      }
-      console.log(body)
-      const response = await WarehouseManagerService.updateInfoInvoice(
-        invoice?._id,
-        body,
+      const response = await WarehouseManagerService.addProductsToWarehouse(
+        id,
+        stateBody,
       )
       if (response?.isError) {
-        console.error("Error creating invoice:", response.message)
+        console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
         return
       }
+      getProductsInWarehouse()
       onOk()
       onCancel()
       Notice({
-        isSuccess: true,
-        msg: "Chỉnh sửa đơn hàng thành công",
+        msg: "Thêm thành công.",
       })
     } catch (error) {
-      console.error("Error in createInvoice:", error)
+      console.error("Lỗi trong quá trình thêm sản phẩm vào kho:", error)
     } finally {
       setLoading(false)
     }
@@ -382,19 +342,9 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={updateInvoice}
+          onClick={createInvoice}
         >
           Lưu
-        </Button>
-        <Button
-          btntype="danger"
-          className="ml-8 mt-12 mb-12"
-          loading={loading}
-          onClick={() => {
-            setCancelModalVisible(true)
-          }}
-        >
-          Hủy Đơn Hàng
         </Button>
         <Button btntype="third" className="ml-8 mt-12 mb-12" onClick={onCancel}>
           Đóng
@@ -444,6 +394,10 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
                   <Text strong>Địa chỉ: </Text>
                   <Text>{selectedShop.location}</Text>
                 </div>
+                <div style={{ marginBottom: 10 }}>
+                  <Text strong>Chủ cửa hàng: </Text>
+                  <Text>{selectedShop.manager.email}</Text>
+                </div>
               </Card>
             )}
           </Form>
@@ -476,27 +430,23 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
                 </Select>
               </Col>
             </Row>
-            {selectedProducts && (
-              <TableCustom
-                isPrimary
-                rowKey={record =>
-                  record.productId ? record.productId._id : record.key
-                }
-                columns={columns}
-                dataSource={selectedProducts}
-                scroll={{ x: "800px" }}
-                pagination={{
-                  hideOnSinglePage: total <= 10,
-                  current: pagination?.CurrentPage,
-                  pageSize: pagination?.PageSize,
-                  responsive: true,
-                  total: total,
-                  locale: { items_per_page: "" },
-                  showSizeChanger: total > 10,
-                  pageSizeOptions: ["10", "20", "50", "100"],
-                }}
-              />
-            )}
+            <TableCustom
+              isPrimary
+              rowKey={record => record.productId._id}
+              columns={columns}
+              dataSource={selectedProducts}
+              scroll={{ x: "800px" }}
+              pagination={{
+                hideOnSinglePage: total <= 10,
+                current: pagination?.CurrentPage,
+                pageSize: pagination?.PageSize,
+                responsive: true,
+                total: total,
+                locale: { items_per_page: "" },
+                showSizeChanger: total > 10,
+                pageSizeOptions: ["10", "20", "50", "100"],
+              }}
+            />
           </Form>
         </PatentRegistrationChildBorder>
       ),
@@ -509,7 +459,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           <Form form={form} layout="vertical">
             <Row gutter={16}>
               <Col span={24}>
-                <Form.Item name="note" label="Ghi chú">
+                <Form.Item label="Ghi chú">
                   <Input.TextArea
                     onChange={handleNoteChange}
                     rows={4}
@@ -518,7 +468,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item name="discount" label="Chiết khấu (%)">
+                <Form.Item label="Chiết khấu (%)">
                   <InputNumber
                     min={0}
                     value={discount}
@@ -529,7 +479,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item name="shippingCharge" label="Phí vận chuyển">
+                <Form.Item label="Phí vận chuyển">
                   <InputNumber
                     min={0}
                     value={shippingCharge}
@@ -550,7 +500,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
         open={open}
         onCancel={onCancel}
         onOk={onOk}
-        title={"Chỉnh sửa hóa đơn"}
+        title={"Thêm mới hóa đơn"}
         width="90vw"
         footer={renderFooter()}
       >
@@ -561,12 +511,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           visible={openViewProducts}
           onCancel={() => setOpenViewProducts(false)}
           product={selectedProductView}
-        />
-        <ModalNoteStatus
-          visible={cancelModalVisible}
-          onCancel={onCancel}
-          invoice={invoice}
-          onOk={onOk}
         />
       </CustomModal>
       <Modal
@@ -580,5 +524,5 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
   )
 }
 
-export default UpdateInvoice
+export default InsertUpdateInvoice
 
