@@ -142,7 +142,7 @@ async function getProductById(req, res, next) {
 // Update a product for a specific product in a specific shop
 async function updateProductById(req, res, next) {
   try {
-    const product = await shopService.updateProductById(req.params.shopId, req.params.id, req.body.quantity);
+    const product = await shopService.updateProductById(req.params.shopId, req.params.id, req.body.quantity, res.body.status);
     res.status(200).send(product);
   } catch (error) {
     next(error);

@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
+const Category = require('./category');
 
 // Define the Product schema for embedding
 const ProductSchema = new Schema({
   categoryId: { 
     type: Schema.Types.ObjectId, 
-    ref: 'Category'
+    ref: Category
     },
   name: { 
     type: String, 
@@ -25,7 +26,7 @@ const ProductSchema = new Schema({
   }, 
   status: { 
     type: String, 
-    enum: ['active', 'deactive'], 
+    enum: ['active', 'inactive'], 
     default: 'active' 
   }
 }); 
