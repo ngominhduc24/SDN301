@@ -9,7 +9,7 @@ import TableCustom from "src/components/Table/CustomTable"
 import { SYSTEM_KEY } from "src/constants/constants"
 import { getListComboByKey } from "src/lib/utils"
 import SearchAndFilter from "./components/SearchAndFilter"
-import InsertUpdateProgram from "./components/InsertUpdateProgram"
+import InsertUpdateStore from "./components/InsertUpdateProgram"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import AdminServices from "src/services/AdminService"
@@ -217,9 +217,8 @@ const ManageStore = () => {
           />
         </Col>
       </Row>
-        <InsertUpdateProgram
-          visible={openInsertUpdateStore}
-          // onOk={() => getListBookings()}
+        <InsertUpdateStore
+          open={openInsertUpdateStore}
           onCancel={() => setOpenInsertUpdateStore(false)}
           onOk={() => getAllShops()}
         />

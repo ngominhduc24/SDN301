@@ -1,17 +1,17 @@
-import { Col, Form, Row, Space, Tabs } from "antd"
+import { Col, Form, Input, Row, Space, Tabs } from "antd"
 import dayjs from "dayjs"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
-import FormInsertUpdateProgram from "./components/FormInsertUpdateProgram"
+import FormInsertUpdateProgram from "./components/FormInsertUpdateStore"
 import { PatentRegistrationChildBorder, StylesTabPattern } from "./styled"
 import TableCustom from "src/components/Table/CustomTable"
 import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
-import ModalInsertUpdateContent from "./components/modal/ModalInsertUpdateContent"
-import ModalAttendance from "./components/modal/ModalAttendance"
+import ModalInsertUpdateStore from "./components/modal/ModalInsertUpdateStore"
 import Notice from "src/components/Notice"
 import { convertTreeData } from "src/lib/utils"
 import Button from "src/components/MyButton/Button"
+import AdminServices from "src/services/AdminService"
 
 export const convertTreeDataParticipants = (
   listData,
@@ -100,163 +100,239 @@ const convertChildrent = (
   })
   return newList
 }
-const InsertUpdateProgram = ({ open, onCancel, onOk }) => {
+const InsertUpdateStore = ({ open, onCancel, onOk, data }) => {
   const [form] = Form.useForm()
   const [activeKey, setActiveKey] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [BookingID, setBookingID] = useState()
-  const [contents, setContents] = useState([])
-  const [documents, setDocuments] = useState([])
-  const [treeDocuments, setTreeDocuments] = useState([])
-  const [modalInsertUpdateContent, setModalInsertUpdateContent] =
+  const [modalInsertUpdateStore, setModalInsertUpdateStore] =
     useState(false)
-  const [modalAttendanceContent, setModalAttendanceContent] = useState(false)
-  const [atendanceContents, setAttendanceContents] = useState(false)
-  const [meetingRooms, setMeetingRooms] = useState([])
-  const [participants, setParticipants] = useState([])
-  const [ltAccount, setLtAccount] = useState([])
+const [stateBody, setStateBody] = useState({})
   const [filter, setFilter] = useState({
     TextSearch: "",
-    BookingID: open?.BookingID,
   })
-  const [bodyContent, setBodyContent] = useState({
-    BookingID: open?.BookingID,
-  })
+
+  // const column = [
+  //   {
+  //     title: "STT",
+  //     width: 60,
+  //     render: (_, record, index) => (
+  //       <div className="text-center">{index + 1}</div>
+  //     ),
+  //   },
+  //   {
+  //     title: "Ngày bắt đầu",
+  //     dataIndex: "Date",
+  //     width: 160,
+  //     key: "Date",
+  //     render: (_, record) => (
+  //       <span>{dayjs(record?.Date).format("DD/MM/YYYY")}</span>
+  //     ),
+  //   },
+  //   {
+  //     title: "Thời gian bắt đầu",
+  //     dataIndex: "StartDate",
+  //     width: 120,
+  //     key: "StartDate",
+  //     render: (_, record) => (
+  //       <span>{dayjs(record?.StartDate).format("HH:mm")}</span>
+  //     ),
+  //   },
+  //   {
+  //     title: "Thời gian kết thúc",
+  //     dataIndex: "EndDate",
+  //     width: 120,
+  //     key: "EndDate",
+  //     render: (_, record) => (
+  //       <span>{dayjs(record?.EndDate).format("HH:mm")}</span>
+  //     ),
+  //   },
+  //   {
+  //     title: "Nội dung",
+  //     dataIndex: "Content",
+  //     width: 400,
+  //     render: (_, record) => (
+  //       <span dangerouslySetInnerHTML={{ __html: record?.Content }} />
+  //     ),
+  //   },
+  //   {
+  //     title: "Tài liệu",
+  //     dataIndex: "ltDocumentFolderID",
+  //     width: 200,
+  //     render: (_, record) =>
+  //       record?.ltDocumentFolderID?.map((i, idx) => (
+  //         <div key={idx}>{i?.DocumentName}</div>
+  //       )),
+  //   },
+  //   {
+  //     title: "Chức năng",
+  //     width: 120,
+  //     render: (_, record) => (
+  //       <Space>
+  //         {listBtn(record).map((i, idx) => (
+  //           <ButtonCircle
+  //             key={idx}
+  //             title={i.name}
+  //             iconName={i.icon}
+  //             onClick={i.onClick}
+  //           />
+  //         ))}
+  //       </Space>
+  //     ),
+  //   },
+  // ]
+
+  useEffect(() => {
+    form.resetFields();
+    setStateBody({
+      new: {
+        name: data?.name || "",
+        location: data?.location || "",
+        phone: data?.phone || "",
+        email: data?.email || "",
+        status: data?.status || "closed"
+      }
+    })
+  }, [data, form])
+
+  // useEffect(() => {
+  //   if (!!open?.BookingID) {
+  //     form.setFieldsValue({
+  //       ...open,
+  //       DateValue: [dayjs(open?.StartDate), dayjs(open?.EndDate)],
+  //       Device: open?.Device !== 0 ? open?.Device : undefined,
+  //       ltAccountID: !!open?.ListUser.length
+  //         ? open?.ListUser.map(i => ({
+  //             AccountID: i?.UserID,
+  //             RoleBookingAccount: i?.RoleBookingAccount,
+  //           }))
+  //         : [],
+  //     })
+  //     setBookingID(open?.BookingID)
+  //   }
+  // }, [open])
+
+  const handleChangeStore = (storeId, field, value) => {
+    setStateBody(prev => ({
+      ...prev,
+      [storeId]: {
+        ...prev[storeId],
+        [field]: value
+      }
+    }))
+  }
 
   const column = [
     {
       title: "STT",
+      key: "_id",
       width: 60,
-      render: (_, record, index) => (
+      render: (_, record, index) => 
         <div className="text-center">{index + 1}</div>
-      ),
     },
     {
-      title: "Ngày bắt đầu",
-      dataIndex: "Date",
-      width: 160,
-      key: "Date",
-      render: (_, record) => (
-        <span>{dayjs(record?.Date).format("DD/MM/YYYY")}</span>
-      ),
-    },
-    {
-      title: "Thời gian bắt đầu",
-      dataIndex: "StartDate",
-      width: 120,
-      key: "StartDate",
-      render: (_, record) => (
-        <span>{dayjs(record?.StartDate).format("HH:mm")}</span>
-      ),
-    },
-    {
-      title: "Thời gian kết thúc",
-      dataIndex: "EndDate",
-      width: 120,
-      key: "EndDate",
-      render: (_, record) => (
-        <span>{dayjs(record?.EndDate).format("HH:mm")}</span>
-      ),
-    },
-    {
-      title: "Nội dung",
-      dataIndex: "Content",
-      width: 400,
-      render: (_, record) => (
-        <span dangerouslySetInnerHTML={{ __html: record?.Content }} />
-      ),
-    },
-    {
-      title: "Tài liệu",
-      dataIndex: "ltDocumentFolderID",
+      title: "Tên cửa hàng",
+      dataIndex: "name",
       width: 200,
-      render: (_, record) =>
-        record?.ltDocumentFolderID?.map((i, idx) => (
-          <div key={idx}>{i?.DocumentName}</div>
-        )),
+      key: "name",
+      render: (text, record) => (
+        <Input onChange={e => handleChangeStore(record._id, "name", e.target.value)}/>
+      )
     },
     {
-      title: "Chức năng",
+      title: "Địa chỉ",
+      dataIndex: "location",
+      key: "location",
+      width: 50,
+      render: (text, record) => (
+        <Input onChange={e => handleChangeStore(record._id, "location", e.target.value)}/>
+      )
+    },
+    {
+      title: "Điện thoại",
+      dataIndex: "phone",
+      width: 300,
+      key: "phone",
+      render: (text, record) => (
+        <Input
+          onChange={(e) => handleChangeStore(record._id, "phone", e.target.value)}
+        />
+      ),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
       width: 120,
-      render: (_, record) => (
-        <Space>
-          {listBtn(record).map((i, idx) => (
-            <ButtonCircle
-              key={idx}
-              title={i.name}
-              iconName={i.icon}
-              onClick={i.onClick}
-            />
-          ))}
-        </Space>
+      key: "email",
+      render: (text, record) => (
+        <Input
+          onChange={(e) => handleChangeStore(record._id, "email", e.target.value)}
+        />
       ),
     },
+    // {
+    //   title: "Action",
+    //   dataIndex: "status",
+    //   width: 120,
+    //   key: "status",
+    //   render: (_, record) => (
+    //     <Switch
+    //       onChange={(checked) => toggleStatus(record._id, checked)}
+    //     />
+    //   ),
+    // }
   ]
+  // const items = [
+  //   {
+  //     key: 1,
+  //     label: <div>Thêm mới cửa hàng</div>,
+  //     // children: (
+  //     //   <PatentRegistrationChildBorder>
+         
+  //     //   </PatentRegistrationChildBorder>
+  //     // ),
+  //   },
+  // ]
 
-  useEffect(() => {}, [])
+  // const listBtn = record => [
+  //   {
+  //     name: "Chỉnh sửa",
+  //     icon: "edit-green",
+  //     onClick: () => setModalInsertUpdateContent(record),
+  //   },
+  //   {
+  //     name: "Xóa",
+  //     icon: "delete-red-row",
+  //     onClick: () =>
+  //       CB1({
+  //         record,
+  //         title: `Bạn có chắc chắn xóa ?`,
+  //         icon: "warning-usb",
+  //         okText: "Có",
+  //         cancelText: "Không",
+  //         onOk: async close => {
+  //           close()
+  //         },
+  //       }),
+  //   },
+  // ]
 
-  useEffect(() => {
-    if (!!open?.BookingID) {
-      form.setFieldsValue({
-        ...open,
-        DateValue: [dayjs(open?.StartDate), dayjs(open?.EndDate)],
-        Device: open?.Device !== 0 ? open?.Device : undefined,
-        ltAccountID: !!open?.ListUser.length
-          ? open?.ListUser.map(i => ({
-              AccountID: i?.UserID,
-              RoleBookingAccount: i?.RoleBookingAccount,
-            }))
-          : [],
+  const onContinue = async () => {
+    try {
+      setLoading(true)
+      const values = await form.validateFields()
+      const res = await AdminServices.addStores({ ...values })
+      if (res?.isError) return
+      onOk && onOk()
+      Notice({
+        msg: `Thêm cửa hàng thành công!`,
       })
-      setBookingID(open?.BookingID)
+      //   props?.onCancel()
+    } catch (error) {
+      console.log("error")
+    } finally {
+      setLoading(false)
     }
-  }, [open])
-
-  useEffect(() => {
-    if (!!BookingID) {
-    }
-  }, [BookingID])
-
-  const items = [
-    {
-      key: 1,
-      label: <div>Chương trình họp</div>,
-      children: (
-        <PatentRegistrationChildBorder>
-          <FormInsertUpdateProgram
-            form={form}
-            meetingRooms={meetingRooms}
-            participants={participants}
-            ltAccount={ltAccount}
-            setLtAccount={setLtAccount}
-          />
-        </PatentRegistrationChildBorder>
-      ),
-    },
-  ]
-
-  const listBtn = record => [
-    {
-      name: "Chỉnh sửa",
-      icon: "edit-green",
-      onClick: () => setModalInsertUpdateContent(record),
-    },
-    {
-      name: "Xóa",
-      icon: "delete-red-row",
-      onClick: () =>
-        CB1({
-          record,
-          title: `Bạn có chắc chắn xóa ?`,
-          icon: "warning-usb",
-          okText: "Có",
-          cancelText: "Không",
-          onOk: async close => {
-            close()
-          },
-        }),
-    },
-  ]
+  }
 
   const renderFooter = () => (
     <div className="lstBtn d-flex-sb">
@@ -267,9 +343,9 @@ const InsertUpdateProgram = ({ open, onCancel, onOk }) => {
             btntype="primary"
             className="ml-8 mt-12 mb-12"
             loading={loading}
+            onClick={onContinue}
           >
-            {!!BookingID ? "Cập nhật" : "Lưu"}
-          </Button>
+          Tạo mới</Button>
         </>
         <Button
           btntype="third"
@@ -288,42 +364,36 @@ const InsertUpdateProgram = ({ open, onCancel, onOk }) => {
         open={open}
         onCancel={onCancel}
         onOk={onOk}
-        title={open?.BookingID ? "Chỉnh sửa cửa hàng" : "Thêm mới cửa hàng"}
+        title={"Thêm mới cửa hàng"}
         width="90vw"
         footer={renderFooter()}
       >
-        <StylesTabPattern>
+        {/* <StylesTabPattern>
           <Tabs
             type="card"
             defaultActiveKey="1"
-            items={items}
+            // items={items}
             activeKey={activeKey}
             onChange={key => {
               setActiveKey(key)
             }}
           />
-        </StylesTabPattern>
+        </StylesTabPattern> */}
+        <FormInsertUpdateProgram
+            form={form}
+          />
       </CustomModal>
 
-      {!!modalInsertUpdateContent && (
-        <ModalInsertUpdateContent
-          documents={documents}
-          open={modalInsertUpdateContent}
-          onCancel={() => setModalInsertUpdateContent(false)}
+      {!!modalInsertUpdateStore && (
+        <ModalInsertUpdateStore
+          open={modalInsertUpdateStore}
+          onCancel={() => setModalInsertUpdateStore(false)}
         />
       )}
-      {!!modalAttendanceContent && (
-        <ModalAttendance
-          open={modalAttendanceContent}
-          ltUser={open?.ListUser}
-          BookingID={open?.BookingID}
-          atendanceContents={atendanceContents}
-          onCancel={() => setModalAttendanceContent(false)}
-        />
-      )}
+    
     </div>
   )
 }
 
-export default InsertUpdateProgram
+export default InsertUpdateStore
 

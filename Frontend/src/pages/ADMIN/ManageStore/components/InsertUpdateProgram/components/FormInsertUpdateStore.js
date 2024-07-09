@@ -4,18 +4,39 @@ import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons"
 import Button from "src/components/MyButton/Button"
 import { RedStar } from "src/components/FloatingLabel/styled"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
+import { useEffect, useState } from "react"
+import AdminServices from "src/services/AdminService"
+import STORAGE, { getStorage } from "src/lib/storage"
 
 const { Option } = Select
 const { RangePicker } = DatePicker
 
 const FormInsertUpdateProgram = ({
   form,
-  operatingHours,
-  managers,
-  employees,
-}) => {
-  const { listSystemKey } = useSelector(state => state.appGlobal)
 
+}) => {
+  const [managers, setManagers] = useState([])
+  const [loading, setLoading] = useState(false)
+  useEffect(() => {
+    getAllManagers()
+}, [])
+const getAllManagers = async () => {
+    try {
+      setLoading(true)
+      const token = getStorage(STORAGE.TOKEN)
+      const res = await AdminServices.getAllManagers(token)
+      console.log("res: ", res);
+      const manager = res.filter(user => user.role === 'MANAGER');
+      setManagers(manager);
+      console.log("manager: ", manager);
+
+     
+    } catch (error) {
+      console.log("error")
+    } finally {
+      setLoading(false)
+    }
+  }
   return (
     <Form
       form={form}
@@ -25,7 +46,7 @@ const FormInsertUpdateProgram = ({
       <Row gutter={[16, 10]}>
         <Col span={12}>
           <Form.Item
-            name="StoreName"
+            name="name"
             label="Tên cửa hàng"
             rules={[{ required: true, message: "Bạn phải nhập tên cửa hàng" }]}
           >
@@ -34,7 +55,7 @@ const FormInsertUpdateProgram = ({
         </Col>
         <Col span={12}>
           <Form.Item
-            name="Address"
+            name="location"
             label="Địa chỉ"
             rules={[{ required: true, message: "Bạn phải nhập địa chỉ" }]}
           >
@@ -43,7 +64,7 @@ const FormInsertUpdateProgram = ({
         </Col>
         <Col span={12}>
           <Form.Item
-            name="Email"
+            name="email"
             label="Email"
             rules={[{ required: true, message: "Bạn phải nhập email" }]}
           >
@@ -52,7 +73,7 @@ const FormInsertUpdateProgram = ({
         </Col>
         <Col span={12}>
           <Form.Item
-            name="PhoneNumber"
+            name="phone"
             label="Số điện thoại"
             rules={[{ required: true, message: "Bạn phải nhập số điện thoại" }]}
           >
@@ -60,44 +81,26 @@ const FormInsertUpdateProgram = ({
           </Form.Item>
         </Col>
         <Col span={12}>
-          <Form.Item
-            name="OperatingHours"
-            label="Giờ hoạt động"
-            rules={[{ required: true, message: "Bạn phải nhập giờ hoạt động" }]}
-          >
-            <Input placeholder="Nhập" />
+          <Form.Item name="manager" label="Quản lý cửa hàng">
+            <Select mode="multiple" placeholder="Chọn quản lý">
+              {managers.map(manager => (
+                <Option key={manager?._id}>{manager?.email}</Option>
+              ))}
+            </Select>
           </Form.Item>
         </Col>
-        <Col span={12}>
+        {/* <Col span={12}>
           <Form.Item
             name="Status"
             label="Trạng thái"
             rules={[{ required: true, message: "Bạn phải chọn trạng thái" }]}
           >
             <Select placeholder="Chọn">
-              <Option value={1}>Đang hoạt động</Option>
-              <Option value={0}>Dừng hoạt động</Option>
+              <Option value={"open"}>Đang hoạt động</Option>
+              <Option value={"closed"}>Dừng hoạt động</Option>
             </Select>
           </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item name="Managers" label="Quản lý cửa hàng">
-            <Select mode="multiple" placeholder="Chọn quản lý">
-              {/* {managers.map(manager => (
-                <Option key={manager.id}>{manager.name}</Option>
-              ))} */}
-            </Select>
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item name="Employees" label="Nhân viên cửa hàng">
-            <Select mode="multiple" placeholder="Chọn nhân viên">
-              {/* {employees.map(employee => (
-                <Option key={employee.id}>{employee.name}</Option>
-              ))} */}
-            </Select>
-          </Form.Item>
-        </Col>
+        </Col> */}
       </Row>
     </Form>
   )

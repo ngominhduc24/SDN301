@@ -6,7 +6,7 @@ const Shop = require('./shop');
 const User = require('./user');
 
 const DetailSchema = new Schema({
-  product: {
+  productId: {
     type: Schema.Types.ObjectId,
     ref: Product,
     required: true

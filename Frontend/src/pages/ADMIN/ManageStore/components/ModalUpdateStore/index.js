@@ -28,7 +28,7 @@ const UpdateStore = ({ open, oncancel, onOk, stores, id }) => {
   const [loading, setLoading] = useState(false)
   const [selectedStore, setSelectedStore] = useState([])
   const [stateBody, setStateBody] = useState({})
-  const [manager, setManager] = useState()
+  const [manager, setManager] = useState([])
   const [form] = Form.useForm()
 
   useEffect(() => {
@@ -212,7 +212,7 @@ const UpdateStore = ({ open, oncancel, onOk, stores, id }) => {
             width: 150,
             key: "manager",
             render: (text ,record) => (
-                  <Select placeholder="Chọn người quản lý" value={stateBody[record._id]?.manager || text} onChange={value => handleChange(record._id, "manager", value)}>
+                  <Select placeholder="Chọn người quản lý" value={stateBody[record._id]?.manager?.email} onChange={value => handleChange(record._id, "manager", value)}>
                         {manager && manager.map(manager => (
                               <Option key={manager._id} value={manager._id}>{manager.email}</Option>
                         ))}

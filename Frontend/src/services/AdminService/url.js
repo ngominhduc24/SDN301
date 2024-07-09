@@ -12,3 +12,4 @@ export const apiGetAllCategories = 'api/category'
 export const apiGetCategoryById = id => `api/category/${id}`
 export const apiGetProductInStore = id => `api/shop/${id}/product`
 export const apiUpdateStores = id => `api/shop/${id}`
+export const apiAddNewStores = 'api/shop'
