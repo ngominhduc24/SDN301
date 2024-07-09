@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Shop = require('../models/shop');
 const hashPassword = require('../utils/security');
 
 class UserService {
@@ -67,6 +68,14 @@ class UserService {
     async getUserStaffByManagerId(id) {
         try {
             return await User.find({createBy: id});
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getUserShopByManagerId(id) {
+        try {
+            return await Shop.find({manager: id});
         } catch (error) {
             throw error;
         }

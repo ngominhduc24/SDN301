@@ -1,4 +1,5 @@
 const Shop = require('../models/shop');
+const Invoice = require('../models/invoice');
 const Product = require('../models/product');
 
 // Create a new shop
@@ -88,6 +89,23 @@ async function getProductByShopId(shopId) {
   return shop.products;
 }
 
+// Get all invoice for a specific shop
+async function getInvoiceToWithShopId(shopId) {
+  const invoice = await Invoice.find({ to: shopId });
+  if (!invoice) {
+    throw new Error('Invoice not found');
+  }
+  return invoice;
+}
+
+async function getInvoiceFromWithShopId(shopId) {
+  const invoice = await Invoice.find({ from: shopId });
+  if (!invoice) {
+    throw new Error('Invoice not found');
+  }
+  return invoice;
+}
+
 // Get a specific product by its ID within a specific shop
 async function getProductById(shopId, productId) {
   const shop = await Shop.findById(shopId);
@@ -129,5 +147,7 @@ module.exports = {
   getProductByShopId,
   getProductById,
   updateProductById,
-  getWarehouse
+  getWarehouse,
+  getInvoiceToWithShopId,
+  getInvoiceFromWithShopId
 };

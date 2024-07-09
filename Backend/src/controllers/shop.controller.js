@@ -84,6 +84,26 @@ async function getProductByShopId(req, res, next) {
   }
 }
 
+// Get all invoice for a specific shop
+async function getInvoiceToByShopId(req, res, next) {
+  try {
+    const invoices = await shopService.getInvoiceToWithShopId(req.params.shopId);
+    res.status(200).send(invoices);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Get all invoice for a specific shop
+async function getInvoiceFromByShopId(req, res, next) {
+  try {
+    const invoices = await shopService.getInvoiceFromWithShopId(req.params.shopId);
+    res.status(200).send(invoices);
+  } catch (error) {
+    next(error);
+  }
+}
+
 // Get all products for a specific shop
 async function getProductNotAddedByShop(req, res, next) {
   try {
@@ -141,6 +161,6 @@ async function getWarehouse(req, res, next) {
 }
 
 const shopController = { create, getAll, getById, update, getWarehouse,
-  createProduct, getProductByShopId, getProductById, updateProductById, getProductNotAddedByShop };
+  createProduct, getProductByShopId, getProductById, updateProductById, getProductNotAddedByShop, getInvoiceToByShopId, getInvoiceFromByShopId };
 
 module.exports = shopController;
