@@ -32,6 +32,11 @@ module.exports = {
     }),
 
     updateUserById: asyncHandler(async (req, res) => {
+        const image = req.file ? req.file.path : null;
+        console.log(req.file);
+        if(image != null) {
+            req.body.image = image;
+        }
         const result = await UserService.updateUserById(req);
         res.status(200).json(result);
     }),

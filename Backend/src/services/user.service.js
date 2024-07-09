@@ -82,24 +82,25 @@ class UserService {
     }
 
     async updateUserById(req, res, next) {
-        const userId = req.params.id;
-        const { fullname, email, password, dob, phone, status, role } = req.body;
         try {
-            var hashedPassword = password;
-            if(password) {
-                hashedPassword = hashPassword(password);
+            const userId = req.params.id;
+            var userUpdate =  {
+                fullname: req.body.fullname,
+                email: req.body.email,
+                dob: req.body.dob,
+                phone: req.body.phone,
+                status: req.body.status,
+                role: req.body.role
+            }
+            if(req.body.password) {
+                userUpdate.password = hashPassword(req.body.password);
+            }
+            if(req.body.image) {
+                userUpdate.image = req.body.image;
             }
             const updatedUser = await User.findByIdAndUpdate(
                 userId,
-                {
-                    fullname: fullname,
-                    email: email,
-                    password: hashedPassword,
-                    dob: dob,
-                    phone: phone,
-                    status: status,
-                    role: role
-                },
+               userUpdate,
                 { new: true } // Return the updated document
             );
             return updatedUser;

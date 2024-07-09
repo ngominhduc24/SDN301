@@ -22,6 +22,10 @@ const UserSchema = new Schema({
     type: String,
     require: true
   },
+  image: {
+    type: String,
+    require: false
+  },
   salary: {
     type: String,
     default: null

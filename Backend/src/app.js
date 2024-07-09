@@ -14,6 +14,10 @@ const shopRouter = require("./routes/shop.router.js");
 const productRouter = require("./routes/product.router.js");
 const invoiceRouter = require("./routes/invoice.router.js");
 
+const { storage } = require('./config/storage');
+const multer = require('multer');
+const upload = multer({ storage });
+
 require("dotenv").config();
 
 // swagger url:  http://localhost:9999/api-docs/ 
@@ -32,6 +36,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 
+app.post('/upload', upload.single('image'), (req, res) => {
+  console.log(req.file);
+  console.log(req);
+  res.send('Done');
+});
 // routers controller
 app.use("/", indexRouter);
 app.use("/api", userRouter);

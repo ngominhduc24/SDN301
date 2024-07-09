@@ -2,6 +2,9 @@ var userRouter = require('express').Router();
 const UserController = require("../controllers/user.controller");
 const verifyTokenHandle = require("../middlewares/verifyToken.middleware");
 const { validateLogin } = require('../utils/common.validate');
+const multer = require('multer');
+const { storage } = require('../config/storage');
+const upload = multer({ storage });
 
 /**
  * @swagger
@@ -175,7 +178,7 @@ userRouter.get('/admin/users', verifyTokenHandle.verifyToken, UserController.Lis
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRouter.put('/admin/users/:id', UserController.updateUserById);
+userRouter.put('/admin/users/:id', upload.single('image'), UserController.updateUserById);
 
 userRouter.get('/admin/users/:id', UserController.getUserById);
 
