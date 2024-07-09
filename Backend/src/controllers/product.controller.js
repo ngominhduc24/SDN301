@@ -8,7 +8,7 @@ module.exports = {
         res.status(200).json(result);
     }),
 
-    GetProductById: asyncHandler(async (req, res) => {
+    GetProductById: asyncHandler(async (req, res, next) => {
         try {
             const product = await ProductService.getProductById(req.params.id);
             res.status(200).send(product);
@@ -17,7 +17,7 @@ module.exports = {
           }
     }),
 
-    UpdateProduct: asyncHandler(async (req, res) => {
+    UpdateProduct: asyncHandler(async (req, res, next) => {
         try {
             const product = await ProductService.updateProduct(req.params.id, req.body);
             res.status(200).send(product);
@@ -26,7 +26,7 @@ module.exports = {
           }
     }),
 
-    CreateProduct: asyncHandler(async (req, res) => {
+    CreateProduct: asyncHandler(async (req, res, next) => {
       try {
           const product = await ProductService.createProduct(req.body);
           res.status(200).send(product);

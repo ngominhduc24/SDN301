@@ -33,6 +33,8 @@ import styled from "styled-components"
 import { ButtonUploadStyle } from "../styled"
 import SvgIcon from "src/components/SvgIcon"
 import dayjs from "dayjs"
+import AdminServices from "src/services/AdminService"
+import STORAGE, { getStorage } from "src/lib/storage"
 // import SelectAddress from "src/components/SelectAddress"
 const { Option } = Select
 const Styled = styled.div`
@@ -48,25 +50,13 @@ const Styled = styled.div`
   }
 `
 const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
-  const { listSystemKey } = useSelector(state => state.appGlobal)
   const [form] = Form.useForm()
-
-  const [listDept, setListDept] = useState([])
-  const [listPosition, setListPosition] = useState([])
-  const [listRole, setListRole] = useState([])
-  const [regionCode, setRegionCode] = useState({})
-
   const [loading, setLoading] = useState(false)
-  const listStatus = getListComboByKey("ACCOUNT_STATUS", listSystemKey)?.map(
-    i => ({ ...i, label: i?.Description, value: i?.CodeValue }),
-  )
-  const defaultPass = listSystemKey?.find(
-    i => i?.CodeKey === "DEFAULT_PASSWORD",
-  )
-  // useEffect(() => {
-  //   if (detailInfo && props?.open)
-  //      getUserDetail()
-  // }, [detailInfo, props?.open])
+  const token = getStorage(STORAGE.TOKEN)
+  useEffect(() => {
+    if (detailInfo && props?.open)
+       getUserDetail()
+  }, [detailInfo, props?.open])
 
   useEffect(() => {
     // getListSelect()
@@ -74,6 +64,24 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
     // getListSelectSept()
   }, [])
 
+
+  const getUserDetail = async () => {
+    try {
+      setLoading(true)
+      const res = await AdminServices.getUserDetail(detailInfo?._id);
+      if(res?.isError){
+        return;
+      }
+      form.setFieldsValue({
+        ...res,
+        dob: res?.dob && moment(res.dob, "DD/MM/YYYY").isValid() ? moment(res.dob, "DD/MM/YYYY"): null
+      })
+    } catch (error) {
+      console.log("error");
+    }finally{
+      setLoading(false)
+    }
+  }
   // const getUserDetail = async () => {
   //   try {
   //     setLoading(true)
@@ -103,80 +111,38 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
   //     setLoading(false)
   //   }
   // }
-  // const getListSelect = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const resPostion = await PositionService.getAllPosition()
-  //     if (!!resPostion?.isError) return
-  //     setListPosition(resPostion?.Object)
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
-  // const getListSelectSept = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const resDept = await Department.getAllDept()
 
-  //     if (!!resDept?.isError) return
-  //     setListDept(
-  //       nest(resDept?.Object || [], GUIDE_EMPTY, "DepartmentParentID"),
-  //     )
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
-  // const getListRole = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const resRole = await RoleService.getAllForCombobox()
-  //     if (!!resRole?.isError) return
-  //     setListRole(resRole?.Object)
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
 
-  // const onContinue = async () => {
-  //   try {
-  //     setLoading(true)
 
-  //     const values = await form.validateFields()
-  //     let urlAvatar = ""
-  //     if (values?.Avatar?.length && values?.Avatar[0]?.name) {
-  //       const formData = new FormData()
-  //       values?.Avatar?.map(img => formData.append("file", img?.originFileObj))
-  //       const resUpload = await FileService.uploadFile(formData)
-  //       urlAvatar = resUpload?.Object
-  //     } else {
-  //       if (!!values?.Avatar) urlAvatar = values?.Avatar[0]?.url
-  //     }
-  //     const res = await UserService[detailInfo ? "updateUser" : "insertUser"]({
-  //       ...values,
-  //       AccountType: 1,
-  //       // PasswordConfirm: values?.Password,
-  //       Avatar: urlAvatar,
-  //       Birthday: values?.Birthday ? values?.Birthday?.format() : undefined,
-  //       DateParty: values?.DateParty ? values?.DateParty?.format() : undefined,
-  //       UserID: detailInfo?.UserID ? detailInfo?.UserID : undefined,
-  //       UserCode: values?.UserName,
-  //       ListUserManager: values?.DepartmentID?.length
-  //         ? values?.DepartmentID?.map(item => ({
-  //             DepartmentID: item,
-  //           }))
-  //         : [],
-  //     })
+  const onContinue = async () => {
+    try {
+      setLoading(true)
 
-  //     if (res?.isError) return
-  //     onOk && onOk()
-  //     Notice({
-  //       msg: `${detailInfo ? "Cập nhật" : "Thêm"} cán bộ thành công !`,
-  //     })
-  //     props?.onCancel()
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+      const values = await form.validateFields()
+      let urlAvatar = ""
+      if (values?.Avatar?.length && values?.Avatar[0]?.name) {
+        const formData = new FormData()
+        values?.Avatar?.map(img => formData.append("file", img?.originFileObj))
+        // const resUpload = await FileService.uploadFile(formData)
+        // urlAvatar = resUpload?.Object
+      } else {
+        if (!!values?.Avatar) urlAvatar = values?.Avatar[0]?.url
+      }
+      const res = detailInfo ? await AdminServices.updateStatusUsers(detailInfo?._id, {...values}) : await AdminServices.addnewUsers({
+        ...values,
+        dob: values.dob ? values.dob.format("DD/MM/YYYY") : null
+      })
+
+      if (res?.isError) return
+      onOk && onOk()
+      Notice({
+        msg: `${detailInfo ? "Cập nhật" : "Thêm"} cán bộ thành công !`,
+      })
+      props?.onCancel()
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const renderFooter = () => (
     <div className={!!detailInfo ? "d-flex-sb" : "d-flex-end"}>
@@ -184,11 +150,6 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
         <Button
           btntype="primary"
           className="btn-hover-shadow"
-          onClick={() => {
-            form.setFieldsValue({
-              Password: defaultPass?.Description,
-            })
-          }}
         >
           Reset mật khẩu mặc định
         </Button>
@@ -196,7 +157,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
       <Button
         btntype="primary"
         className="btn-hover-shadow"
-        // onClick={onContinue}
+        onClick={onContinue}
       >
         Ghi lại
       </Button>
@@ -214,16 +175,6 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
           <Form
             form={form}
             layout="vertical"
-            initialValues={{
-              Password: `${defaultPass?.Description}`,
-              PasswordConfirm: `${defaultPass?.Description}`,
-              // ListUserManager: [
-              //   {
-              //     PositionID: undefined,
-              //     DepartmentID: props?.open?.DepartmentID,
-              //   },
-              // ],
-            }}
           >
             <Row gutter={[16]}>
               <Col span={24}>
@@ -274,7 +225,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
               <Col md={24} xs={24}>
                 <Form.Item
                   label="Họ và tên"
-                  name="FullName"
+                  name="fullname"
                   rules={[
                     {
                       required: true,
@@ -288,15 +239,15 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
 
               <Col md={12} xs={24}>
                 <Form.Item
-                  label="Tên tài khoản"
-                  name="UserName"
+                  label="Email"
+                  name="email"
                   rules={[
                     {
                       required: true,
                       message: "Thông tin không được để trống",
                     },
                     {
-                      pattern: getRegexUsername(),
+                      pattern: getRegexEmail(),
                       message:
                         "Tài khoản phải nhiều hơn 6 kí tự, bao gồm chữ số hoặc chữ cái hoặc kí tự _ và không chứa khoảng trắng",
                     },
@@ -320,18 +271,18 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                   >
                     <Select
                       placeholder="Chọn trạng thái"
-                      options={listStatus}
+                      // options={}
                     />
                   </Form.Item>
                 </Col>
               )}
-              {!detailInfo?.UserID && (
+       {!detailInfo ? (
                 <>
                   <Col md={12} xs={24}>
                     <Form.Item
                       label="Mật khẩu mặc định"
                       required
-                      name="Password"
+                      name="password"
                       rules={[
                         {
                           required: true,
@@ -344,35 +295,18 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                         },
                       ]}
                     >
-                      <Input
-                        placeholder="Nhập"
-                        // autoComplete="new-password"
-                      />
+                      <Input placeholder="Nhập" />
                     </Form.Item>
                   </Col>
                 </>
+              ) : (
+                <></>
               )}
 
               <Col md={8} xs={24}>
                 <Form.Item
-                  label="Tên thường gọi"
-                  name="CommonNames"
-                  rules={
-                    [
-                      // {
-                      //   required: true,
-                      //   message: "Thông tin không được để trống",
-                      // },
-                    ]
-                  }
-                >
-                  <Input placeholder="Nhập tên" />
-                </Form.Item>
-              </Col>
-              <Col md={8} xs={24}>
-                <Form.Item
                   label="Số điện thoại"
-                  name="PhoneNumber"
+                  name="phone"
                   rules={[
                     {
                       required: true,
@@ -391,7 +325,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
               <Col md={8} xs={24}>
                 <Form.Item
                   label="Email"
-                  name="Email"
+                  name="email"
                   rules={[
                     // {
                     //   required: true,
@@ -419,37 +353,22 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                   // ]}
                 >
                   <Select placeholder="Chọn" allowClear>
-                    {getListComboByKey(
+                    {/* {getListComboByKey(
                       SYSTEM_KEY?.SEX_TYPE,
                       listSystemKey,
                     )?.map(i => (
                       <Option key={+i?.CodeValue} value={+i?.CodeValue}>
                         {i?.Description}
                       </Option>
-                    ))}
+                    ))} */}
                   </Select>
                 </Form.Item>
               </Col>
-              <Col md={6} xs={24}>
-                <Form.Item
-                  label="Tôn giáo"
-                  name="Religion"
-                  rules={
-                    [
-                      // {
-                      //   required: true,
-                      //   message: "Thông tin không được để trống",
-                      // },
-                    ]
-                  }
-                >
-                  <Input placeholder="Nhập tên" />
-                </Form.Item>
-              </Col>
+
               <Col md={6} xs={24}>
                 <Form.Item
                   label="Ngày sinh"
-                  name="Birthday"
+                  name="dob"
                   rules={[
                     // {
                     //   required: true,
@@ -496,35 +415,6 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                     allowClear
                   />
                 </Form.Item>
-              </Col>
-
-              <Col md={6} xs={24}>
-                <Form.Item
-                  label="Dân tộc"
-                  name="Ethnic"
-                  rules={
-                    [
-                      // {
-                      //   required: true,
-                      //   message: "Thông tin không được để trống",
-                      // },
-                    ]
-                  }
-                >
-                  <Input placeholder="Nhập tên" />
-                </Form.Item>
-              </Col>
-              <div className="fw-600 mb-12 ml-8">Quê quán:</div>
-              <Col md={24} xs={24}>
-                {/* <SelectAddress
-                  floating={true}
-                  form={form}
-                  required={false}
-                  // isGuest
-
-                  initValue={regionCode}
-                  listFormName={["ProvinceID", "DistrictID", "WardID"]}
-                /> */}
               </Col>
 
               <Col span={24}>

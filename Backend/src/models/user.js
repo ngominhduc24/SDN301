@@ -22,6 +22,10 @@ const UserSchema = new Schema({
     type: String,
     require: true
   },
+  image: {
+    type: String,
+    require: false
+  },
   salary: {
     type: String,
     default: null
@@ -32,7 +36,7 @@ const UserSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'deactive'], 
+    enum: ['active', 'inactive'], 
     default: 'active' 
   },
   role: {

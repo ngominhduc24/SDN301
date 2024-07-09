@@ -1,16 +1,15 @@
-import { Col, Form, Input, Row, Space, Tabs } from "antd"
+import { Col, Form, Input, InputNumber, Modal, Row, Space, Switch, Tabs } from "antd"
 import dayjs from "dayjs"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
-import FormInsertUpdateProgram from "./components/FormInsertUpdateStore"
 import { PatentRegistrationChildBorder, StylesTabPattern } from "./styled"
 import TableCustom from "src/components/Table/CustomTable"
 import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
-import ModalInsertUpdateStore from "./components/modal/ModalInsertUpdateStore"
+import ModalInsertUpdateProduct from "./components/modal/ModalInsertProduct"
 import Notice from "src/components/Notice"
-import { convertTreeData } from "src/lib/utils"
 import Button from "src/components/MyButton/Button"
+import FormInsertUpdateProduct from "./components/FormInsertUpdateProduct"
 import AdminServices from "src/services/AdminService"
 
 export const convertTreeDataParticipants = (
@@ -100,13 +99,20 @@ const convertChildrent = (
   })
   return newList
 }
-const InsertUpdateStore = ({ open, onCancel, onOk, data }) => {
+const InsertUpdateProduct = ({ open, onCancel, onOk, data, id }) => {
   const [form] = Form.useForm()
-  const [activeKey, setActiveKey] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [modalInsertUpdateStore, setModalInsertUpdateStore] =
+  const [products, setProducts] = useState([])
+  const [modalInsertUpdateProduct, setModalInsertUpdateProduct] =
     useState(false)
-const [stateBody, setStateBody] = useState({})
+  const [stateBody, setStateBody] = useState({new: {
+    name: "",
+    price: 0,
+    description: "",
+    status: "inactive"}})
+  const [imageModalVisible, setImageModalVisible] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [selectedImage, setSelectedImage] = useState(null)
   const [filter, setFilter] = useState({
     TextSearch: "",
   })
@@ -181,18 +187,7 @@ const [stateBody, setStateBody] = useState({})
   //   },
   // ]
 
-  useEffect(() => {
-    form.resetFields();
-    setStateBody({
-      new: {
-        name: data?.name || "",
-        location: data?.location || "",
-        phone: data?.phone || "",
-        email: data?.email || "",
-        status: data?.status || "closed"
-      }
-    })
-  }, [data, form])
+
 
   // useEffect(() => {
   //   if (!!open?.BookingID) {
@@ -207,15 +202,27 @@ const [stateBody, setStateBody] = useState({})
   //           }))
   //         : [],
   //     })
-  //     setBookingID(open?.BookingID)
   //   }
   // }, [open])
 
-  const handleChangeStore = (storeId, field, value) => {
+  useEffect(() => {
+
+   form.resetFields();
+   setStateBody({
+    new: {
+      name: data?.name || "",
+      price: data?.price || 0,
+      description: data?.description || "",
+      status: data?.status || "inactive"
+    }
+   })
+  }, [data, form])
+
+  const handleChangeProduct = (productId, field, value) => {
     setStateBody(prev => ({
       ...prev,
-      [storeId]: {
-        ...prev[storeId],
+      [productId]: {
+        ...prev[productId],
         [field]: value
       }
     }))
@@ -230,101 +237,94 @@ const [stateBody, setStateBody] = useState({})
         <div className="text-center">{index + 1}</div>
     },
     {
-      title: "Tên cửa hàng",
+      title: "Tên sản phẩm",
       dataIndex: "name",
       width: 200,
       key: "name",
       render: (text, record) => (
-        <Input onChange={e => handleChangeStore(record._id, "name", e.target.value)}/>
+        <Input onChange={e => handleChangeProduct(record._id, "name", e.target.value)}/>
       )
     },
     {
-      title: "Địa chỉ",
-      dataIndex: "location",
-      key: "location",
+      title: "Giá",
+      dataIndex: "price",
+      key: "price",
       width: 50,
       render: (text, record) => (
-        <Input onChange={e => handleChangeStore(record._id, "location", e.target.value)}/>
+        <InputNumber onChange={e => handleChangeProduct(record._id, "price", e)}/>
       )
     },
     {
-      title: "Điện thoại",
-      dataIndex: "phone",
+      title: "Mô tả",
+      dataIndex: "description",
       width: 300,
-      key: "phone",
+      key: "description",
       render: (text, record) => (
         <Input
-          onChange={(e) => handleChangeStore(record._id, "phone", e.target.value)}
+          onChange={(e) => handleChangeProduct(record._id, "description", e.target.value)}
         />
       ),
     },
     {
-      title: "Email",
-      dataIndex: "email",
+      title: "Ảnh",
+      dataIndex: "image",
       width: 120,
-      key: "email",
-      render: (text, record) => (
-        <Input
-          onChange={(e) => handleChangeStore(record._id, "email", e.target.value)}
+      key: "image",
+      render: (text) => (
+        <img
+          src={text}
+          alt="product"
+          style={{ width: 50, height: 50, cursor: "pointer" }}
+          onClick={() => {
+            setSelectedImage(text);
+            setImageModalVisible(true);
+          }}
         />
       ),
     },
-    // {
-    //   title: "Action",
-    //   dataIndex: "status",
-    //   width: 120,
-    //   key: "status",
-    //   render: (_, record) => (
-    //     <Switch
-    //       onChange={(checked) => toggleStatus(record._id, checked)}
-    //     />
-    //   ),
-    // }
+    {
+      title: "Action",
+      dataIndex: "status",
+      width: 120,
+      key: "status",
+      render: (_, record) => (
+        <Switch
+          onChange={(checked) => toggleStatus(record._id, checked)}
+        />
+      ),
+    }
   ]
-  // const items = [
-  //   {
-  //     key: 1,
-  //     label: <div>Thêm mới cửa hàng</div>,
-  //     // children: (
-  //     //   <PatentRegistrationChildBorder>
-         
-  //     //   </PatentRegistrationChildBorder>
-  //     // ),
-  //   },
-  // ]
 
-  // const listBtn = record => [
-  //   {
-  //     name: "Chỉnh sửa",
-  //     icon: "edit-green",
-  //     onClick: () => setModalInsertUpdateContent(record),
-  //   },
-  //   {
-  //     name: "Xóa",
-  //     icon: "delete-red-row",
-  //     onClick: () =>
-  //       CB1({
-  //         record,
-  //         title: `Bạn có chắc chắn xóa ?`,
-  //         icon: "warning-usb",
-  //         okText: "Có",
-  //         cancelText: "Không",
-  //         onOk: async close => {
-  //           close()
-  //         },
-  //       }),
-  //   },
-  // ]
+  const items = [
+    {
+      key: 1,
+      label: <div>Sản phẩm</div>,
+      children: (
+        <PatentRegistrationChildBorder>
+          <TableCustom
+            isPrimary
+            rowKey="_id"
+            columns={column}
+            dataSource={selectedProduct}
+            scroll={{ x: "1000px" }}
+          />
+          <Modal visible={imageModalVisible} footer={null} onCancel={() => setImageModalVisible(false)}>
+            <img alt="product" style={{ width: "100%" }} src={selectedImage} />
+          </Modal>
+        </PatentRegistrationChildBorder>
+      ),
+    },
+  ];
 
   const onContinue = async () => {
     try {
       setLoading(true)
       const values = await form.validateFields()
-      const res = await AdminServices.addStores({ ...values })
+      const res = await AdminServices.addNewProduct({ ...values })
       if (res?.isError) return
       onOk && onOk()
       Notice({
-        msg: `Thêm cửa hàng thành công!`,
+        msg: `Thêm sản phẩm thành công!`,
       })
       //   props?.onCancel()
     } catch (error) {
@@ -334,18 +334,17 @@ const [stateBody, setStateBody] = useState({})
     }
   }
 
+
   const renderFooter = () => (
-    <div className="lstBtn d-flex-sb">
+    <div className="lstBtn d-flex-end">
       <div className="lstBtn-right d-flex-end">
         <>
           <Button
             Button
             btntype="primary"
             className="ml-8 mt-12 mb-12"
-            loading={loading}
             onClick={onContinue}
-          >
-          Tạo mới</Button>
+          >Tạo          </Button>
         </>
         <Button
           btntype="third"
@@ -357,43 +356,65 @@ const [stateBody, setStateBody] = useState({})
       </div>
     </div>
   )
+  const toggleStatus = (productId, checked) => {
+    setStateBody((prevStatus) => ({
+      ...prevStatus,
+      [productId]: {
+        ...prevStatus[productId],
+        status: checked ? "active" : "inactive",
+      },
+    }));
+  };
+
+
+
+  
 
   return (
     <div>
-      <CustomModal
-        open={open}
-        onCancel={onCancel}
-        onOk={onOk}
-        title={"Thêm mới cửa hàng"}
-        width="90vw"
-        footer={renderFooter()}
-      >
-        {/* <StylesTabPattern>
-          <Tabs
-            type="card"
-            defaultActiveKey="1"
-            // items={items}
-            activeKey={activeKey}
-            onChange={key => {
-              setActiveKey(key)
-            }}
-          />
-        </StylesTabPattern> */}
-        <FormInsertUpdateProgram
-            form={form}
-          />
-      </CustomModal>
+       {/* <CustomModal open={open} onCancel={onCancel} onOk={onOk} title={"Thêm sản phẩm mới"} width="90vw" footer={renderFooter()}>
+      <StylesTabPattern>
+        <Tabs type="card" defaultActiveKey="1">
+          {items.map((item) => (
+            <Tabs.TabPane tab={item.label} key={item.key}>
+              {item.children}
+            </Tabs.TabPane>
+          ))}
+        </Tabs>
+      </StylesTabPattern>
+    </CustomModal> */}
+    <CustomModal
+      title={"Thêm sản phẩm mới"}
+      open={open}
+      onCancel={onCancel}
+      onOk={onOk}
+      footer={
+       renderFooter()
+      }
+      width={1024}
+    >
+       <FormInsertUpdateProduct form={form} />
+    </CustomModal>
 
-      {!!modalInsertUpdateStore && (
-        <ModalInsertUpdateStore
-          open={modalInsertUpdateStore}
-          onCancel={() => setModalInsertUpdateStore(false)}
+        {/* <ModalInsertUpdateProduct
+          // documents={documents}
+          detailedInfo={data}
+          open={modalInsertUpdateProduct}
+          onCancel={() => setModalInsertUpdateProduct(false)}
+          onOk={() => setModalInsertUpdateProduct(false)}
+        /> */}
+      {/* {!!modalAttendanceContent && (
+        <ModalAttendance
+          open={modalAttendanceContent}
+          ltUser={open?.ListUser}
+          BookingID={open?.BookingID}
+          atendanceContents={atendanceContents}
+          onCancel={() => setModalAttendanceContent(false)}
         />
-      )}
-    
+      )} */}
     </div>
   )
 }
 
-export default InsertUpdateStore
+export default InsertUpdateProduct
 

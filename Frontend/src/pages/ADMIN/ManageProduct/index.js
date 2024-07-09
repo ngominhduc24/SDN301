@@ -1,4 +1,4 @@
-import { Col, Row, Space } from "antd"
+import { Col, Modal, Row, Space } from "antd"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import CB1 from "src/components/Modal/CB1"
@@ -9,20 +9,25 @@ import TableCustom from "src/components/Table/CustomTable"
 import { SYSTEM_KEY } from "src/constants/constants"
 import { getListComboByKey } from "src/lib/utils"
 import SearchAndFilter from "./components/SearchAndFilter"
-import InsertUpdateProgram from "./components/InsertUpdateProgram"
-import ModalViewProgram from "./components/ModalViewProgram"
+import InsertUpdateProduct from "./components/InsertUpdateProduct"
+import ModalViewProgram from "./components/ModalViewProduct"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
-
+import AdminServices from "src/services/AdminService"
+import ModalViewProduct from "./components/ModalViewProduct"
+import UpdateProduct from './components/UpdateProduct'
 const ManageProduct = () => {
-  const [bookings, setBookings] = useState([])
+  const [products, setProducts] = useState([])
   const [total, setTotal] = useState(0)
   const [buttonShow, setButtonShow] = useState()
-  const [openInsertUpdateBooking, setOpenInsertUpdateBooking] = useState(false)
-  const [openViewBooking, setOpenViewBooking] = useState(false)
+  const [openInsertUpdateProduct, setOpenInsertUpdateProduct] = useState(false)
+  const [openViewProduct, setOpenViewProduct] = useState(false)
+  const [openUpdateProducts, setOpenUpdateProducts] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { listSystemKey } = useSelector(state => state.appGlobal)
-  const { userInfo } = useSelector(state => state.appGlobal)
+  const [selectedImage, setSelectedImage] = useState(null)
+  const [imageModalVisible, setImageModalVisible] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [productId, setProductId] = useState("")
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -31,20 +36,46 @@ const ManageProduct = () => {
     Status: 0,
   })
 
-  useEffect(() => {}, [pagination])
+  useEffect(() => {
+    getAllProducts()
+  }, [pagination])
 
+  const getAllProducts = async () => {
+    try {
+      setLoading(true)
+      const res = await AdminServices.getAllProducts();
+      console.log("product res: ", res);
+      setProducts(res);
+      setTotal(res.length);
+
+      const productId = res._id;
+      setProductId(productId)
+    } catch (error) {
+      console.log("error");
+    }finally{
+      setLoading(false)
+    }
+   
+  }
+
+  // const handleDeleteProducts = (record) => {
+  // }
   const listBtn = record => [
     {
       isEnable: true,
       name: "Duyệt chương trình",
       icon: "eye",
-      // onClick: () => approveMeet(record),
+      onClick: () => {setSelectedProduct(record)
+        setOpenViewProduct(true)
+      },
     },
     {
       isEnable: true,
       name: "Chỉnh sửa",
       icon: "edit-green",
-      onClick: () => setOpenInsertUpdateBooking(record),
+      onClick: () => {setOpenUpdateProducts(true)
+        setSelectedProduct(record)
+      },
     },
     {
       isEnable: true,
@@ -68,62 +99,68 @@ const ManageProduct = () => {
   const column = [
     {
       title: "STT",
-      key: "StoreID",
+      key: "_id",
       width: 60,
       render: (_, record, index) => (
         <div className="text-center">{index + 1}</div>
       ),
     },
     {
-      title: "Tên cửa hàng",
-      dataIndex: "StoreName",
+      title: "Tên sản phẩm",
+      dataIndex: "name",
       width: 200,
-      key: "StoreName",
+      key: "name",
     },
     {
-      title: "Địa chỉ cửa hàng",
-      dataIndex: "Address",
+      title: "Giá cả",
+      dataIndex: "price",
       width: 200,
-      key: "Address",
+      key: "price",
+    },
+    {
+      title: "Mô tả",
+      dataIndex: "description",
+      width: 200,
+      key: "description",
       render: (_, record) => (
-        <span>{moment(record?.StartDate).format("DD/MM/YYYY HH:mm")}</span>
+        <span>{record?.description}</span>
       ),
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "PhoneNumber",
+      title: "Phân loại",
+      dataIndex: "categoryId",
       width: 120,
-      key: "PhoneNumber",
-      render: (_, record) => <span>{userInfo?.FullName}</span>,
+      key: "category",
+      render: (_, record) => <span>{record?.categoryId}</span>,
     },
     {
-      title: "Email",
-      dataIndex: "Email",
+      title: "Ảnh",
+      dataIndex: "image",
       width: 120,
       align: "center",
-      key: "Email",
-    },
-    {
-      title: "Thời gian làm việc",
-      dataIndex: "OperatingHours",
-      width: 120,
-      key: "OperatingHours",
-      render: (_, record) => <span>{userInfo?.FullName}</span>,
+      key: "image",
+      render: text => (
+        <img src={text} alt="product" width={50} height={50} style={{ cursor: "pointer" }} onClick={() => {
+          setSelectedImage(text);
+          setImageModalVisible(true);
+        }}
+        />
+      )
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: "Status",
+      dataIndex: "status",
       align: "center",
       width: 100,
-      key: "Status",
+      key: "status",
       render: (_, record) => (
         <span
           className={[
             "no-color",
-            record?.Status === 1 ? "blue-text" : "red-text",
+            record?.status === "active" ? "blue-text" : "red-text",
           ].join(" ")}
         >
-          {record?.Status === 1 ? "Đang hoạt động" : "Dừng Hoạt Động"}
+          {record?.status === "active" ? "Đang hoạt động" : "Dừng Hoạt Động"}
         </span>
       ),
     },
@@ -149,26 +186,26 @@ const ManageProduct = () => {
       ),
     },
   ]
-  const fakeData = [
-    {
-      StoreID: 1,
-      StoreName: "user1",
-      Address: "User One",
-      Email: "user1@example.com",
-      PhoneNumber: "1234567890",
-      OperatingHours: "",
-      Status: 1,
-    },
-    {
-      StoreID: 2,
-      StoreName: "user2",
-      Address: "User One",
-      Email: "user1@example.com",
-      PhoneNumber: "1234567890",
-      OperatingHours: "",
-      Status: 1,
-    },
-  ]
+  // const fakeData = [
+  //   {
+  //     StoreID: 1,
+  //     StoreName: "user1",
+  //     Address: "User One",
+  //     Email: "user1@example.com",
+  //     PhoneNumber: "1234567890",
+  //     OperatingHours: "",
+  //     Status: 1,
+  //   },
+  //   {
+  //     StoreID: 2,
+  //     StoreName: "user2",
+  //     Address: "User One",
+  //     Email: "user1@example.com",
+  //     PhoneNumber: "1234567890",
+  //     OperatingHours: "",
+  //     Status: 1,
+  //   },
+  // ]
 
   return (
     <SpinCustom spinning={loading}>
@@ -177,7 +214,8 @@ const ManageProduct = () => {
         <div>
           <Button
             btntype="third"
-            onClick={() => setOpenInsertUpdateBooking(true)}
+            onClick={() => {setOpenInsertUpdateProduct(true)
+            }}
           >
             Thêm mới
           </Button>
@@ -188,18 +226,18 @@ const ManageProduct = () => {
         <Col span={24} className="mt-30 mb-20">
           <TableCustom
             isPrimary
-            rowKey="BookingID"
+            rowKey="_id"
             columns={column}
             textEmpty="Chưa có cửa hàng nào"
-            dataSource={fakeData}
+            dataSource={products}
             scroll={{ x: "800px" }}
-            onRow={record => {
-              return {
-                onClick: () => {
-                  setOpenViewBooking(record)
-                },
-              }
-            }}
+            // onRow={record => {
+            //   return {
+            //     onClick: () => {
+            //       setOpenViewProduct(record)
+            //     },
+            //   }
+            // }}
             pagination={{
               hideOnSinglePage: total <= 10,
               current: pagination?.CurrentPage,
@@ -218,22 +256,28 @@ const ManageProduct = () => {
           />
         </Col>
       </Row>
-      {!!openInsertUpdateBooking && (
-        <InsertUpdateProgram
-          open={openInsertUpdateBooking}
+      <Modal visible={imageModalVisible} footer={null}></Modal>
+      {!!openInsertUpdateProduct && (
+        <InsertUpdateProduct
+          open={openInsertUpdateProduct}
+          
           // onOk={() => getListBookings()}
-          onCancel={() => setOpenInsertUpdateBooking(false)}
+          onOk={() => getAllProducts()}
+          onCancel={() => setOpenInsertUpdateProduct(false)}
         />
       )}
-      {!!openViewBooking && (
-        <ModalViewProgram
-          open={openViewBooking}
-          // onOk={() => getListBookings()}
+      {!!openViewProduct  && selectedProduct && (
+        <ModalViewProduct
+          open={openViewProduct}
+          // onOk={() => getAllProducts()}
           // handleDeleteBooking={handleDeleteBooking}
-          onCancel={() => setOpenViewBooking(false)}
-          buttonShow={buttonShow}
+          onCancel={() => setOpenViewProduct(false)}
+          data={selectedProduct}
         />
-      )}
+       )}
+       {!!openUpdateProducts && selectedProduct && (
+        <UpdateProduct id={productId} data={selectedProduct} open={openUpdateProducts} onCancel={() => setOpenUpdateProducts(false)} onOk={() => getAllProducts()}/>
+       )}
     </SpinCustom>
   )
 }

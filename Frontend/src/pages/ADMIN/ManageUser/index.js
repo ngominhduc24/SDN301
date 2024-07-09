@@ -1,5 +1,5 @@
 import { UserOutlined } from "@ant-design/icons"
-import { Anchor, Avatar, Col, Divider, Row, Space, Tooltip } from "antd"
+import { Anchor, Avatar, Col, Divider, Row, Space, Switch, Tooltip } from "antd"
 import { useEffect, useState } from "react"
 import { FloatActionWrapper } from "src/components/FloatAction/styles"
 import CB1 from "src/components/Modal/CB1"
@@ -23,9 +23,12 @@ import { ListUserStyled } from "./styled"
 import { getListComboByKey } from "src/lib/utils"
 import { SYSTEM_KEY } from "src/constants/constants"
 import { useSelector } from "react-redux"
+import AdminServices from "src/services/AdminService"
+import { jwtDecode } from "jwt-decode"
+import STORAGE, { getStorage } from "src/lib/storage"
 
 const ManageUser = () => {
-  const [dataSource, setDataSource] = useState([])
+  const [managers, setManagers] = useState([])
   const [total, setTotal] = useState([])
   const { listSystemKey } = useSelector(state => state.appGlobal)
   const [pagination, setPagination] = useState({
@@ -40,12 +43,13 @@ const ManageUser = () => {
   const [detailInfo, setDetailInfo] = useState()
   const [listButtonShow, setListButtonShow] = useState()
   const [selectedNode, setSelectedNote] = useState()
+  const [selectedUserId, setSelectedUserId] = useState(null)
   const [openModalUserDetail, setOpenModalUserDetail] = useState(false)
   const columns = [
     {
       title: "STT",
-      dataIndex: "Index",
-      key: "Index",
+      // dataIndex: "Index",
+      key: "_id",
       width: 60,
       align: "center",
 
@@ -62,17 +66,32 @@ const ManageUser = () => {
     {
       title: (
         <>
-          <MainTableHeader>Tài khoản</MainTableHeader>
-          <SubTableHeader>Họ tên</SubTableHeader>
+          <MainTableHeader>Họ tên</MainTableHeader>
+          {/* <SubTableHeader>Họ tên</SubTableHeader> */}
         </>
       ),
-      dataIndex: "FullName",
+      dataIndex: "fullname",
       key: "FullName",
       align: "center",
       render: (val, record) => (
         <>
-          <MainTableData>{record?.UserName}</MainTableData>
-          <SubTableData>{val}</SubTableData>
+          <MainTableData>{record?.fullname}</MainTableData>
+        </>
+      ),
+    },
+    {
+      title: (
+        <>
+          <MainTableHeader>Số điện thoại</MainTableHeader>
+          {/* <SubTableHeader>Họ tên</SubTableHeader> */}
+        </>
+      ),
+      dataIndex: "phobe",
+      key: "phone",
+      align: "center",
+      render: (val, record) => (
+        <>
+          <MainTableData>{record?.phone}</MainTableData>
         </>
       ),
     },
@@ -80,70 +99,152 @@ const ManageUser = () => {
       title: (
         <>
           <MainTableHeader>Email</MainTableHeader>
-          <SubTableHeader>Số điện thoại</SubTableHeader>
+          {/* <SubTableHeader>Số điện thoại</SubTableHeader> */}
         </>
       ),
-      dataIndex: "PhoneNumber",
-      key: "PhoneNumber",
+      dataIndex: "email",
+      key: "email",
       align: "center",
       render: (val, record) => (
         <>
-          <MainTableData>{record?.Email}</MainTableData>
-          <SubTableData>{val}</SubTableData>
+          <MainTableData>{record?.email}</MainTableData>
         </>
       ),
     },
     {
-      title: "Nhóm quyền",
-      dataIndex: "RoleName",
-      key: "RoleName",
-      width: 180,
-      render: text => (
-        <Tooltip
-          title={
-            text?.length
-              ? text?.map((i, idx) => (
-                  <span key={`RoleNametooltip${idx}`}>
-                    {i}
-                    {!!(idx > 0 && idx < text?.length - 1) && " | "}
-                  </span>
-                ))
-              : ""
-          }
-        >
-          <div className="max-line2">
-            {text?.length &&
-              text?.map((i, idx) => (
-                <span key={`RoleName${idx}`}>
-                  {!!(idx > 0) && " | "}
-                  {i}
-                </span>
-              ))}
-          </div>
-        </Tooltip>
+      title: (
+        <>
+          <MainTableHeader>Ngày sinh</MainTableHeader>
+          {/* <SubTableHeader>Số điện thoại</SubTableHeader> */}
+        </>
+      ),
+      dataIndex: "dob",
+      key: "dob",
+      align: "center",
+      render: (val, record) => (
+        <>
+          <MainTableData>{record?.dob}</MainTableData>
+        </>
+      ),
+    },
+    {
+      title: (
+        <>
+          <MainTableHeader>Lương</MainTableHeader>
+          {/* <SubTableHeader>Số điện thoại</SubTableHeader> */}
+        </>
+      ),
+      dataIndex: "salary",
+      key: "salary",
+      align: "center",
+      render: (val, record) => (
+        <>
+          <MainTableData>{record?.salary}</MainTableData>
+        </>
+      ),
+    },
+    // {
+    //   title: "Nhóm quyền",
+    //   dataIndex: "role",
+    //   key: "role",
+    // width: 180,
+    // align: "center",
+    // render: (text, record) => (
+    //   <Tooltip
+    //     title={
+    //       Array.isArray(text) && text.length > 0
+    //         ? text?.map((i, idx) => (
+    //             <span key={`${record?._id}-role-${idx}`}>
+    //               {i}
+    //               {!!(idx > 0 && idx < text?.length - 1) && " | "}
+    //             </span>
+    //           ))
+    //         : ""
+    //     }
+    //   >
+    //     <div className="max-line2">
+    //       {Array.isArray(text) && text.length > 0 &&
+    //         text.map((i, idx) => (
+    //           <span key={`${record?._id}-role-${idx}`}>
+    //             {!!(idx > 0) && " | "}
+    //             {i}
+    //           </span>
+    //         ))}
+    //     </div>
+    //   </Tooltip>
+    // ),
+    //   render: (val, record) => {
+    //     <>
+    //     <MainTableData>{record?.role}</MainTableData>
+    //     <SubTableData>{val}</SubTableData>
+    //     </>
+    //   }
+    // },
+    {
+      title: (
+        <>
+          <MainTableHeader>Nhóm quyền</MainTableHeader>
+          {/* <SubTableHeader>Số điện thoại</SubTableHeader> */}
+        </>
+      ),
+      dataIndex: "role",
+      key: "role",
+      align: "center",
+      render: (val, record) => (
+        <>
+          <MainTableData>{record?.role}</MainTableData>
+        </>
+      ),
+    },
+    {
+      title: "Action",
+      dataIndex: "status",
+      key: "status",
+      width: 120,
+      align: "center",
+      render: (_, record) => (
+        // <div className="d-flex justify-content-center align-items-center mh-36">
+        //   <div className="text-center">
+        //     {record?.status === "active" ? "Đang hoạt động" : "Dừng hoạt động"}
+        //   </div>
+        //   <FloatActionWrapper size="small" className="float-action__wrapper">
+        //     {renderListButton(record)}
+        //   </FloatActionWrapper>
+        // </div>
+        <Switch
+          checked={record.status === "active"}
+          onChange={(checked, e) => {
+            e.stopPropagation()
+            toggleStatus(record._id, checked)
+          }}
+        />
       ),
     },
     {
       title: "Trạng thái",
-      dataIndex: "Status",
-      key: "Status",
+      dataIndex: "status",
+      key: "status",
       width: 160,
-      render: (text, record) => (
+      render: (_, record) => (
         <div className="d-flex justify-content-center align-items-center mh-36">
           <div className="text-center">
-            {text === 1 ? "Đang hoạt động" : "Dừng hoạt động"}
+            {record?.status === "active" ? "Đang hoạt động" : "Dừng hoạt động"}
           </div>
-          <FloatActionWrapper size="small" className="float-action__wrapper">
-            {renderListButton(record)}
-          </FloatActionWrapper>
         </div>
       ),
     },
+    {
+      title: "Chức năng",
+      align: "center",
+      key: "Action",
+      width: 100,
+      render: (_, record) => <Space>{renderListButton(record)}</Space>,
+    },
   ]
   useEffect(() => {
-    if (!!selectedNode?.DepartmentID) {
-      // getAllUser()
-    }
+    // if (!!selectedNode?.DepartmentID) {
+    getAllManagers()
+    // }
   }, [pagination])
   useEffect(() => {
     setPagination(pre => ({ ...pre, CurrentPage: 1 }))
@@ -155,109 +256,74 @@ const ManageUser = () => {
   // }
   const renderListButton = record => (
     <Space>
-      {!!listButtonShow?.IsUpdate && (
-        <ButtonCircle
-          title="Cập nhật"
-          iconName="edit"
-          onClick={() => {
-            setOpenInsertUpdate(true)
-            setDetailInfo(record)
-          }}
-        />
-      )}
-      {!!listButtonShow?.IsDelete && (
-        <ButtonCircle
-          title="Xóa"
-          iconName="bin"
-          onClick={() => {
-            CB1({
-              title: `Bạn có chắc chắn muốn xoá người dùng
-              <strong> ${record?.UserName}</strong> không?`,
-              icon: "warning-usb",
-              okText: "Đồng ý",
-              onOk: async close => {
-                // onDeleteUser(record?.UserID)
-                close()
-              },
-            })
-          }}
-        />
-      )}
-      {!!listButtonShow?.IsResetPass && (
-        <ButtonCircle
-          title="Reset mật khẩu"
-          iconName="reset-pass"
-          style={{ background: "#fff" }}
-          onClick={() =>
-            CB1({
-              title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.UserName} không?`,
-              icon: "warning-usb",
-              okText: "Đồng ý",
-              onOk: async close => {
-                // onReset(record?.UserID)
-                close()
-              },
-            })
-          }
-        />
-      )}
+      <ButtonCircle
+        title="Cập nhật"
+        iconName="edit"
+        onClick={() => {
+          setOpenInsertUpdate(true)
+          setDetailInfo(record)
+        }}
+      />
+      <ButtonCircle
+        title="Reset mật khẩu"
+        iconName="reset-pass"
+        style={{ background: "#fff" }}
+        onClick={e => {
+          e.stopPropagation()
+          CB1({
+            title: `Bạn có chắc chắn muốn Reset mật khẩu tài khoản ${record?.UserName} không?`,
+            icon: "warning-usb",
+            okText: "Đồng ý",
+            onOk: async close => {
+              // onReset(record?.UserID)
+              close()
+            },
+          })
+        }}
+      />
     </Space>
   )
 
-  // const onDeleteUser = async UserID => {
-  //   try {
-  //     const res = await UserService.deleteUser({ UserID })
-  //     if (res?.isError) return
-  //     Notice({ msg: "Xóa người dùng thành công !" })
-  //     getAllUser()
-  //   } finally {
-  //   }
-  // }
+  const toggleStatus = async (userId, checked) => {
+    setLoading(true)
+    try {
+      const updatedStatus = checked ? "active" : "inactive"
+      await AdminServices.updateStatusUsers(userId, { status: updatedStatus })
+      const updatedDataSource = managers.map(user =>
+        user._id === userId ? { ...user, status: updatedStatus } : user,
+      )
+      setManagers(updatedDataSource)
+      Notice({
+        isSuccess: true,
+        msg: "Cập nhật trạng thái thành công",
+      })
+    } catch (error) {
+      Notice({
+        isSuccess: true,
+        msg: "Cập nhật trạng thái thất bại",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  // const getAllUser = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const res = await UserService.getAllUserByDept({
-  //       ...pagination,
-  //       DepartmentID: selectedNode?.DepartmentID,
-  //     })
-  //     setListButtonShow(res?.Object?.ButtonShows)
-  //     setDataSource(res?.Object?.lt || [])
-  //     setTotal(res?.Object?.Total || [])
-  //     // setDataSource(
-  //     //   res?.Object?.Data?.length
-  //     //     ? res?.Object?.Data?.map(i => ({
-  //     //         ...i,
-  //     //         UserInfoOutputList: i?.UserInfoOutputList,
-  //     //       }))
-  //     //     : [],
-  //     // )
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+  const getAllManagers = async () => {
+    try {
+      setLoading(true)
+      const token = getStorage(STORAGE.TOKEN)
+      const res = await AdminServices.getAllManagers(token)
+      console.log("responses: ", res)
+      if (res) {
+        setManagers(res)
+        setTotal(res?.length)
+      }
+    } catch (error) {
+      console.log("error")
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  const fakeData = [
-    {
-      UserID: 1,
-      UserName: "user1",
-      FullName: "User One",
-      Email: "user1@example.com",
-      PhoneNumber: "1234567890",
-      RoleName: ["Admin", "User"],
-      Status: 1,
-    },
-    {
-      UserID: 2,
-      UserName: "user2",
-      FullName: "User Two",
-      Email: "user2@example.com",
-      PhoneNumber: "1234567890",
-      RoleName: ["User"],
-      Status: 0,
-    },
-    // Add more fake data if needed
-  ]
   // const exportUser = async () => {
   //   try {
   //     const res = await UserService.exportUser({
@@ -281,9 +347,8 @@ const ManageUser = () => {
         <Search setPagination={setPagination} pagination={pagination} />
         <Divider className="mv-16" />
         <div className="title-type-1 d-flex justify-content-space-between align-items-center pb-16 pt-0 mb-16">
-          <div className="fs-24">Danh sách nhân viên</div>
+          <div className="fs-24">Danh sách quản lý</div>
           <Row gutter={[16, 16]}>
-            {!!listButtonShow?.IsInsert && (
               <Col>
                 <Button
                   btntype="primary"
@@ -293,8 +358,6 @@ const ManageUser = () => {
                   Thêm nhân viên
                 </Button>
               </Col>
-            )}
-            {!!listButtonShow?.IsExcel && (
               <Col>
                 <Button
                   // onClick={exportUser}
@@ -304,7 +367,6 @@ const ManageUser = () => {
                   Xuất Excel
                 </Button>
               </Col>
-            )}
           </Row>
         </div>
       </div>
@@ -328,14 +390,15 @@ const ManageUser = () => {
                   return {
                     onClick: () => {
                       setOpenModalUserDetail(record)
+                      // setSelectedUserId(record._id)
                     },
                   }
                 }}
                 className="mb-6"
-                dataSource={fakeData}
+                dataSource={managers}
                 columns={columns}
                 textEmpty="Không có nhân viên"
-                rowKey="UserID"
+                rowKey="_id"
                 sticky={{ offsetHeader: -12 }}
                 scroll={{ x: "800px" }}
                 pagination={{
@@ -391,7 +454,7 @@ const ManageUser = () => {
         <ModalInsertUpdate
           open={openInsertUpdate}
           detailInfo={detailInfo}
-          // onOk={getAllUser}
+          onOk={getAllManagers}
           onCancel={() => {
             setDetailInfo(undefined)
             setOpenInsertUpdate(false)
@@ -403,18 +466,20 @@ const ManageUser = () => {
         <ImportUser
           open={openImportUser}
           onCancel={() => setOpenImportUser(false)}
-          // onOk={getAllUser}
-          department={selectedNode}
+          onOk={getAllManagers}
+          // department={selectedNode}
         />
       )}
 
       {!!openModalUserDetail && (
         <UserDetail
-          open={openModalUserDetail}
+          open={!!openModalUserDetail}
           onCancel={() => setOpenModalUserDetail(false)}
-          onOk={() => setPagination(pre => ({ ...pre }))}
-          department={selectedNode}
-          listButtonShow={listButtonShow}
+          data = {openModalUserDetail}
+          onOk={getAllManagers}
+          // department={selectedNode}
+          // listButtonShow={listButtonShow}
+          // userId={selectedUserId}
         />
       )}
     </ListUserStyled>
@@ -422,4 +487,3 @@ const ManageUser = () => {
 }
 
 export default ManageUser
-

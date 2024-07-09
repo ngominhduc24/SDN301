@@ -11,7 +11,6 @@ const ROUTER = {
   DASHBOARD: "/admin/dashboard",
   MANAGE_USER: "/admin/manage-user",
   MANAGE_STORE: "/admin/manage-store",
-  MANAGE_WAREHOUSE: "/admin/manage-warehouse",
   MANAGE_PRODUCTS: "/admin/manage-products",
   PROFILE: `/thong-tin-ca-nhan`,
 

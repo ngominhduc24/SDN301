@@ -8,13 +8,14 @@ import { useDispatch, useSelector } from "react-redux"
 import { UserOutlined } from "@ant-design/icons"
 import SvgIcon from "src/components/SvgIcon"
 import { StyleMyAccount } from "./styled"
-import STORAGE, { setStorage } from "src/lib/storage"
+import STORAGE, { getStorage } from "src/lib/storage"
 import { setUserInfo } from "src/redux/appGlobal"
 import Notice from "src/components/Notice"
 import LayoutCommon from "src/components/Common/Layout"
 import useWindowSize from "src/lib/useWindowSize"
 import { getListComboByKey } from "src/lib/utils"
 import { SYSTEM_KEY } from "src/constants/constants"
+import UserService from "src/services/UserService"
 import moment from "moment"
 
 const PersonProfile = () => {
@@ -23,11 +24,11 @@ const PersonProfile = () => {
   const [modalUpdatePersonProfile, setModalUpdatePersonProfile] =
     useState(false)
   const [loading, setLoading] = useState(false)
-  const [user, setUser] = useState([])
+  const [user, setUser] = useState({})
   const [avatarUpload, setAvatarUpload] = useState("")
-  const { userInfo } = useSelector(state => state?.appGlobal)
   const [showCancelButton, setShowCancelButton] = useState(false)
-
+  const userID = getStorage(STORAGE.USER_ID);
+console.log("userid: ", userID);
   // const uploadImg = async file => {
   //   try {
   //     setLoading(true)
@@ -42,17 +43,23 @@ const PersonProfile = () => {
   // }
 
   //getInfor User
-  // const getInfo = async () => {
-  //   try {
-  //     setLoading(true)
-  //     // const body = userInfo?.UserID
-  //     const res = await UserService.getInforUser()
-  //     if (res?.isError) return
-  //     setUser(res?.Object)
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+  const getInfo = async () => {
+    try {
+      setLoading(true)
+      // const res = await UserService.getUserById("667a3003848f2fe6f3fa6664")
+      const res = await UserService.getUserById(userID)
+      console.log('API response:', res) 
+      if (res?.isError) return
+      setUser(res)
+      // console.log('user:', user.email);
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    getInfo();
+  }, []);
 
   // const changeAvatar = async () => {
   //   try {
@@ -90,9 +97,6 @@ const PersonProfile = () => {
     )?.find(item => +item?.CodeValue === +code)
     return selectedOption ? selectedOption.Description : "Unknown"
   }
-  // useEffect(() => {
-  //   getInfo()
-  // }, [])
 
   const isMobile = useWindowSize.isMobile() || false
   return (
@@ -151,7 +155,7 @@ const PersonProfile = () => {
                       <div className="d-flex justify-content-center">
                         <div className="wrap-avatar">
                           <div className="user-img-box">
-                            {!!avatarUpload || !!userInfo?.Avatar ? (
+                            {/* {!!avatarUpload || !!userInfo?.Avatar ? (
                               <img
                                 className="user-avatar"
                                 src={avatarUpload || userInfo?.Avatar}
@@ -180,7 +184,7 @@ const PersonProfile = () => {
                               >
                                 <UserOutlined style={{ fontSize: "50px" }} />
                               </div>
-                            )}
+                            )} */}
                             <div className="camera-icon mr-20">
                               <SvgIcon name="camera" />
                             </div>
@@ -233,26 +237,27 @@ const PersonProfile = () => {
               <div className={isMobile ? "" : "p-24"}>
                 <div className="infor-box">
                   <div className="title-infor"> Họ và tên:</div>
-                  <div>{user?.FullName}</div>
+                  <div>{user?.fullname}</div>
                 </div>
-                <div className="infor-box">
+                {/* <div className="infor-box">
                   <div className="title-infor">Tên tài khoản:</div>
                   <div>{user?.UserName}</div>
-                </div>
+                </div> */}
 
-                <div className="infor-box" style={{ flex: 1 }}>
+                {/* <div className="infor-box" style={{ flex: 1 }}>
                   <div className="title-infor"> Giới tính:</div>
                   <div>
                     {user?.Sex === 1 ? "Nam" : user?.Sex === 2 ? "Nữ" : ""}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="infor-box" style={{ flex: 1 }}>
                   <div className="title-infor">Ngày sinh:</div>
                   <div>
-                    {user?.Birthday
-                      ? moment(user?.Birthday).format("DD/MM/YYYY")
-                      : ""}
+                    {/* {user?.dob
+                      ? moment(user?.dob).format("DD/MM/YYYY")
+                      : ""} */}
+                      {user?.dob}
                   </div>
                 </div>
               </div>
@@ -261,19 +266,19 @@ const PersonProfile = () => {
               <div className={isMobile ? "" : "p-24"}>
                 <div className="infor-box">
                   <div className="title-infor"> Số điện thoại:</div>
-                  <div>{user?.PhoneNumber}</div>
+                  <div>{user?.phone}</div>
                 </div>
                 <div className="infor-box">
                   <div className="title-infor"> Email:</div>
-                  <div>{user?.Email}</div>
+                  <div>{user?.email}</div>
                 </div>
-                <div className={`infor-box ${!!isMobile ? "mb-0" : ""}`}>
+                {/* <div className={`infor-box ${!!isMobile ? "mb-0" : ""}`}>
                   <div className={`title-infor ${!!isMobile ? "mb-0" : ""}`}>
                     {" "}
                     Địa chỉ:
                   </div>
                   <div>{user?.Address}</div>
-                </div>
+                </div> */}
               </div>
             </Col>
           </Row>
@@ -284,7 +289,9 @@ const PersonProfile = () => {
         <UpdatePersonProfile
           open={modalUpdatePersonProfile}
           onCancel={() => setModalUpdatePersonProfile(false)}
-          // onOk={() => getInfo()}
+          onOk={() => {getInfo();
+            setModalUpdatePersonProfile(false)
+          }}
         />
       )}
     </StyleMyAccount>

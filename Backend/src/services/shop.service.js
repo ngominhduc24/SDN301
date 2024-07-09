@@ -1,4 +1,5 @@
 const Shop = require('../models/shop');
+const Invoice = require('../models/invoice');
 const Product = require('../models/product');
 
 // Create a new shop
@@ -88,6 +89,23 @@ async function getProductByShopId(shopId) {
   return shop.products;
 }
 
+// Get all invoice for a specific shop
+async function getInvoiceToWithShopId(shopId) {
+  const invoice = await Invoice.find({ to: shopId });
+  if (!invoice) {
+    throw new Error('Invoice not found');
+  }
+  return invoice;
+}
+
+async function getInvoiceFromWithShopId(shopId) {
+  const invoice = await Invoice.find({ from: shopId });
+  if (!invoice) {
+    throw new Error('Invoice not found');
+  }
+  return invoice;
+}
+
 // Get a specific product by its ID within a specific shop
 async function getProductById(shopId, productId) {
   const shop = await Shop.findById(shopId);
@@ -103,7 +121,7 @@ async function getProductById(shopId, productId) {
 }
 
 // Add quantity to a specific product in a specific shop
-async function updateProductById(shopId, productId, quantity) {
+async function updateProductById(shopId, productId, quantity, status) {
   const shop = await Shop.findById(shopId);
   if (!shop) {
     throw new Error('Shop not found');
@@ -113,6 +131,7 @@ async function updateProductById(shopId, productId, quantity) {
     throw new Error('Product not found for productId: ' + productId);
   }
   
+  product.status = status;
   product.quantity = product.quantity + quantity;
   await shop.save();
   return product;
@@ -128,5 +147,7 @@ module.exports = {
   getProductByShopId,
   getProductById,
   updateProductById,
-  getWarehouse
+  getWarehouse,
+  getInvoiceToWithShopId,
+  getInvoiceFromWithShopId
 };

@@ -97,7 +97,7 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
             </Col>
             <Col span={24} className="position">
               <div
-                className="d-flex justify-content-center align-item-center"
+                className="d-flex j```ustify-content-center align-item-center"
                 style={{ gap: 10 }}
               >
                 <div>
