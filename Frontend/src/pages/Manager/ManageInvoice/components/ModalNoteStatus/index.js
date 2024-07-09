@@ -23,7 +23,7 @@ const ModalNoteStatus = ({ visible, onCancel, invoice, onOk }) => {
       setLoading(true)
       const body = {
         status: "cancelled",
-        note: cancelReason,
+        note: "/ Lý do hủy đơn bên kho: " + cancelReason,
       }
       console.log(body)
       const response = await ManagerService.updateInfoInvoice(

@@ -48,12 +48,13 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
       const res = await ManagerService.getDetailStaff(detailInfo?._id)
       if (res?.isError) return
 
-      let dob = res?.dob ? moment(res.dob, "DD/MM/YYYY") : null
-
       form.setFieldsValue({
         ...res,
         // dob: dob,
-        dob: !!res?.dob && moment(res?.dob),
+        dob:
+          res.dob && dayjs(res.dob, "DD/MM/YYYY").isValid()
+            ? dayjs(res.dob, "DD/MM/YYYY")
+            : null,
       })
     } finally {
       setLoading(false)
@@ -77,7 +78,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
         ? await ManagerService.updateStatusStaff(detailInfo?._id, { ...values })
         : await ManagerService.createStaff({
             ...values,
-            dob: values?.dob ? values?.dob?.format("DD/MM/YYYY") : undefined,
+            dob: values.dob ? values.dob.format("DD/MM/YYYY") : null,
           })
 
       if (res?.isError) return
@@ -375,3 +376,4 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
 }
 
 export default ModalInsertUpdate
+

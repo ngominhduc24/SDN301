@@ -22,6 +22,8 @@ import { ListUserStyled } from "./styled"
 import { useSelector } from "react-redux"
 import ManagerService from "src/services/ManagerService"
 import STORAGE, { deleteStorage, getStorage } from "src/lib/storage"
+import dayjs from "dayjs"
+import moment from "moment"
 
 const ManageUser = () => {
   const [dataSource, setDataSource] = useState([])
@@ -104,7 +106,18 @@ const ManageUser = () => {
       dataIndex: "dob",
       key: "dob",
       align: "center",
-      render: val => <MainTableData>{val}</MainTableData>,
+      render: val => (
+        <MainTableData>
+          {/* {val && dayjs(val, "DD/MM/YYYY").isValid()
+            ? dayjs(val).format("DD/MM/YYYY")
+            : "N/A"} */}
+          {/* {val} */}
+
+          {val && dayjs(val).isValid()
+            ? dayjs(val).format("DD/MM/YYYY")
+            : "N/A"}
+        </MainTableData>
+      ),
     },
     {
       title: (
