@@ -14,6 +14,8 @@ import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import AdminServices from "src/services/AdminService"
 import ModalViewStore from "./components/ModalViewStore"
+import ModalViewManager from "./components/ModalViewManager"
+import UpdateStore from "./components/ModalUpdateStore"
 
 const ManageStore = () => {
   const [stores, setStores] = useState([]);
@@ -21,6 +23,7 @@ const ManageStore = () => {
   const [buttonShow, setButtonShow] = useState()
   const [openInsertUpdateStore, setOpenInsertUpdateStore] = useState(false)
   const [openViewStore, setOpenViewStore] = useState(false)
+  const [openUpdateStore, setOpenUpdateStore] = useState(false)
   const [openViewManager, setOpenViewManager] = useState(false)
   const [selectedStore, setSelectedStore] = useState(null)
   const [selectedManager, setSelectedManager] = useState(null)
@@ -66,25 +69,11 @@ const ManageStore = () => {
       isEnable: true,
       name: "Chỉnh sửa",
       icon: "edit-green",
-      onClick: () => setOpenInsertUpdateStore(record),
-    },
-    {
-      isEnable: true,
-      name: "Xóa",
-      icon: "delete-red-row",
-      onClick: () =>
-        CB1({
-          record,
-          title: `bạn chắc chắn muốn xóa?`,
-          icon: "warning-usb",
-          okText: "Có",
-          cancelText: "Không",
-          onOk: async close => {
-            // handleDeleteBooking(record)
-            close()
-          },
-        }),
-    },
+      onClick: () => {setOpenUpdateStore(true)
+        setSelectedStore(record)
+        
+      },
+    }
   ]
 
   const column = [
@@ -236,7 +225,8 @@ const ManageStore = () => {
         />
       {!!openViewStore && selectedStore && (
         <ModalViewStore
-          visible={openViewStore}
+          open={openViewStore}
+          onOk={() => getAllShops()}
           // onOk={() => getListBookings()}
           // handleDeleteBooking={handleDeleteBooking}
           onCancel={() => setOpenViewStore(false)}
@@ -245,7 +235,10 @@ const ManageStore = () => {
         />
       )}
       {!!openViewManager && selectedManager && (
-        <></>
+        <ModalViewManager visible={openViewManager} onCancel={() => setOpenViewManager(false)} manager={selectedManager}></ModalViewManager>
+      )}
+      {!!openUpdateStore && selectedStore && (
+        <UpdateStore stores={selectedStore} open={openUpdateStore} oncancel={() => setOpenUpdateStore(false)} onOk={() => getAllShops()}/>
       )}
     </SpinCustom>
   )

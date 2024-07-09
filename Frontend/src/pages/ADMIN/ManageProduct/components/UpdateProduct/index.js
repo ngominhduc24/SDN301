@@ -77,11 +77,13 @@ const UpdateProduct = ({ open, onCancel, onOk, data, id }) => {
     }))
   }
   const onContinue = async () => {
+    console.log(data?._id)
     try {
       setLoading(true)
       const values = await form.validateFields()
       const productData = stateBody[data._id] || values
       const res = await AdminServices.updateProducts(data._id, { ...productData })
+      console.log(res)
       if (res?.isError){return} 
       onOk()
       onCancel()
