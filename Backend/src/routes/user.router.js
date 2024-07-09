@@ -183,5 +183,8 @@ userRouter.get('/admin/users/:id', UserController.getUserById);
 userRouter.post('/manager/staff', verifyTokenHandle.verifyTokenManager, UserController.AddNewStaff);
 userRouter.get('/manager/staff', verifyTokenHandle.verifyTokenManager, UserController.getListStaff);
 
+userRouter.get('/manager/shop', verifyTokenHandle.verifyTokenManager, UserController.getListShopForManager);
+
+
 
 module.exports = userRouter;
