@@ -348,4 +348,7 @@ shopRouter.get('/:shopId/product/unadded/getinfo', ShopController.getProductNotA
 // WAREHOUSE MANAGER
 shopRouter.get('/warehouse/getinfo', ShopController.getWarehouse);
 
+// invoices
+shopRouter.get('/:shopId/invoice', ShopController.getInvoiceByShopId); // get invoice by shopId
+
 module.exports = shopRouter;
