@@ -103,7 +103,7 @@ async function getProductById(shopId, productId) {
 }
 
 // Add quantity to a specific product in a specific shop
-async function updateProductById(shopId, productId, quantity) {
+async function updateProductById(shopId, productId, quantity, status) {
   const shop = await Shop.findById(shopId);
   if (!shop) {
     throw new Error('Shop not found');
@@ -113,6 +113,7 @@ async function updateProductById(shopId, productId, quantity) {
     throw new Error('Product not found for productId: ' + productId);
   }
   
+  product.status = status;
   product.quantity = product.quantity + quantity;
   await shop.save();
   return product;

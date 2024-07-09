@@ -162,6 +162,7 @@ async function updateInfo(req, res, next) {
 async function updateStatus(req, res, next) {
     try {
         const newStatus = req.body.status;
+        const note = req.body.note;
         const invoice = await Invoice.findById(req.params.id);
         if(!invoice) {
             throw new Error('Invoice not found');
@@ -208,7 +209,11 @@ async function updateStatus(req, res, next) {
                 ShopService.updateProductById(invoice.from, detail.productId, -detail.quantity)
             ));
         }
-        const updatedInvoice = await invoiceService.updateInvoice(req.params.id, {status: newStatus});
+        
+        const existingInvoice = await invoiceService.getInvoiceById(req.params.id);
+        const updatedNote = existingInvoice.note + " " + note;
+        
+        const updatedInvoice = await invoiceService.updateInvoice(req.params.id, {status: newStatus, note: updatedNote});
         res.status(200).json(updatedInvoice);
     } catch (error) {
         next(error); 
