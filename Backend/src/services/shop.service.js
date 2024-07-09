@@ -90,12 +90,20 @@ async function getProductByShopId(shopId) {
 }
 
 // Get all invoice for a specific shop
-async function getInvoiceByShopId(shopId) {
-  const shop = await Invoice.find({ from: shopId, to: null });
-  if (!shop) {
-    throw new Error('Shop not found');
+async function getInvoiceToWithShopId(shopId) {
+  const invoice = await Invoice.find({ to: shopId });
+  if (!invoice) {
+    throw new Error('Invoice not found');
   }
-  return shop.products;
+  return invoice;
+}
+
+async function getInvoiceFromWithShopId(shopId) {
+  const invoice = await Invoice.find({ from: shopId });
+  if (!invoice) {
+    throw new Error('Invoice not found');
+  }
+  return invoice;
 }
 
 // Get a specific product by its ID within a specific shop
@@ -139,5 +147,6 @@ module.exports = {
   getProductById,
   updateProductById,
   getWarehouse,
-  getInvoiceByShopId
+  getInvoiceToWithShopId,
+  getInvoiceFromWithShopId
 };
