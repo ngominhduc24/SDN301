@@ -24,17 +24,21 @@ const ROUTER = {
 
   // MANAGER
   MANAGER_DASHBOARD: "/manager/dashboard",
-  MANAGER_MANAGE_INVOICE: "/manager/manage-invoices",
+  MANAGER_MANAGE_INVOICE_TO_SHOP: "/manager/manage-invoices/to-shop",
+  MANAGER_MANAGE_INVOICE_TO_CUSTOMER: "/manager/manage-invoices/to-customer",
+
   MANAGER_MANAGE_STAFF: "/manager/manage-staffs",
   MANAGER_MANAGE_PRODUCTS: "/manager/manage-products",
   MANAGER_PROFILE: `/manager/thong-tin-ca-nhan`,
   // WAREHOUSE MANAGER
   WAREHOUSE_MANAGER_DASHBOARD: "/warehouse-manager/dashboard",
-  WAREHOUSE_MANAGER_MANAGE_INVOICE: "/warehouse-manager/manage-invoices",
+  WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_SHOP:
+    "/warehouse-manager/manage-invoices/to-shop",
+  WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_WAREHOUSE:
+    "/warehouse-manager/manage-invoices/to-warehouse",
   WAREHOUSE_MANAGER_MANAGE_WAREHOUSE: "/warehouse-manager/manage-warehouse",
   WAREHOUSE_MANAGER_PROFILE: `/warehouse-manager-thong-tin-ca-nhan`,
   WAREHOUSE_MANAGER_MANAGE_PRODUCT: "/warehouse-manager/manage-product",
   WAREHOUSE_MANAGER_MANAGE_STORE: "/warehouse-manager/manage-store",
 }
 export default ROUTER
-

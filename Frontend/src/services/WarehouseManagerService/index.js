@@ -12,6 +12,8 @@ import {
   apiUpdateInfoInvoice,
   apiUpdateStatusInvoice,
   apiGetAllInvoice,
+  apiGetInvoicesByShopId,
+  apiGetOrdersByShopId,
 } from "./urls"
 import QueryString from "qs"
 import { update } from "lodash"
@@ -31,6 +33,8 @@ const updateInfoInvoice = (id, body) => http.put(apiUpdateInfoInvoice(id), body)
 const updateStatusInvoice = (id, body) =>
   http.put(apiUpdateStatusInvoice(id), body)
 const createInvoice = body => http.post(apiCreateInvoice, body)
+const getInvoicesByShopId = id => http.get(apiGetInvoicesByShopId(id))
+const getOrdersByShopId = id => http.get(apiGetOrdersByShopId(id))
 
 const WarehouseManagerService = {
   getInfoWareHouse,
@@ -44,6 +48,8 @@ const WarehouseManagerService = {
   updateInfoInvoice,
   updateStatusInvoice,
   createInvoice,
+  getInvoicesByShopId,
+  getOrdersByShopId,
 }
 
 export default WarehouseManagerService

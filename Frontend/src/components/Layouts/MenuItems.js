@@ -139,7 +139,7 @@ export const MenuItemManager = () => {
       key: "subkey2",
       label: "Manager",
       icon: <SvgIcon name="menu13" />,
-      tabid: [5, 6],
+      tabid: [5, 6, 7],
       children: [
         {
           key: ROUTER.MANAGER_MANAGE_STAFF,
@@ -147,9 +147,14 @@ export const MenuItemManager = () => {
           tabid: [5],
         },
         {
-          key: ROUTER.MANAGER_MANAGE_INVOICE,
-          label: "Manage Invoice",
+          key: ROUTER.MANAGER_MANAGE_INVOICE_TO_SHOP,
+          label: "Manage Invoice To Shop",
           tabid: [6],
+        },
+        {
+          key: ROUTER.MANAGER_MANAGE_INVOICE_TO_CUSTOMER,
+          label: "Manage Invoice To Customers",
+          tabid: [7],
         },
       ],
     },
@@ -205,12 +210,17 @@ export const MenuItemWarehouseManager = () => {
       key: "subkey3",
       label: "Warehouse Mananer",
       icon: <SvgIcon name="menu14" />,
-      tabid: [7],
+      tabid: [7, 8],
       children: [
         {
-          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_INVOICE,
-          label: "Manage Invoice",
+          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_SHOP,
+          label: "Manage Invoice To Shops",
           tabid: [7],
+        },
+        {
+          key: ROUTER.WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_WAREHOUSE,
+          label: "Manage Invoice To Warehouse",
+          tabid: [8],
         },
       ],
     },

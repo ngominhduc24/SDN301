@@ -42,8 +42,11 @@ const ManagerManageStaff = React.lazy(() =>
 const ManagerManageProducts = React.lazy(() =>
   import("src/pages/Manager/ManageProduct"),
 )
-const ManagerManageInvoice = React.lazy(() =>
-  import("src/pages/Manager/ManageInvoice"),
+const ManagerManageInvoiceToShop = React.lazy(() =>
+  import("src/pages/Manager/ManageInvoiceToShop"),
+)
+const ManagerManageInvoiceToCustomer = React.lazy(() =>
+  import("src/pages/Manager/ManageInvoiceShopToCustomer"),
 )
 // WAREHOUSE MANAGER
 const WarehouseManagerRoutes = React.lazy(() =>
@@ -52,8 +55,11 @@ const WarehouseManagerRoutes = React.lazy(() =>
 const WarehouseManager = React.lazy(() =>
   import("src/pages/WarehouseManager/ManageWarehouse"),
 )
-const WarehouseManagerInvoices = React.lazy(() =>
-  import("src/pages/WarehouseManager/ManageInvoice"),
+const WarehouseManagerInvoicesToShop = React.lazy(() =>
+  import("src/pages/WarehouseManager/ManageInvoiceWarehouseToShop"),
+)
+const WarehouseManagerInvoicesToWarehouse = React.lazy(() =>
+  import("src/pages/WarehouseManager/ManageInvoiceToWarehouse"),
 )
 const WarehouseManagerProduct = React.lazy(() =>
   import("src/pages/WarehouseManager/ManageProduct"),
@@ -237,10 +243,18 @@ const routes = [
         ),
       },
       {
-        path: ROUTER.MANAGER_MANAGE_INVOICE,
+        path: ROUTER.MANAGER_MANAGE_INVOICE_TO_SHOP,
         element: (
           <LazyLoadingComponent>
-            <ManagerManageInvoice />
+            <ManagerManageInvoiceToShop />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.MANAGER_MANAGE_INVOICE_TO_CUSTOMER,
+        element: (
+          <LazyLoadingComponent>
+            <ManagerManageInvoiceToCustomer />
           </LazyLoadingComponent>
         ),
       },
@@ -295,10 +309,18 @@ const routes = [
         ),
       },
       {
-        path: ROUTER.WAREHOUSE_MANAGER_MANAGE_INVOICE,
+        path: ROUTER.WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_SHOP,
         element: (
           <LazyLoadingComponent>
-            <WarehouseManagerInvoices />
+            <WarehouseManagerInvoicesToShop />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_WAREHOUSE,
+        element: (
+          <LazyLoadingComponent>
+            <WarehouseManagerInvoicesToWarehouse />
           </LazyLoadingComponent>
         ),
       },

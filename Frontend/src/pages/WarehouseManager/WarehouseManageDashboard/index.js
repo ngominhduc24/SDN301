@@ -3,7 +3,7 @@ import WarehouseManagerService from "src/services/WarehouseManagerService"
 
 const WarehouseDashBoard = () => {
   const [loading, setLoading] = useState(false)
-  const [infoWareHouse, setInfoWareHouse] = useState(null) // Sử dụng null thay vì một mảng rỗng []
+  const [infoWareHouse, setInfoWareHouse] = useState(null)
 
   const getWarehouseInfo = async () => {
     try {

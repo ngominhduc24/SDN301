@@ -16,6 +16,7 @@ import UpdateProduct from "./components/UpdateProduct"
 const ManageProduct = () => {
   const [wareHouseProducts, setWareHouseProducts] = useState([])
   const [wareHouseId, setWareHouseId] = useState("")
+  const [managerId, setManagerId] = useState("")
   const [total, setTotal] = useState(0)
   const [openInsertUpdateProducts, setOpenInsertUpdateProducts] =
     useState(false)
@@ -55,6 +56,7 @@ const ManageProduct = () => {
         await WarehouseManagerService.getListProductsWarehouse(warehouseId)
       console.log("Products:", productsRes)
       setWareHouseId(warehouseId)
+      setManagerId(warehouseInfoRes?.manager?._id)
       setWareHouseProducts(productsRes)
       setTotal(productsRes.length) // Assuming productsRes is an array of products
     } catch (error) {
@@ -248,6 +250,7 @@ const ManageProduct = () => {
       </Modal>
       {!!openInsertUpdateProducts && (
         <InsertUpdateProduct
+          managerId={managerId}
           id={wareHouseId}
           open={openInsertUpdateProducts}
           onCancel={() => setOpenInsertUpdateProducts(false)}
@@ -263,6 +266,7 @@ const ManageProduct = () => {
       )}
       {!!openUpdateProducts && selectedProduct && (
         <UpdateProduct
+          managerId={managerId}
           id={wareHouseId}
           product={selectedProduct}
           open={openUpdateProducts}

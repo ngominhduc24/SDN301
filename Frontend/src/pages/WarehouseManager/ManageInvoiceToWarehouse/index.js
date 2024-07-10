@@ -9,8 +9,7 @@ import SearchAndFilter from "./components/SearchAndFilter"
 import ModalViewDetailInvoice from "./components/ModalViewDetailInvoice"
 import moment from "moment"
 import SpinCustom from "src/components/Spin"
-// import WarehouseManagerService from "src/services/WarehouseManagerService"
-import ManagerService from "src/services/ManagerService"
+import WarehouseManagerService from "src/services/WarehouseManagerService"
 import InsertUpdateInvoice from "./components/InsertUpdateInvoice"
 import ModalViewWarehouse from "./components/ModalViewWarehouse"
 import ModalViewStore from "./components/ModalViewStore"
@@ -22,7 +21,7 @@ import {
   SubTableHeader,
 } from "src/components/Table/CustomTable/styled"
 
-const ManageInvoiceManager = () => {
+const ManageInvoiceWarehouse = () => {
   const [invoices, setInvoices] = useState([])
   const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -45,20 +44,43 @@ const ManageInvoiceManager = () => {
   })
 
   useEffect(() => {
-    getAllInvoice()
+    const fetchWarehouseInfoAndInvoices = async () => {
+      const warehouseId = await getWarehouseInfo()
+      if (warehouseId) {
+        setWareHouseId(warehouseId)
+        getAllInvoice(warehouseId)
+      }
+    }
+    fetchWarehouseInfoAndInvoices()
   }, [pagination])
 
-  const getAllInvoice = async () => {
+  const getWarehouseInfo = async () => {
     try {
       setLoading(true)
-      const managerInvoice = await ManagerService.getAllInvoice()
-      console.log("API Response:", managerInvoice)
-      if (managerInvoice?.isError) {
-        console.error("Error fetching warehouse info:", managerInvoice.message)
+      const res = await WarehouseManagerService.getInfoWareHouse()
+      if (res?.isError) return
+      return res?._id
+    } catch (error) {
+      console.error("Error fetching warehouse info:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getAllInvoice = async warehouseId => {
+    try {
+      setLoading(true)
+      const warehouseInvoice =
+        await WarehouseManagerService.getInvoicesByShopId(warehouseId)
+      console.log("API Response:", warehouseInvoice)
+      if (warehouseInvoice?.isError) {
+        console.error(
+          "Error fetching warehouse info:",
+          warehouseInvoice.message,
+        )
         return
       }
-      setInvoices(managerInvoice)
-      setWareHouseId(managerInvoice[0]?.from?._id)
+      setInvoices(warehouseInvoice)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
     } finally {
@@ -80,17 +102,17 @@ const ManageInvoiceManager = () => {
       },
     ]
 
-    // if (record.status !== "cancelled") {
-    //   buttons.push({
-    //     isEnable: true,
-    //     name: "Chỉnh sửa",
-    //     icon: "edit-green",
-    //     onClick: () => {
-    //       setSelectedInvoice(record)
-    //       setOpenUpdateInvoices(true)
-    //     },
-    //   })
-    // }
+    if (record.status !== "cancelled" && record.status !== "completed") {
+      buttons.push({
+        isEnable: true,
+        name: "Chỉnh sửa",
+        icon: "edit-green",
+        onClick: () => {
+          setSelectedInvoice(record)
+          setOpenUpdateInvoices(true)
+        },
+      })
+    }
 
     return buttons
   }
@@ -133,7 +155,7 @@ const ManageInvoiceManager = () => {
           <MainTableData onClick={() => handleViewWarehouse(record)}>
             {val}
           </MainTableData>
-          <SubTableData>{record.from?.phone}</SubTableData>
+          <SubTableData>"Tổng Cục Kho"</SubTableData>
           <SubTableData>{record.from?.email}</SubTableData>
         </>
       ),
@@ -259,15 +281,8 @@ const ManageInvoiceManager = () => {
   return (
     <SpinCustom spinning={loading}>
       <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
-        <div>Quản lý hóa đơn cửa hàng</div>
-        <div>
-          {/* <Button
-            btntype="third"
-            onClick={() => setOpenInsertUpdateInvoices(true)}
-          >
-            Thêm mới
-          </Button> */}
-        </div>
+        <div>Quản lý hóa đơn đến kho</div>
+        <div></div>
       </div>
       <SearchAndFilter pagination={pagination} setPagination={setPagination} />
       <Row>
@@ -276,7 +291,7 @@ const ManageInvoiceManager = () => {
             isPrimary
             rowKey="ProductId"
             columns={columns}
-            textEmpty="Chưa có hóa đơn nào"
+            textEmpty="Chưa có hóa đơn nào "
             dataSource={invoices}
             scroll={{ x: "800px" }}
             pagination={{
@@ -303,7 +318,7 @@ const ManageInvoiceManager = () => {
           visible={openViewInvoice}
           onCancel={() => setOpenViewInvoice(false)}
           data={selectedInvoice}
-          onOk={() => getAllInvoice()}
+          onOk={() => getAllInvoice(wareHouseId)}
         />
       )}
       {!!openViewWarehouse && selectedWarehouse && (
@@ -320,26 +335,18 @@ const ManageInvoiceManager = () => {
           store={selectedStore}
         />
       )}
-      {/* {!!openInsertUpdateInvoices && (
-        <InsertUpdateInvoice
-          id={wareHouseId}
-          open={openInsertUpdateInvoices}
-          onCancel={() => setOpenInsertUpdateInvoices(false)}
-          onOk={() => getAllInvoice()}
-        />
-      )}
       {!!openUpdateInvoices && (
         <UpdateInvoice
           open={openUpdateInvoices}
           onCancel={() => setOpenUpdateInvoices(false)}
-          onOk={() => getAllInvoice()}
+          onOk={() => getAllInvoice(wareHouseId)}
           invoice={selectedInvoice}
           id={wareHouseId}
         />
-      )} */}
+      )}
     </SpinCustom>
   )
 }
 
-export default ManageInvoiceManager
+export default ManageInvoiceWarehouse
 

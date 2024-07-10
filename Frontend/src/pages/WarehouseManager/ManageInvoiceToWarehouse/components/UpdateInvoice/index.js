@@ -22,11 +22,13 @@ import Button from "src/components/MyButton/Button"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
 import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
+import ModalNoteStatus from "../ModalNoteStatus"
 const { Option } = Select
 
-const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
+const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
   const [form] = Form.useForm()
-  const [wareHouseProductsNotIn, setWareHouseProductsNotIn] = useState([])
+  const [wareHouse, setWareHouse] = useState({})
+  const [wareHouseProductsIn, setWareHouseProductsIn] = useState([])
   const [selectedProducts, setSelectedProducts] = useState([])
   const [openViewProducts, setOpenViewProducts] = useState(false)
   const [selectedProductView, setSelectedProductView] = useState(null)
@@ -42,22 +44,54 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
     ApproveStatus: 0,
     Status: 0,
   })
+  const { Title, Text } = Typography
+  const [shopList, setShopList] = useState([])
+  const [selectedShop, setSelectedShop] = useState(null)
   const [note, setNote] = useState("")
   const [discount, setDiscount] = useState(0)
   const [shippingCharge, setShippingCharge] = useState(0)
-  const { Title, Text } = Typography
-
+  const [cancelModalVisible, setCancelModalVisible] = useState(false)
+  useEffect(() => {
+    getProductsInWarehouse()
+    getShopList()
+    getWarehouse()
+    console.log(invoice)
+  }, [id])
+  useEffect(() => {
+    if (open && invoice) {
+      form.setFieldsValue({
+        shop: invoice.to._id,
+        note: invoice.note,
+        discount: invoice.discount,
+        shippingCharge: invoice.shipping_charge,
+      })
+      setNote(invoice.note)
+      setDiscount(invoice.discount)
+      setShippingCharge(invoice.shipping_charge)
+      setSelectedShop(invoice.to)
+      setStateBody(
+        invoice.details.map(item => ({
+          productId: item.productId._id,
+          quantity: item.quantity,
+        })),
+      )
+      setSelectedProducts(
+        invoice.details.map(item => ({
+          ...item,
+          quantity: item.quantity,
+        })),
+      )
+    }
+    console.log(invoice)
+  }, [open, invoice, form])
+  useEffect(() => {
+    console.log(selectedProducts)
+  }, [selectedProducts])
   const listBtn = record => [
     {
       isEnable: true,
       name: "Xem sản phẩm ",
       icon: "eye",
-      onClick: () => {
-        setSelectedProductView(record)
-        setOpenViewProducts(true)
-        console.log(record)
-        console.log("Products:", record)
-      },
     },
     {
       isEnable: true,
@@ -78,10 +112,10 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
     },
   ]
 
-  const column = [
+  const columns = [
     {
       title: "STT",
-      key: "_id",
+      key: ["productId", "_id"],
       width: 60,
       render: (text, row, idx) => (
         <div className="text-center">
@@ -91,23 +125,24 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
     },
     {
       title: "Tên sản phẩm",
-      dataIndex: ["name"],
+      dataIndex: ["productId", "name"],
       width: 200,
-      key: "productName",
+      key: "name",
     },
     {
       title: "Mô tả",
-      dataIndex: ["description"],
+      dataIndex: ["productId", "description"],
       width: 200,
       key: "description",
       render: text => (
         <Tooltip title={text}>
           <span>
-            {text.length > 100 ? `${text.substring(0, 100)}...` : text}
+            {text && text.length > 100 ? `${text.substring(0, 100)}...` : text}
           </span>
         </Tooltip>
       ),
     },
+
     {
       title: "Số lượng",
       dataIndex: "quantity",
@@ -117,13 +152,13 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
         <InputNumber
           min={0}
           defaultValue={record.quantity}
-          onChange={value => handleQuantityChange(record._id, value)}
+          onChange={value => handleQuantityChange(record.productId._id, value)}
         />
       ),
     },
     {
       title: "Ảnh",
-      dataIndex: ["image"],
+      dataIndex: ["productId", "image"],
       width: 120,
       key: "image",
       render: text => (
@@ -140,7 +175,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
     },
     {
       title: "Trạng thái hoạt động",
-      dataIndex: ["status"],
+      dataIndex: ["productId", "status"],
       align: "center",
       width: 100,
       key: "Status",
@@ -174,18 +209,30 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
   ]
 
   const handleRemoveProduct = record => {
-    setSelectedProducts(prev => prev.filter(item => item._id !== record._id))
-    setStateBody(prev => prev.filter(item => item.productId !== record._id))
+    setSelectedProducts(prev =>
+      prev.filter(item => item.productId._id !== record.productId._id),
+    )
+    setStateBody(prev =>
+      prev.filter(item => item.productId !== record.productId._id),
+    )
   }
 
   const handleProductChange = value => {
-    const selected = wareHouseProductsNotIn.find(
-      product => product._id === value,
+    const selected = wareHouseProductsIn.find(
+      product => product.productId._id === value,
     )
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
-      setStateBody(prev => [...prev, { productId: selected._id, quantity: 0 }])
+      setStateBody(prev => [
+        ...prev,
+        { productId: selected.productId._id, quantity: 0 },
+      ])
     }
+  }
+
+  const handleShopChange = value => {
+    const selected = shopList.find(shop => shop._id === value)
+    setSelectedShop(selected)
   }
 
   const handleQuantityChange = (productId, quantity) => {
@@ -207,34 +254,69 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
     setShippingCharge(value)
   }
 
-  const getProductsNotInWarehouse = async () => {
+  const getWarehouse = async () => {
     try {
       setLoading(true)
-      const warehouseProductsNotInRes =
-        await WarehouseManagerService.getListProductsNotInWarehouse(id)
-      console.log(warehouseProductsNotInRes)
-      if (warehouseProductsNotInRes?.isError) {
-        console.error(
-          "Error fetching warehouse info:",
-          warehouseProductsNotInRes.message,
-        )
+      const wareHouseInfo = await WarehouseManagerService.getInfoWareHouse()
+      console.log(wareHouseInfo)
+      if (wareHouseInfo?.isError) {
+        console.error("Error fetching warehouse info:", wareHouseInfo.message)
         return
       }
-      setWareHouseProductsNotIn(warehouseProductsNotInRes)
-      setTotal(warehouseProductsNotInRes.length)
+      setWareHouse(wareHouseInfo)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
     } finally {
       setLoading(false)
     }
   }
-  const createInvoice = async () => {
+
+  const getProductsInWarehouse = async () => {
+    try {
+      setLoading(true)
+      const warehouseProductsInRes =
+        await WarehouseManagerService.getListProductsWarehouse(id)
+      if (warehouseProductsInRes?.isError) {
+        console.error(
+          "Error fetching warehouse info:",
+          warehouseProductsInRes.message,
+        )
+        return
+      }
+      setWareHouseProductsIn(warehouseProductsInRes || [])
+      setTotal(warehouseProductsInRes.length)
+    } catch (error) {
+      console.error("Error in getWarehouseInfo:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getShopList = async () => {
+    try {
+      setLoading(true)
+      const shopListRes = await WarehouseManagerService.getShopList()
+      console.log(shopListRes)
+      if (shopListRes?.isError) {
+        console.error("Error fetching shop list:", shopListRes.message)
+        return
+      }
+      setShopList(shopListRes)
+      console.log(shopListRes)
+    } catch (error) {
+      console.error("Error in getShopList:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateInvoice = async () => {
     console.log(stateBody)
     try {
       setLoading(true)
       const invoiceData = {
-        from: null,
-        to: id,
+        from: id,
+        to: selectedShop._id,
         details: stateBody.map(item => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -242,10 +324,13 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
         note: note,
         discount: discount,
         shipping_charge: shippingCharge,
-        created_by: managerId,
+        created_by: wareHouse?.manager?._id,
       }
       console.log(invoiceData)
-      const response = await WarehouseManagerService.createInvoice(invoiceData)
+      const response = await WarehouseManagerService.updateInfoInvoice(
+        invoice?._id,
+        invoiceData,
+      )
       if (response?.isError) {
         console.error("Error creating invoice:", response.message)
         return
@@ -254,7 +339,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
       onCancel()
       Notice({
         isSuccess: true,
-        msg: "Tạo hóa đơn thành công",
+        msg: "Chỉnh sửa đơn hàng thành công",
       })
     } catch (error) {
       console.error("Error in createInvoice:", error)
@@ -262,43 +347,68 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
       setLoading(false)
     }
   }
-  const addProductsToWarehouse = async () => {
+  const cancelInvoice = async () => {
     try {
       setLoading(true)
-      const response = await WarehouseManagerService.addProductsToWarehouse(
-        id,
-        stateBody,
+      const body = {
+        status: "cancelled",
+      }
+      console.log(body)
+      const response = await WarehouseManagerService.updateInfoInvoice(
+        invoice?._id,
+        body,
       )
       if (response?.isError) {
-        console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
+        console.error("Error creating invoice:", response.message)
         return
       }
-      // Xử lý khi thành công
-      getProductsNotInWarehouse()
       onOk()
       onCancel()
       Notice({
-        msg: "Thêm thành công.",
+        isSuccess: true,
+        msg: "Chỉnh sửa đơn hàng thành công",
       })
     } catch (error) {
-      console.error("Lỗi trong quá trình thêm sản phẩm vào kho:", error)
+      console.error("Error in createInvoice:", error)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    console.log(id)
-    getProductsNotInWarehouse()
-  }, [pagination])
-
+  const renderFooter = () => (
+    <div className="lstBtn d-flex-sb">
+      <div className="lstBtn-right d-flex-end">
+        <Button
+          btntype="primary"
+          className="ml-8 mt-12 mb-12"
+          loading={loading}
+          onClick={updateInvoice}
+        >
+          Lưu
+        </Button>
+        {/* <Button
+          btntype="danger"
+          className="ml-8 mt-12 mb-12"
+          loading={loading}
+          onClick={() => {
+            setCancelModalVisible(true)
+          }}
+        >
+          Hủy Đơn Hàng
+        </Button> */}
+        <Button btntype="third" className="ml-8 mt-12 mb-12" onClick={onCancel}>
+          Đóng
+        </Button>
+      </div>
+    </div>
+  )
   const items = [
     {
       key: 1,
       label: <div>Sản phẩm</div>,
       children: (
         <PatentRegistrationChildBorder>
-          <Form form={form} onFinish={addProductsToWarehouse}>
+          <Form form={form}>
             <Row gutter={16} style={{ marginBottom: 16 }}>
               <Col span={12}>
                 <Select
@@ -308,63 +418,39 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
                   onChange={handleProductChange}
                   style={{ width: "100%" }}
                 >
-                  {wareHouseProductsNotIn.map(product => (
-                    <Option key={product._id} value={product._id}>
-                      {product.name}
+                  {wareHouseProductsIn.map(product => (
+                    <Option
+                      key={product.productId._id}
+                      value={product.productId._id}
+                    >
+                      {product.productId.name}
                     </Option>
                   ))}
                 </Select>
               </Col>
-              {/* <Col span={12}>
-                <Form.Item
-                  name="quantity"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập số lượng" },
-                  ]}
-                >
-                  <InputNumber
-                    min={0}
-                    placeholder="Số lượng"
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col> */}
             </Row>
-            <TableCustom
-              isPrimary
-              rowKey="ProductId"
-              columns={column}
-              dataSource={selectedProducts}
-              scroll={{ x: "800px" }}
-              pagination={{
-                hideOnSinglePage: total <= 10,
-                current: pagination?.CurrentPage,
-                pageSize: pagination?.PageSize,
-                responsive: true,
-                total: total,
-                locale: { items_per_page: "" },
-                showSizeChanger: total > 10,
-                onChange: (CurrentPage, PageSize) =>
-                  setPagination({
-                    ...pagination,
-                    CurrentPage,
-                    PageSize,
-                  }),
-              }}
-            />
-            {/* <Form.Item>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                Thêm sản phẩm
-              </Button>
-            </Form.Item> */}
+            {selectedProducts && (
+              <TableCustom
+                isPrimary
+                rowKey={record =>
+                  record.productId ? record.productId._id : record.key
+                }
+                columns={columns}
+                dataSource={selectedProducts}
+                scroll={{ x: "800px" }}
+                pagination={{
+                  hideOnSinglePage: total <= 10,
+                  current: pagination?.CurrentPage,
+                  pageSize: pagination?.PageSize,
+                  responsive: true,
+                  total: total,
+                  locale: { items_per_page: "" },
+                  showSizeChanger: total > 10,
+                  pageSizeOptions: ["10", "20", "50", "100"],
+                }}
+              />
+            )}
           </Form>
-          <Modal
-            visible={imageModalVisible}
-            footer={null}
-            onCancel={() => setImageModalVisible(false)}
-          >
-            <img alt="product" style={{ width: "100%" }} src={selectedImage} />
-          </Modal>
         </PatentRegistrationChildBorder>
       ),
     },
@@ -376,7 +462,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
           <Form form={form} layout="vertical">
             <Row gutter={16}>
               <Col span={24}>
-                <Form.Item label="Ghi chú">
+                <Form.Item name="note" label="Ghi chú">
                   <Input.TextArea
                     onChange={handleNoteChange}
                     rows={4}
@@ -385,7 +471,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label="Chiết khấu (%)">
+                <Form.Item name="discount" label="Chiết khấu (%)">
                   <InputNumber
                     min={0}
                     value={discount}
@@ -396,7 +482,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label="Phí vận chuyển">
+                <Form.Item name="shippingCharge" label="Phí vận chuyển">
                   <InputNumber
                     min={0}
                     value={shippingCharge}
@@ -411,49 +497,41 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
       ),
     },
   ]
-
-  const renderFooter = () => (
-    <div className="lstBtn d-flex-sb">
-      <div className="lstBtn-right d-flex-end">
-        <Button
-          btntype="primary"
-          className="ml-8 mt-12 mb-12"
-          loading={loading}
-          onClick={createInvoice}
-        >
-          Lưu
-        </Button>
-        <Button btntype="third" className="ml-8 mt-12 mb-12" onClick={onCancel}>
-          Đóng
-        </Button>
-      </div>
-    </div>
-  )
-
   return (
     <div>
       <CustomModal
         open={open}
         onCancel={onCancel}
         onOk={onOk}
-        title={"Thêm mới sản phẩm"}
+        title={"Chỉnh sửa hóa đơn"}
         width="90vw"
         footer={renderFooter()}
       >
         <StylesTabPattern className="mr-12 ml-12">
           <Tabs type="card" defaultActiveKey="1" items={items} />
         </StylesTabPattern>
-        {!!openViewProducts && selectedProductView && (
-          <ModalViewProduct
-            visible={openViewProducts}
-            onCancel={() => setOpenViewProducts(false)}
-            product={selectedProductView}
-          />
-        )}
+        <ModalViewProduct
+          visible={openViewProducts}
+          onCancel={() => setOpenViewProducts(false)}
+          product={selectedProductView}
+        />
+        <ModalNoteStatus
+          visible={cancelModalVisible}
+          onCancel={onCancel}
+          invoice={invoice}
+          onOk={onOk}
+        />
       </CustomModal>
+      <Modal
+        visible={imageModalVisible}
+        onCancel={() => setImageModalVisible(false)}
+        footer={null}
+      >
+        <img src={selectedImage} alt="Selected" style={{ width: "100%" }} />
+      </Modal>
     </div>
   )
 }
 
-export default InsertUpdateProduct
+export default UpdateInvoice
 
