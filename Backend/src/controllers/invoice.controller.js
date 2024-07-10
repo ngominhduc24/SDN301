@@ -108,7 +108,7 @@ async function updateInfo(req, res, next) {
         }
 
         //Reset quantity in from
-        if(invoiceData.from !=null && invoiceData.from != undefined  && invoiceData.from != "") {
+        if(invoice.from !=null && invoice.from != undefined  && invoice.from != "") {
             if (invoice.details && invoice.details.length > 0) {
                 await Promise.all(invoice.details.map(detail =>
                     ShopService.updateProductById(invoice.from, detail.productId, detail.quantity)
@@ -135,7 +135,7 @@ async function updateInfo(req, res, next) {
                 }
 
                 if(invoice.from !=null && invoice.from != undefined  && invoice.from != "") {
-                    var productFrom = await ShopService.getProductById(invoiceData.from, detail.productId);
+                    var productFrom = await ShopService.getProductById(invoice.from, detail.productId);
                     if (!productFrom) {
                         throw new Error('Not exists productId' + detail.productId + 'in shop: ' + invoice.from);
                     }
@@ -167,7 +167,7 @@ async function updateInfo(req, res, next) {
             res.status(404).json({ message: 'Invoice not found' });
 
         // Update product quantity
-        if(invoiceData.from !=null && invoiceData.from != undefined  && invoiceData.from != "") {
+        if(invoice.from !=null && invoice.from != undefined  && invoice.from != "") {
             if (updateInvoice.details && updateInvoice.details.length > 0) {
                 await Promise.all(updateInvoice.details.map(detail =>
                     ShopService.updateProductById(invoice.from, detail.productId, -detail.quantity)
@@ -201,7 +201,6 @@ async function updateStatus(req, res, next) {
             if(invoice.to !=null && invoice.to != undefined  && invoice.to != "") {
                 await Promise.all(invoice.details.map(async (detail) =>{
                     const product = await ShopService.getProById(invoice.to, detail.productId);
-                    console.log(product);
                     if (product) {
                         await ShopService.updateProductById(invoice.to, detail.productId, detail.quantity);
                     } else {
