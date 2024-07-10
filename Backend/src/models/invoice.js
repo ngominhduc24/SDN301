@@ -31,11 +31,14 @@ const InvoiceSchema = new Schema({
   },
   from: {
     type: Schema.Types.ObjectId,
-    ref: Shop
+    ref: Shop,
+    default: null
+
   },
   to: {
     type: Schema.Types.ObjectId,
-    ref: Shop
+    ref: Shop,
+    default: null
   },
   details: [DetailSchema],
   sub_total: {
