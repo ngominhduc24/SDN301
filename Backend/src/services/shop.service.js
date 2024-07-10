@@ -91,7 +91,7 @@ async function getProductByShopId(shopId) {
 
 // Get all invoice for a specific shop
 async function getInvoiceToWithShopId(shopId) {
-  const invoice = await Invoice.find({ to: shopId });
+  const invoice = await Invoice.find({ to: shopId }).populate('from').populate('to');
   if (!invoice) {
     throw new Error('Invoice not found');
   }
@@ -99,7 +99,7 @@ async function getInvoiceToWithShopId(shopId) {
 }
 
 async function getInvoiceFromWithShopId(shopId) {
-  const invoice = await Invoice.find({ from: shopId });
+  const invoice = await Invoice.find({ from: shopId }).populate('from').populate('to');
   if (!invoice) {
     throw new Error('Invoice not found');
   }
