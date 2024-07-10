@@ -28,7 +28,6 @@ async function create(req, res, next) {
                     throw new Error('Not exists productId: ' + detail.productId);
                 }
 
-
                 if(invoiceData.from !=null && invoiceData.from != undefined  && invoiceData.from != "") {
                     var productFrom = await ShopService.getProductById(invoiceData.from, detail.productId);
                     if (!productFrom) {
@@ -194,18 +193,19 @@ async function updateStatus(req, res, next) {
         if (invoice.status === 'completed' || invoice.status===newStatus 
         || (invoice.status==='cancelled' && newStatus==='completed')) 
             throw new Error(`Invoice ${invoice.status} cannot be updated to ${newStatus}`);
-        
+            
         if (!invoice) 
             res.status(404).json({ message: 'Invoice not found' });
 
         if (invoice.status === 'pending' && newStatus==='completed' && invoice.details && invoice.details.length > 0) {
             if(invoice.to !=null && invoice.to != undefined  && invoice.to != "") {
-                await Promise.all(invoice.details.map(detail =>{
-                    const product = ShopService.getProductById(invoice.to, detail.productId);
+                await Promise.all(invoice.details.map(async (detail) =>{
+                    const product = await ShopService.getProById(invoice.to, detail.productId);
+                    console.log(product);
                     if (product) {
-                        ShopService.updateProductById(invoice.to, detail.productId, detail.quantity);
+                        await ShopService.updateProductById(invoice.to, detail.productId, detail.quantity);
                     } else {
-                        ShopService.createOneProduct(invoice.to, {productId: detail.productId, quantity: detail.quantity});
+                        await ShopService.createOneProduct(invoice.to, {productId: detail.productId, quantity: detail.quantity});
                     }
                 }));
             }

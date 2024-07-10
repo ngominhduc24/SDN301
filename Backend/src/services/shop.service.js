@@ -122,6 +122,16 @@ async function getProductById(shopId, productId) {
   return product;
 }
 
+async function getProById(shopId, productId) {
+  const shop = await Shop.findById(shopId);
+  if (!shop) {
+    throw new Error('Shop not found');
+  }
+
+  var product = shop.products.find(prod => prod.productId.toString() === productId.toString());
+  return product || null;
+}
+
 // Add quantity to a specific product in a specific shop
 async function updateProductById(shopId, productId, quantity, status) {
   const shop = await Shop.findById(shopId);
@@ -151,5 +161,6 @@ module.exports = {
   updateProductById,
   getWarehouse,
   getInvoiceToWithShopId,
-  getInvoiceFromWithShopId
+  getInvoiceFromWithShopId,
+  getProById
 };
