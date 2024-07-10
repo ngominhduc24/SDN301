@@ -135,7 +135,6 @@ async function updateInfo(req, res, next) {
                     throw new Error('Not exists productId: ' + detail.productId);
                 }
 
-
                 if(invoice.from !=null && invoice.from != undefined  && invoice.from != "") {
                     var productFrom = await ShopService.getProductById(invoiceData.from, detail.productId);
                     if (!productFrom) {
