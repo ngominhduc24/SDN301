@@ -107,6 +107,7 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
           min={0}
           defaultValue={record.quantity}
           onChange={value => handleQuantityChange(record._id, value)}
+          disabled
         />
       ),
     },

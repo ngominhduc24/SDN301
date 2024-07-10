@@ -148,12 +148,12 @@ export const MenuItemManager = () => {
         },
         {
           key: ROUTER.MANAGER_MANAGE_INVOICE_TO_SHOP,
-          label: "Manage Invoice To Shop",
+          label: "Invoice To Shop",
           tabid: [6],
         },
         {
           key: ROUTER.MANAGER_MANAGE_INVOICE_TO_CUSTOMER,
-          label: "Manage Invoice To Customers",
+          label: "Invoice To Customers",
           tabid: [7],
         },
       ],
@@ -214,12 +214,12 @@ export const MenuItemWarehouseManager = () => {
       children: [
         {
           key: ROUTER.WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_SHOP,
-          label: "Manage Invoice To Shops",
+          label: "Invoice To Shops",
           tabid: [7],
         },
         {
           key: ROUTER.WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_WAREHOUSE,
-          label: "Manage Invoice To Warehouse",
+          label: "Invoice To Warehouse",
           tabid: [8],
         },
       ],

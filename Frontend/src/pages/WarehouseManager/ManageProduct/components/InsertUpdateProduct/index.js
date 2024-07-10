@@ -298,7 +298,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
       label: <div>Sản phẩm</div>,
       children: (
         <PatentRegistrationChildBorder>
-          <Form form={form} onFinish={addProductsToWarehouse}>
+          <Form form={form}>
             <Row gutter={16} style={{ marginBottom: 16 }}>
               <Col span={12}>
                 <Select

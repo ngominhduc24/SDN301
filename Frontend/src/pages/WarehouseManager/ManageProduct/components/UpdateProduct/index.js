@@ -22,12 +22,12 @@ import IOSSwitch from "src/components/IOSSwitch"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
 const { Option } = Select
 
-const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
+const UpdateProduct = ({ open, onCancel, onOk, product, id, managerId }) => {
   const [imageModalVisible, setImageModalVisible] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [loading, setLoading] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState([])
-  const [stateBody, setStateBody] = useState({})
+  const [stateBody, setStateBody] = useState([])
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -40,6 +40,7 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
       setSelectedProduct([product])
       setStateBody({
         [product._id]: {
+          productId: product.productId, // Make sure productId is set here
           quantity: product.quantity,
           status: product.status,
         },
@@ -192,7 +193,7 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={updateProductsToWarehouse}
+          onClick={createInvoice}
         >
           Lưu
         </Button>
@@ -223,6 +224,40 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id }) => {
       })
     } catch (error) {
       console.error("Lỗi trong quá trình cập nhật sản phẩm:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const createInvoice = async () => {
+    console.log(stateBody)
+    try {
+      setLoading(true)
+      const invoiceData = {
+        from: null,
+        to: id,
+        details: Object.values(stateBody).map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+        note: "Cập nhật số lượng",
+        discount: "10",
+        shipping_charge: "10",
+        created_by: managerId,
+      }
+      console.log(invoiceData)
+      const response = await WarehouseManagerService.createInvoice(invoiceData)
+      if (response?.isError) {
+        console.error("Error creating invoice:", response.message)
+        return
+      }
+      onOk()
+      onCancel()
+      Notice({
+        isSuccess: true,
+        msg: "Tạo hóa đơn thành công",
+      })
+    } catch (error) {
+      console.error("Error in createInvoice:", error)
     } finally {
       setLoading(false)
     }
