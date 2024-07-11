@@ -41,10 +41,6 @@ async function create(req, res, next) {
                     }
                 }
 
-                if (product.status === 'inactive') {
-                    throw new Error('Invalid status for productId: ' + detail.productId);
-                }
-
                 detail.unit_price = product.price;
                 sub_total += detail.quantity * detail.unit_price;
             }
@@ -146,11 +142,7 @@ async function updateInfo(req, res, next) {
                         throw new Error('Invalid quantity for productId: ' + detail.productId);
                     }
                 }
-
-                if (product.status === 'inactive') {
-                    throw new Error('Invalid status for productId: ' + detail.productId);
-                }
-
+                
                 detail.unit_price = product.price;
                 sub_total += detail.quantity * detail.unit_price;
             }

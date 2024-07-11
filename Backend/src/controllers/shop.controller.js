@@ -111,7 +111,7 @@ async function getProductNotAddedByShop(req, res, next) {
     const productsAdded = await shopService.getProductByShopId(req.params.shopId);
     
     // Get all products
-    const allProducts = await ProductService.listAllProducts();
+    const allProducts = await ProductService.listAllActiveProducts();
 
     if(productsAdded != null) {
       // Filter products not added by the shop
