@@ -29,18 +29,19 @@ const PersonProfile = () => {
   const [showCancelButton, setShowCancelButton] = useState(false)
   const userID = getStorage(STORAGE.USER_ID);
 console.log("userid: ", userID);
-  // const uploadImg = async file => {
-  //   try {
-  //     setLoading(true)
-  //     const formData = new FormData()
-  //     formData.append("file", file)
-  //     const res = await FileService.uploadFile(formData)
-  //     if (res.isError) return
-  //     setAvatarUpload(res.Object)
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+  const uploadImg = async file => {
+    try {
+      setLoading(true)
+      const formData = new FormData()
+      formData.append("image", file)
+      const res = await UserService.uploadFile(formData);
+      setAvatarUpload(file)
+    }catch{
+      console.log("upload file error");
+    } finally {
+      setLoading(false)
+    }
+  }
 
   //getInfor User
   const getInfo = async () => {
@@ -61,42 +62,36 @@ console.log("userid: ", userID);
     getInfo();
   }, []);
 
-  // const changeAvatar = async () => {
-  //   try {
-  //     setLoading(true)
-  //     setShowCancelButton(false)
+  const changeAvatar = async () => {
+    try {
+      setLoading(true)
+      // setShowCancelButton(false)
+      const formData = new FormData();
+      formData.append("image", avatarUpload);
+      const res = await UserService.changeAvatar(userID, formData);
+      if (res?.status === 200) {
+        setUser(prevUser => ({
+          ...prevUser,
+          image: res?.image
+        }));
+        Notice({ msg: "Cập nhật thành công!" })
+        setAvatarUpload("")
+      }else {
+        throw new Error('Failed to update avatar');
+      }
 
-  //     const res = await UserService.changeAvatar(avatarUpload)
-  //     if (res.isError) return
-
-  //     setStorage(STORAGE.USER_INFO, {
-  //       ...userInfo,
-  //       Avatar: avatarUpload,
-  //     })
-  //     dispatch(
-  //       setUserInfo({
-  //         ...userInfo,
-  //         Avatar: avatarUpload,
-  //       }),
-  //     )
-  //     Notice({ msg: "Cập nhật thành công!" })
-  //     setAvatarUpload("")
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+  }catch{
+      console.log("change ava error");
+    }
+     finally {
+      setLoading(false)
+    }
+  }
   const cancelUpload = () => {
     setShowCancelButton(false)
     setAvatarUpload("")
   }
 
-  const getMaccanTypeName = code => {
-    const selectedOption = getListComboByKey(
-      SYSTEM_KEY?.MACCAN_TYPE,
-      listSystemKey,
-    )?.find(item => +item?.CodeValue === +code)
-    return selectedOption ? selectedOption.Description : "Unknown"
-  }
 
   const isMobile = useWindowSize.isMobile() || false
   return (
@@ -143,7 +138,7 @@ console.log("userid: ", userID);
                 >
                   <Upload
                     beforeUpload={file => {
-                      // uploadImg(file)
+                      uploadImg(file)
                       return false
                     }}
                     accept="image/*"
@@ -155,10 +150,10 @@ console.log("userid: ", userID);
                       <div className="d-flex justify-content-center">
                         <div className="wrap-avatar">
                           <div className="user-img-box">
-                            {/* {!!avatarUpload || !!userInfo?.Avatar ? (
+                            {!!avatarUpload || !!user?.image ? (
                               <img
                                 className="user-avatar"
-                                src={avatarUpload || userInfo?.Avatar}
+                                src={avatarUpload ? URL.createObjectURL(avatarUpload) : user?.image}
                                 alt="avatar"
                               />
                             ) : (
@@ -184,13 +179,13 @@ console.log("userid: ", userID);
                               >
                                 <UserOutlined style={{ fontSize: "50px" }} />
                               </div>
-                            )} */}
+                            )}
                             <div className="camera-icon mr-20">
                               <SvgIcon name="camera" />
                             </div>
                           </div>
                           <div className="d-flex">
-                            {!!avatarUpload && (
+                            {/* {!!avatarUpload && ( */}
                               <>
                                 <Button
                                   btntype="third"
@@ -209,13 +204,14 @@ console.log("userid: ", userID);
                                   style={{ width: 100 }}
                                   onClick={e => {
                                     e.stopPropagation()
-                                    // changeAvatar()
+                                    changeAvatar()
+                                    console.log("luu anh");
                                   }}
                                 >
                                   Lưu ảnh
                                 </Button>
                               </>
-                            )}
+                            {/* )} */}
                           </div>
                         </div>
                       </div>
@@ -272,13 +268,6 @@ console.log("userid: ", userID);
                   <div className="title-infor"> Email:</div>
                   <div>{user?.email}</div>
                 </div>
-                {/* <div className={`infor-box ${!!isMobile ? "mb-0" : ""}`}>
-                  <div className={`title-infor ${!!isMobile ? "mb-0" : ""}`}>
-                    {" "}
-                    Địa chỉ:
-                  </div>
-                  <div>{user?.Address}</div>
-                </div> */}
               </div>
             </Col>
           </Row>
