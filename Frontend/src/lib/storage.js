@@ -1,6 +1,7 @@
 const STORAGE = {
   TOKEN: "token",
   USER_INFO: "user-info",
+  USER_ID: "id",
   REMEMBER_LOGIN: "remember-login",
   KEY_MENU_ACTIVE: "key-active",
   TABS_PAGE_ACTIVE: "tabs-page-active",

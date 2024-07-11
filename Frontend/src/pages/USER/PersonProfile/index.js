@@ -8,13 +8,14 @@ import { useDispatch, useSelector } from "react-redux"
 import { UserOutlined } from "@ant-design/icons"
 import SvgIcon from "src/components/SvgIcon"
 import { StyleMyAccount } from "./styled"
-import STORAGE, { setStorage } from "src/lib/storage"
+import STORAGE, { getStorage } from "src/lib/storage"
 import { setUserInfo } from "src/redux/appGlobal"
 import Notice from "src/components/Notice"
 import LayoutCommon from "src/components/Common/Layout"
 import useWindowSize from "src/lib/useWindowSize"
 import { getListComboByKey } from "src/lib/utils"
 import { SYSTEM_KEY } from "src/constants/constants"
+import UserService from "src/services/UserService"
 import moment from "moment"
 
 const PersonProfile = () => {
@@ -23,76 +24,74 @@ const PersonProfile = () => {
   const [modalUpdatePersonProfile, setModalUpdatePersonProfile] =
     useState(false)
   const [loading, setLoading] = useState(false)
-  const [user, setUser] = useState([])
+  const [user, setUser] = useState({})
   const [avatarUpload, setAvatarUpload] = useState("")
-  const { userInfo } = useSelector(state => state?.appGlobal)
   const [showCancelButton, setShowCancelButton] = useState(false)
-
-  // const uploadImg = async file => {
-  //   try {
-  //     setLoading(true)
-  //     const formData = new FormData()
-  //     formData.append("file", file)
-  //     const res = await FileService.uploadFile(formData)
-  //     if (res.isError) return
-  //     setAvatarUpload(res.Object)
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+  const userID = getStorage(STORAGE.USER_ID);
+console.log("userid: ", userID);
+  const uploadImg = async file => {
+    try {
+      setLoading(true)
+      const formData = new FormData()
+      formData.append("image", file)
+      const res = await UserService.uploadFile(formData);
+      setAvatarUpload(file)
+    }catch{
+      console.log("upload file error");
+    } finally {
+      setLoading(false)
+    }
+  }
 
   //getInfor User
-  // const getInfo = async () => {
-  //   try {
-  //     setLoading(true)
-  //     // const body = userInfo?.UserID
-  //     const res = await UserService.getInforUser()
-  //     if (res?.isError) return
-  //     setUser(res?.Object)
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+  const getInfo = async () => {
+    try {
+      setLoading(true)
+      // const res = await UserService.getUserById("667a3003848f2fe6f3fa6664")
+      const res = await UserService.getUserById(userID)
+      console.log('API response:', res) 
+      if (res?.isError) return
+      setUser(res)
+      // console.log('user:', user.email);
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  // const changeAvatar = async () => {
-  //   try {
-  //     setLoading(true)
-  //     setShowCancelButton(false)
+  useEffect(() => {
+    getInfo();
+  }, []);
 
-  //     const res = await UserService.changeAvatar(avatarUpload)
-  //     if (res.isError) return
+  const changeAvatar = async () => {
+    try {
+      setLoading(true)
+      // setShowCancelButton(false)
+      const formData = new FormData();
+      formData.append("image", avatarUpload);
+      const res = await UserService.changeAvatar(userID, formData);
+      if (res?.status === 200) {
+        setUser(prevUser => ({
+          ...prevUser,
+          image: res?.image
+        }));
+        Notice({ msg: "Cập nhật thành công!" })
+        setAvatarUpload("")
+      }else {
+        throw new Error('Failed to update avatar');
+      }
 
-  //     setStorage(STORAGE.USER_INFO, {
-  //       ...userInfo,
-  //       Avatar: avatarUpload,
-  //     })
-  //     dispatch(
-  //       setUserInfo({
-  //         ...userInfo,
-  //         Avatar: avatarUpload,
-  //       }),
-  //     )
-  //     Notice({ msg: "Cập nhật thành công!" })
-  //     setAvatarUpload("")
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+  }catch{
+      console.log("change ava error");
+    }
+     finally {
+      setLoading(false)
+    }
+  }
   const cancelUpload = () => {
     setShowCancelButton(false)
     setAvatarUpload("")
   }
 
-  const getMaccanTypeName = code => {
-    const selectedOption = getListComboByKey(
-      SYSTEM_KEY?.MACCAN_TYPE,
-      listSystemKey,
-    )?.find(item => +item?.CodeValue === +code)
-    return selectedOption ? selectedOption.Description : "Unknown"
-  }
-  // useEffect(() => {
-  //   getInfo()
-  // }, [])
 
   const isMobile = useWindowSize.isMobile() || false
   return (
@@ -139,7 +138,7 @@ const PersonProfile = () => {
                 >
                   <Upload
                     beforeUpload={file => {
-                      // uploadImg(file)
+                      uploadImg(file)
                       return false
                     }}
                     accept="image/*"
@@ -151,10 +150,10 @@ const PersonProfile = () => {
                       <div className="d-flex justify-content-center">
                         <div className="wrap-avatar">
                           <div className="user-img-box">
-                            {!!avatarUpload || !!userInfo?.Avatar ? (
+                            {!!avatarUpload || !!user?.image ? (
                               <img
                                 className="user-avatar"
-                                src={avatarUpload || userInfo?.Avatar}
+                                src={avatarUpload ? URL.createObjectURL(avatarUpload) : user?.image}
                                 alt="avatar"
                               />
                             ) : (
@@ -186,7 +185,7 @@ const PersonProfile = () => {
                             </div>
                           </div>
                           <div className="d-flex">
-                            {!!avatarUpload && (
+                            {/* {!!avatarUpload && ( */}
                               <>
                                 <Button
                                   btntype="third"
@@ -205,13 +204,14 @@ const PersonProfile = () => {
                                   style={{ width: 100 }}
                                   onClick={e => {
                                     e.stopPropagation()
-                                    // changeAvatar()
+                                    changeAvatar()
+                                    console.log("luu anh");
                                   }}
                                 >
                                   Lưu ảnh
                                 </Button>
                               </>
-                            )}
+                            {/* )} */}
                           </div>
                         </div>
                       </div>
@@ -233,26 +233,27 @@ const PersonProfile = () => {
               <div className={isMobile ? "" : "p-24"}>
                 <div className="infor-box">
                   <div className="title-infor"> Họ và tên:</div>
-                  <div>{user?.FullName}</div>
+                  <div>{user?.fullname}</div>
                 </div>
-                <div className="infor-box">
+                {/* <div className="infor-box">
                   <div className="title-infor">Tên tài khoản:</div>
                   <div>{user?.UserName}</div>
-                </div>
+                </div> */}
 
-                <div className="infor-box" style={{ flex: 1 }}>
+                {/* <div className="infor-box" style={{ flex: 1 }}>
                   <div className="title-infor"> Giới tính:</div>
                   <div>
                     {user?.Sex === 1 ? "Nam" : user?.Sex === 2 ? "Nữ" : ""}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="infor-box" style={{ flex: 1 }}>
                   <div className="title-infor">Ngày sinh:</div>
                   <div>
-                    {user?.Birthday
-                      ? moment(user?.Birthday).format("DD/MM/YYYY")
-                      : ""}
+                    {/* {user?.dob
+                      ? moment(user?.dob).format("DD/MM/YYYY")
+                      : ""} */}
+                      {user?.dob}
                   </div>
                 </div>
               </div>
@@ -261,18 +262,11 @@ const PersonProfile = () => {
               <div className={isMobile ? "" : "p-24"}>
                 <div className="infor-box">
                   <div className="title-infor"> Số điện thoại:</div>
-                  <div>{user?.PhoneNumber}</div>
+                  <div>{user?.phone}</div>
                 </div>
                 <div className="infor-box">
                   <div className="title-infor"> Email:</div>
-                  <div>{user?.Email}</div>
-                </div>
-                <div className={`infor-box ${!!isMobile ? "mb-0" : ""}`}>
-                  <div className={`title-infor ${!!isMobile ? "mb-0" : ""}`}>
-                    {" "}
-                    Địa chỉ:
-                  </div>
-                  <div>{user?.Address}</div>
+                  <div>{user?.email}</div>
                 </div>
               </div>
             </Col>
@@ -284,7 +278,9 @@ const PersonProfile = () => {
         <UpdatePersonProfile
           open={modalUpdatePersonProfile}
           onCancel={() => setModalUpdatePersonProfile(false)}
-          // onOk={() => getInfo()}
+          onOk={() => {getInfo();
+            setModalUpdatePersonProfile(false)
+          }}
         />
       )}
     </StyleMyAccount>

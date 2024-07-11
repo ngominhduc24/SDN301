@@ -12,7 +12,7 @@ class ProductService {
 
     async getProductById(productId) {
         try {
-          const product = await Product.findById(productId);
+          const product = await Product.findById(productId).populate('categoryId');
           if (!product) {
             throw new Error('Product not found for productId: ' + productId);
           }

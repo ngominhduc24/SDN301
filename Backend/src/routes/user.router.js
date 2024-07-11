@@ -2,6 +2,9 @@ var userRouter = require('express').Router();
 const UserController = require("../controllers/user.controller");
 const verifyTokenHandle = require("../middlewares/verifyToken.middleware");
 const { validateLogin } = require('../utils/common.validate');
+const multer = require('multer');
+const { storage } = require('../config/storage');
+const upload = multer({ storage });
 
 /**
  * @swagger
@@ -90,7 +93,7 @@ userRouter.post('/auth/login',  UserController.AuthenLogin);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRouter.post('/admin/users', UserController.AddNewUser);
+userRouter.post('/admin/users', verifyTokenHandle.verifyTokenAdmin, UserController.AddNewUser);
 
 
 /**
@@ -126,6 +129,7 @@ userRouter.post('/admin/users', UserController.AddNewUser);
  *               $ref: '#/components/schemas/Error'
  */
 userRouter.get('/admin/users', verifyTokenHandle.verifyToken, UserController.ListAllUsers);
+
 
 /**
  * @swagger
@@ -175,13 +179,16 @@ userRouter.get('/admin/users', verifyTokenHandle.verifyToken, UserController.Lis
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRouter.put('/admin/users/:id', UserController.updateUserById);
+userRouter.put('/admin/users/:id', upload.single('image'), UserController.updateUserById);
 
 userRouter.get('/admin/users/:id', UserController.getUserById);
 
 // MANAGER
 userRouter.post('/manager/staff', verifyTokenHandle.verifyTokenManager, UserController.AddNewStaff);
 userRouter.get('/manager/staff', verifyTokenHandle.verifyTokenManager, UserController.getListStaff);
+
+userRouter.get('/manager/shop', verifyTokenHandle.verifyTokenManager, UserController.getListShopForManager);
+
 
 
 module.exports = userRouter;

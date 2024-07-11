@@ -84,6 +84,26 @@ async function getProductByShopId(req, res, next) {
   }
 }
 
+// Get all invoice for a specific shop
+async function getInvoiceToByShopId(req, res, next) {
+  try {
+    const invoices = await shopService.getInvoiceToWithShopId(req.params.shopId);
+    res.status(200).send(invoices);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Get all invoice for a specific shop
+async function getInvoiceFromByShopId(req, res, next) {
+  try {
+    const invoices = await shopService.getInvoiceFromWithShopId(req.params.shopId);
+    res.status(200).send(invoices);
+  } catch (error) {
+    next(error);
+  }
+}
+
 // Get all products for a specific shop
 async function getProductNotAddedByShop(req, res, next) {
   try {
@@ -93,12 +113,17 @@ async function getProductNotAddedByShop(req, res, next) {
     // Get all products
     const allProducts = await ProductService.listAllProducts();
 
-    // Filter products not added by the shop
-    const productsNotAdded = allProducts.filter(product => {
-      return !productsAdded.some(addedProduct => addedProduct.productId.equals(product._id));
-    });
+    if(productsAdded != null) {
+      // Filter products not added by the shop
+      const productsNotAdded = allProducts.filter(product => {
+        return !productsAdded.some(addedProduct => addedProduct.productId.equals(product._id));
+      });
 
-    res.status(200).json(productsNotAdded);
+      res.status(200).json(productsNotAdded);
+    } else {
+      res.status(200).json(allProducts);
+    }
+   
   } catch (error) {
     next(error);
   }
@@ -117,7 +142,7 @@ async function getProductById(req, res, next) {
 // Update a product for a specific product in a specific shop
 async function updateProductById(req, res, next) {
   try {
-    const product = await shopService.updateProductById(req.params.shopId, req.params.id, req.body.quantity);
+    const product = await shopService.updateProductById(req.params.shopId, req.params.id, req.body.quantity, res.body.status);
     res.status(200).send(product);
   } catch (error) {
     next(error);
@@ -136,6 +161,6 @@ async function getWarehouse(req, res, next) {
 }
 
 const shopController = { create, getAll, getById, update, getWarehouse,
-  createProduct, getProductByShopId, getProductById, updateProductById, getProductNotAddedByShop };
+  createProduct, getProductByShopId, getProductById, updateProductById, getProductNotAddedByShop, getInvoiceToByShopId, getInvoiceFromByShopId };
 
 module.exports = shopController;

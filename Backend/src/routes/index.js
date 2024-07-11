@@ -1,6 +1,6 @@
-var router = require('express').Router();
+var router = require("express").Router();
 const IndexController = require("../controllers/index.controller");
-const { validateMail } = require('../utils/common.validate');
+const { validateMail } = require("../utils/common.validate");
 
 /**
  * @swagger
@@ -12,12 +12,12 @@ const { validateMail } = require('../utils/common.validate');
  *       200:
  *         description: Successfully rendered
  */
-router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get("/", function (req, res, next) {
+  res.render("index", { title: "Express" });
 });
 
 /**
- * @swagger
+ * @swagger 
  * /test:
  *   get:
  *     summary: Test route
@@ -26,7 +26,7 @@ router.get('/', function (req, res, next) {
  *       200:
  *         description: Successfully fetched
  */
-router.get('/test', IndexController.test);
+router.get("/test", IndexController.test);
 
 /**
  * @swagger
@@ -51,6 +51,6 @@ router.get('/test', IndexController.test);
  *       400:
  *         description: Invalid email
  */
-router.post('/test', validateMail, IndexController.testPostMethod);
+router.post("/test", validateMail, IndexController.testPostMethod);
 
 module.exports = router;

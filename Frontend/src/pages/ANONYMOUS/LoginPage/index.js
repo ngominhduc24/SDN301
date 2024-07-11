@@ -36,7 +36,6 @@ const LoginPage = () => {
   const isMobile = useWindowSize.isMobile() || false
   const isTablet = useWindowSize.isTablet() || false
   const [routerBeforeLogin, setRouterBeforeLogin] = routerStore
-
   useEffect(() => {
     if (!!isLogin) {
       loginSuccess(userInfo)
@@ -71,6 +70,7 @@ const LoginPage = () => {
       if (res) {
         setStorage(STORAGE.TOKEN, res?.token)
         setStorage(STORAGE.USER_INFO, decodedToken.payload)
+        setStorage(STORAGE.USER_ID, decodedToken.payload.id)
         dispatch(setUserInfo(decodedToken.payload))
         setRouterBeforeLogin(undefined)
         loginSuccess(decodedToken.payload)
@@ -92,6 +92,8 @@ const LoginPage = () => {
     console.log(userInfo)
 
     handleSuccess()
+    const userID = getStorage(STORAGE.USER_ID)
+    console.log("userid after success logged in:", userID);
 
     if (routerBeforeLogin) navigate(routerBeforeLogin)
 

@@ -25,9 +25,6 @@ const AdminRoutes = React.lazy(() => import("src/pages/ADMIN/AminRoutes"))
 const Dashboard = React.lazy(() => import("src/pages/ADMIN/DashBoard"))
 const ManageUser = React.lazy(() => import("src/pages/ADMIN/ManageUser"))
 const ManageStore = React.lazy(() => import("src/pages/ADMIN/ManageStore"))
-const ManageWarehouse = React.lazy(() =>
-  import("src/pages/ADMIN/ManageWarehouse"),
-)
 const ManageProduct = React.lazy(() => import("src/pages/ADMIN/ManageProduct"))
 // MANAGER
 const ManagerRoutes = React.lazy(() =>
@@ -127,14 +124,6 @@ const routes = [
         element: (
           <LazyLoadingComponent>
             <ManageStore />
-          </LazyLoadingComponent>
-        ),
-      },
-      {
-        path: ROUTER.MANAGE_WAREHOUSE,
-        element: (
-          <LazyLoadingComponent>
-            <ManageWarehouse />
           </LazyLoadingComponent>
         ),
       },
