@@ -309,7 +309,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       setLoading(true)
       const invoiceData = {
         from: id,
-        to: selectedShop._id,
+        to: null,
         details: stateBody.map(item => ({
           product: item.productId,
           quantity: item.quantity,
@@ -412,41 +412,73 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           <Form form={form}>
             <Row gutter={16} style={{ marginBottom: 16 }}>
               <Col span={12}>
-                <Select
-                  showSearch
-                  placeholder="Chọn shop"
-                  optionFilterProp="children"
-                  onChange={handleShopChange}
-                  style={{ width: "100%" }}
-                >
-                  {shopList.map(shop => (
-                    <Option key={shop._id} value={shop._id}>
-                      {shop.name}
-                    </Option>
-                  ))}
-                </Select>
+                <Form.Item name="name" label="Tên khách hàng">
+                  <Input
+                    placeholder="Nhập tên khách hàng"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
               </Col>
             </Row>
-            {selectedShop && (
-              <Card
-                title="Thông tin cửa hàng đã chọn"
-                style={{ marginTop: 20 }}
-              >
-                <Title level={5}>{selectedShop.name}</Title>
-                <div style={{ marginBottom: 10 }}>
-                  <Text strong>Email: </Text>
-                  <Text>{selectedShop.email}</Text>
-                </div>
-                <div style={{ marginBottom: 10 }}>
-                  <Text strong>Số điện thoại: </Text>
-                  <Text>{selectedShop.phone}</Text>
-                </div>
-                <div style={{ marginBottom: 10 }}>
-                  <Text strong>Địa chỉ: </Text>
-                  <Text>{selectedShop.location}</Text>
-                </div>
-              </Card>
-            )}
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Form.Item name="email" label="Email khách hàng">
+                  <Input
+                    placeholder="Nhập email khách hàng"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Form.Item name="phone" label="Số điện thoại khách hàng">
+                  <Input
+                    placeholder="Nhập số điện thoại khách hàng"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Form.Item name="location" label="Địa chỉ khách hàng">
+                  <Input
+                    placeholder="Nhập địa chỉ khách hàng"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Form.Item name="managerEmail" label="Email chủ cửa hàng">
+                  <Input
+                    placeholder="Nhập email chủ cửa hàng"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Card title="Thông tin cửa hàng đã nhập" style={{ marginTop: 20 }}>
+              <Title level={5}>{form.getFieldValue("name")}</Title>
+              <div style={{ marginBottom: 10 }}>
+                <Text strong>Email: </Text>
+                <Text>{form.getFieldValue("email")}</Text>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <Text strong>Số điện thoại: </Text>
+                <Text>{form.getFieldValue("phone")}</Text>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <Text strong>Địa chỉ: </Text>
+                <Text>{form.getFieldValue("location")}</Text>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <Text strong>Chủ cửa hàng: </Text>
+                <Text>{form.getFieldValue("managerEmail")}</Text>
+              </div>
+            </Card>
           </Form>
         </PatentRegistrationChildBorder>
       ),

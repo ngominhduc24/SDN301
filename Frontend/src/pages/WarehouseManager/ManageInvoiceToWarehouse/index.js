@@ -282,7 +282,14 @@ const ManageInvoiceWarehouse = () => {
     <SpinCustom spinning={loading}>
       <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
         <div>Quản lý hóa đơn đến kho</div>
-        <div></div>
+        <div>
+          <Button
+            btntype="third"
+            onClick={() => setOpenInsertUpdateInvoices(true)}
+          >
+            Thêm mới
+          </Button>
+        </div>
       </div>
       <SearchAndFilter pagination={pagination} setPagination={setPagination} />
       <Row>
@@ -342,6 +349,14 @@ const ManageInvoiceWarehouse = () => {
           onOk={() => getAllInvoice(wareHouseId)}
           invoice={selectedInvoice}
           id={wareHouseId}
+        />
+      )}
+      {!!openInsertUpdateInvoices && (
+        <InsertUpdateInvoice
+          id={wareHouseId}
+          open={openInsertUpdateInvoices}
+          onCancel={() => setOpenInsertUpdateInvoices(false)}
+          onOk={() => getAllInvoice(wareHouseId)}
         />
       )}
     </SpinCustom>

@@ -11,7 +11,7 @@ export const apiUpdateProductsInWarehouse = (shopId, productId) =>
 export const apiGetAllInvoice = `api/invoice`
 export const apiGetInvoiceById = id => `api/invoice/${id}`
 export const apiCreateInvoice = `api/invoice`
-export const apiUpdateInfoInvoice = id => `api/invoice/status/${id}`
+export const apiUpdateInfoInvoice = id => `api/invoice/${id}`
 export const apiUpdateStatusInvoice = id => `api/invoice/status/${id}`
 export const apiGetInvoicesByShopId = id => `api/shop/${id}/invoiceTo`
 export const apiGetOrdersByShopId = id => `api/shop/${id}/invoiceFrom`

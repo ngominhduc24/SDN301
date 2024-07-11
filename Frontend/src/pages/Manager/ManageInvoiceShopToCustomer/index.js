@@ -35,7 +35,8 @@ const ManageInvoiceManager = () => {
   const [openViewWarehouse, setOpenViewWarehouse] = useState(false)
   const [openViewStore, setOpenViewStore] = useState(false)
   const { userInfo } = useSelector(state => state.appGlobal)
-  const [wareHouseId, setWareHouseId] = useState(null)
+  const [managerId, setManagerId] = useState(null)
+  const [infoShop, setInfoShop] = useState(null)
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -46,12 +47,29 @@ const ManageInvoiceManager = () => {
 
   useEffect(() => {
     getAllInvoice()
+    getManagerInfo()
   }, [pagination])
+
+  const getManagerInfo = async () => {
+    try {
+      setLoading(true)
+      const res = await ManagerService.getShop("666da2c059207cb17349144a")
+      if (res?.isError) return
+      setInfoShop(res)
+      setManagerId("666da2c059207cb17349144a")
+    } catch (error) {
+      console.error("Error fetching warehouse info:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const getAllInvoice = async () => {
     try {
       setLoading(true)
-      const managerInvoice = await ManagerService.getAllInvoice()
+      const managerInvoice = await ManagerService.getOrdersByShopId(
+        "666da2c059207cb17349144a",
+      )
 
       console.log("API Response:", managerInvoice)
       if (managerInvoice?.isError) {
@@ -59,7 +77,6 @@ const ManageInvoiceManager = () => {
         return
       }
       setInvoices(managerInvoice)
-      setWareHouseId(managerInvoice[0]?.from?._id)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
     } finally {
@@ -81,17 +98,17 @@ const ManageInvoiceManager = () => {
       },
     ]
 
-    // if (record.status !== "cancelled") {
-    //   buttons.push({
-    //     isEnable: true,
-    //     name: "Chỉnh sửa",
-    //     icon: "edit-green",
-    //     onClick: () => {
-    //       setSelectedInvoice(record)
-    //       setOpenUpdateInvoices(true)
-    //     },
-    //   })
-    // }
+    if (record.status !== "cancelled") {
+      buttons.push({
+        isEnable: true,
+        name: "Chỉnh sửa",
+        icon: "edit-green",
+        onClick: () => {
+          setSelectedInvoice(record)
+          setOpenUpdateInvoices(true)
+        },
+      })
+    }
 
     return buttons
   }
@@ -117,10 +134,11 @@ const ManageInvoiceManager = () => {
         </div>
       ),
     },
+
     {
       title: (
         <>
-          <MainTableHeader>Tên kho xuất</MainTableHeader>
+          <MainTableHeader>Tên cửa hàng</MainTableHeader>
           <SubTableHeader>Số điện thoại</SubTableHeader>
           <SubTableHeader>Email</SubTableHeader>
         </>
@@ -128,10 +146,10 @@ const ManageInvoiceManager = () => {
       dataIndex: ["from", "name"],
       width: 300,
       align: "center",
-      key: "from_name",
+      key: "to_name",
       render: (val, record) => (
         <>
-          <MainTableData onClick={() => handleViewWarehouse(record)}>
+          <MainTableData onClick={() => handleViewStore(record)}>
             {val}
           </MainTableData>
           <SubTableData>{record.from?.phone}</SubTableData>
@@ -142,7 +160,7 @@ const ManageInvoiceManager = () => {
     {
       title: (
         <>
-          <MainTableHeader>Tên kho cửa hàng đến</MainTableHeader>
+          <MainTableHeader>Khách hàng</MainTableHeader>
           <SubTableHeader>Số điện thoại</SubTableHeader>
           <SubTableHeader>Email</SubTableHeader>
         </>
@@ -150,13 +168,13 @@ const ManageInvoiceManager = () => {
       dataIndex: ["to", "name"],
       width: 300,
       align: "center",
-      key: "to_name",
+      key: "from_name",
       render: (val, record) => (
         <>
-          <MainTableData onClick={() => handleViewStore(record)}>
+          <MainTableData onClick={() => handleViewWarehouse(record)}>
             {val}
           </MainTableData>
-          <SubTableData>{record.to?.phone}</SubTableData>
+          <SubTableData>"Khách Hàng"</SubTableData>
           <SubTableData>{record.to?.email}</SubTableData>
         </>
       ),
@@ -262,12 +280,12 @@ const ManageInvoiceManager = () => {
       <div className="title-type-1 d-flex justify-content-space-between align-items-center mt-12 mb-30">
         <div>Quản lý hóa đơn cửa hàng</div>
         <div>
-          {/* <Button
+          <Button
             btntype="third"
             onClick={() => setOpenInsertUpdateInvoices(true)}
           >
             Thêm mới
-          </Button> */}
+          </Button>
         </div>
       </div>
       <SearchAndFilter pagination={pagination} setPagination={setPagination} />
@@ -321,9 +339,9 @@ const ManageInvoiceManager = () => {
           store={selectedStore}
         />
       )}
-      {/* {!!openInsertUpdateInvoices && (
+      {!!openInsertUpdateInvoices && (
         <InsertUpdateInvoice
-          id={wareHouseId}
+          id={managerId}
           open={openInsertUpdateInvoices}
           onCancel={() => setOpenInsertUpdateInvoices(false)}
           onOk={() => getAllInvoice()}
@@ -335,9 +353,9 @@ const ManageInvoiceManager = () => {
           onCancel={() => setOpenUpdateInvoices(false)}
           onOk={() => getAllInvoice()}
           invoice={selectedInvoice}
-          id={wareHouseId}
+          id={managerId}
         />
-      )} */}
+      )}
     </SpinCustom>
   )
 }

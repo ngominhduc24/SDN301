@@ -8,9 +8,6 @@ import {
   Tooltip,
   InputNumber,
   Modal,
-  Card,
-  Typography,
-  Input,
 } from "antd"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
@@ -19,14 +16,15 @@ import TableCustom from "src/components/Table/CustomTable"
 import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Button from "src/components/MyButton/Button"
-import WarehouseManagerService from "src/services/WarehouseManagerService"
+import ManagerService from "src/services/ManagerService"
 import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
+
 const { Option } = Select
 
-const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
+const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
   const [form] = Form.useForm()
-  const [wareHouseProductsNotIn, setWareHouseProductsNotIn] = useState([])
+  const [shopProductsNotIn, setShopProductsNotIn] = useState([])
   const [selectedProducts, setSelectedProducts] = useState([])
   const [openViewProducts, setOpenViewProducts] = useState(false)
   const [selectedProductView, setSelectedProductView] = useState(null)
@@ -42,10 +40,6 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
     ApproveStatus: 0,
     Status: 0,
   })
-  const [note, setNote] = useState("")
-  const [discount, setDiscount] = useState(0)
-  const [shippingCharge, setShippingCharge] = useState(0)
-  const { Title, Text } = Typography
 
   const listBtn = record => [
     {
@@ -81,7 +75,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
   const column = [
     {
       title: "STT",
-      key: "_id",
+      key: "ProductID",
       width: 60,
       render: (text, row, idx) => (
         <div className="text-center">
@@ -118,6 +112,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
           min={0}
           defaultValue={record.quantity}
           onChange={value => handleQuantityChange(record._id, value)}
+          disabled
         />
       ),
     },
@@ -179,9 +174,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
   }
 
   const handleProductChange = value => {
-    const selected = wareHouseProductsNotIn.find(
-      product => product._id === value,
-    )
+    const selected = shopProductsNotIn.find(product => product._id === value)
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
       setStateBody(prev => [...prev, { productId: selected._id, quantity: 0 }])
@@ -195,86 +188,46 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
       ),
     )
   }
-  const handleNoteChange = e => {
-    setNote(e.target.value)
-  }
 
-  const handleDiscountChange = value => {
-    setDiscount(value)
-  }
-
-  const handleShippingChargeChange = value => {
-    setShippingCharge(value)
-  }
-
-  const getProductsNotInWarehouse = async () => {
+  const getProductsNotInShop = async () => {
     try {
       setLoading(true)
-      const warehouseProductsNotInRes =
-        await WarehouseManagerService.getListProductsNotInWarehouse(id)
-      console.log(warehouseProductsNotInRes)
-      if (warehouseProductsNotInRes?.isError) {
+      const shopProductsNotInRes =
+        await ManagerService.getListProductsNotInShop(id)
+      if (shopProductsNotInRes?.isError) {
         console.error(
           "Error fetching warehouse info:",
-          warehouseProductsNotInRes.message,
+          shopProductsNotInRes.message,
         )
         return
       }
-      setWareHouseProductsNotIn(warehouseProductsNotInRes)
-      setTotal(warehouseProductsNotInRes.length)
+      setShopProductsNotIn(shopProductsNotInRes)
+      setTotal(shopProductsNotInRes.length)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
     } finally {
       setLoading(false)
     }
   }
-  const createInvoice = async () => {
-    console.log(stateBody)
+
+  const addProductsToShop = async () => {
     try {
       setLoading(true)
-      const invoiceData = {
-        from: null,
-        to: id,
-        details: stateBody.map(item => ({
-          productId: item.productId,
-          quantity: item.quantity,
-        })),
-        note: note,
-        discount: discount,
-        shipping_charge: shippingCharge,
-        created_by: managerId,
+      const response = await ManagerService.addProductsToShop(id, stateBody)
+      console.log("API2 response:", response) // Log the entire response object
+      if (response && response.data) {
+        // Assuming response.data is where the expected data resides
+        console.log("Data received:", response.data)
+        // Further processing of response.data here
+      } else {
+        console.error("Unexpected response structure:", response)
       }
-      console.log(invoiceData)
-      const response = await WarehouseManagerService.createInvoice(invoiceData)
-      if (response?.isError) {
-        console.error("Error creating invoice:", response.message)
-        return
-      }
-      onOk()
-      onCancel()
-      Notice({
-        isSuccess: true,
-        msg: "Tạo hóa đơn thành công",
-      })
-    } catch (error) {
-      console.error("Error in createInvoice:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-  const addProductsToWarehouse = async () => {
-    try {
-      setLoading(true)
-      const response = await WarehouseManagerService.addProductsToWarehouse(
-        id,
-        stateBody,
-      )
       if (response?.isError) {
         console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
         return
       }
       // Xử lý khi thành công
-      getProductsNotInWarehouse()
+      getProductsNotInShop()
       onOk()
       onCancel()
       Notice({
@@ -289,7 +242,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
 
   useEffect(() => {
     console.log(id)
-    getProductsNotInWarehouse()
+    getProductsNotInShop()
   }, [pagination])
 
   const items = [
@@ -298,7 +251,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
       label: <div>Sản phẩm</div>,
       children: (
         <PatentRegistrationChildBorder>
-          <Form form={form}>
+          <Form form={form} onFinish={addProductsToShop}>
             <Row gutter={16} style={{ marginBottom: 16 }}>
               <Col span={12}>
                 <Select
@@ -308,7 +261,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
                   onChange={handleProductChange}
                   style={{ width: "100%" }}
                 >
-                  {wareHouseProductsNotIn.map(product => (
+                  {shopProductsNotIn.map(product => (
                     <Option key={product._id} value={product._id}>
                       {product.name}
                     </Option>
@@ -336,21 +289,21 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
               columns={column}
               dataSource={selectedProducts}
               scroll={{ x: "800px" }}
-              pagination={{
-                hideOnSinglePage: total <= 10,
-                current: pagination?.CurrentPage,
-                pageSize: pagination?.PageSize,
-                responsive: true,
-                total: total,
-                locale: { items_per_page: "" },
-                showSizeChanger: total > 10,
-                onChange: (CurrentPage, PageSize) =>
-                  setPagination({
-                    ...pagination,
-                    CurrentPage,
-                    PageSize,
-                  }),
-              }}
+              // pagination={{
+              //   hideOnSinglePage: total <= 10,
+              //   current: pagination?.CurrentPage,
+              //   pageSize: pagination?.PageSize,
+              //   responsive: true,
+              //   total: total,
+              //   locale: { items_per_page: "" },
+              //   showSizeChanger: total > 10,
+              //   onChange: (CurrentPage, PageSize) =>
+              //     setPagination({
+              //       ...pagination,
+              //       CurrentPage,
+              //       PageSize,
+              //     }),
+              // }}
             />
             {/* <Form.Item>
               <Button type="primary" htmlType="submit" loading={loading}>
@@ -368,48 +321,6 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
         </PatentRegistrationChildBorder>
       ),
     },
-    {
-      key: 2,
-      label: <div>Ghi chú</div>,
-      children: (
-        <Card>
-          <Form form={form} layout="vertical">
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item label="Ghi chú">
-                  <Input.TextArea
-                    onChange={handleNoteChange}
-                    rows={4}
-                    placeholder="Nhập ghi chú"
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="Chiết khấu (%)">
-                  <InputNumber
-                    min={0}
-                    value={discount}
-                    onChange={handleDiscountChange}
-                    placeholder="Chiết khấu"
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="Phí vận chuyển">
-                  <InputNumber
-                    min={0}
-                    value={shippingCharge}
-                    onChange={handleShippingChargeChange}
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Form>
-        </Card>
-      ),
-    },
   ]
 
   const renderFooter = () => (
@@ -419,7 +330,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={createInvoice}
+          onClick={addProductsToShop}
         >
           Lưu
         </Button>

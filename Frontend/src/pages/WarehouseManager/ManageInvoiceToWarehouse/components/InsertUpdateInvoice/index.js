@@ -277,8 +277,8 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     try {
       setLoading(true)
       const invoiceData = {
-        from: id,
-        to: selectedShop._id,
+        from: null,
+        to: id,
         details: stateBody.map(item => ({
           productId: item.productId,
           quantity: item.quantity,

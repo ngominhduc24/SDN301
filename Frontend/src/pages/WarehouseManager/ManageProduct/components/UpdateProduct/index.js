@@ -108,6 +108,7 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id, managerId }) => {
           min={0}
           defaultValue={record.quantity}
           onChange={value => handleQuantityChange(record._id, value)}
+          disabled
         />
       ),
     },
@@ -193,7 +194,7 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id, managerId }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={createInvoice}
+          onClick={updateProductsToWarehouse}
         >
           Lưu
         </Button>
