@@ -91,7 +91,8 @@ async function getProductByShopId(shopId) {
 
 // Get all invoice for a specific shop
 async function getInvoiceToWithShopId(shopId) {
-  const invoice = await Invoice.find({ to: shopId });
+  const invoice = await Invoice.find({ to: shopId }).populate({path: 'from', select: '-products' }).populate({path: 'to', select: '-products' })
+  .populate('details.productId').populate('created_by').populate('details.productId');
   if (!invoice) {
     throw new Error('Invoice not found');
   }
@@ -99,7 +100,8 @@ async function getInvoiceToWithShopId(shopId) {
 }
 
 async function getInvoiceFromWithShopId(shopId) {
-  const invoice = await Invoice.find({ from: shopId });
+  const invoice = await Invoice.find({ from: shopId }).populate({path: 'from', select: '-products' }).populate({path: 'to', select: '-products' })
+  .populate('details.productId').populate('created_by').populate('details.productId');
   if (!invoice) {
     throw new Error('Invoice not found');
   }
@@ -118,6 +120,16 @@ async function getProductById(shopId, productId) {
     throw new Error('Product not found for productId: ' + productId);
   }
   return product;
+}
+
+async function getProById(shopId, productId) {
+  const shop = await Shop.findById(shopId);
+  if (!shop) {
+    throw new Error('Shop not found');
+  }
+
+  var product = shop.products.find(prod => prod.productId.toString() === productId.toString());
+  return product || null;
 }
 
 // Add quantity to a specific product in a specific shop
@@ -149,5 +161,6 @@ module.exports = {
   updateProductById,
   getWarehouse,
   getInvoiceToWithShopId,
-  getInvoiceFromWithShopId
+  getInvoiceFromWithShopId,
+  getProById
 };

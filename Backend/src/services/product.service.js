@@ -10,6 +10,14 @@ class ProductService {
         }
     }
 
+    async listAllActiveProducts() {
+        try {
+            return await Product.find({status: 'active'});
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async getProductById(productId) {
         try {
           const product = await Product.findById(productId).populate('categoryId');
