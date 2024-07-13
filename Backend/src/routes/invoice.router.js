@@ -10,5 +10,6 @@ router.get('/', InvoiceController.getAll);
 router.get('/:id', InvoiceController.getById);
 router.put('/:id', InvoiceController.updateInfo);
 router.put('/status/:id', InvoiceController.updateStatus);
+router.get('/export/:id', InvoiceController.exportInvoiceToPDF);
 
 module.exports = router;

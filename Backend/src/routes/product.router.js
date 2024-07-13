@@ -1,6 +1,9 @@
 var productRouter = require('express').Router();
 const ProductController = require("../controllers/product.controller");
 const verifyTokenHandle = require("../middlewares/verifyToken.middleware");
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 /**
  * @swagger
@@ -151,5 +154,48 @@ productRouter.put('/:id', ProductController.UpdateProduct);
  *               $ref: '#/components/schemas/Error'
  */
 productRouter.post('/', ProductController.CreateProduct);
+
+/**
+ * @swagger
+ * /products/import:
+ *   post:
+ *     summary: Import products from Excel file
+ *     description: Import multiple products from an Excel file.
+ *     tags:
+ *       - Products
+ *     requestBody:
+ *       description: Excel file containing products to import
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Products imported successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Invalid file or input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+productRouter.post('/import', upload.single('file'), ProductController.ImportProductsFromExcel);
 
 module.exports = productRouter;
