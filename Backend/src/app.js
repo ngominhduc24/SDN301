@@ -13,6 +13,7 @@ const categoryRouter = require("./routes/category.router.js");
 const shopRouter = require("./routes/shop.router.js");
 const productRouter = require("./routes/product.router.js");
 const invoiceRouter = require("./routes/invoice.router.js");
+const requestRouter = require("./routes/request.router.js");
 
 const { storage } = require('./config/storage');
 const multer = require('multer');
@@ -48,6 +49,7 @@ app.use("/api/category", categoryRouter);
 app.use("/api/shop", shopRouter);
 app.use("/api/product", productRouter);
 app.use("/api/invoice", invoiceRouter);
+app.use("/api/request", requestRouter);
 
 // swagger config
 setupSwagger(app);
