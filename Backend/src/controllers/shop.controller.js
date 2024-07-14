@@ -172,9 +172,10 @@ async function getWarehouse(req, res, next) {
 }
 
 //shop revenue
-async function getDailyRevenue (req, res, next) {
+async function getStatistics (req, res, next) {
   try {
-      const result = await InvoiceService.getDailyRevenue(req.body.shopId, req.body.year, req.body.month);
+    console.log('getStatistics');
+      const result = await InvoiceService.getStatistics(req.body.shopId, req.body.year, req.body.month);
       res.status(200).json(result);
   } catch (error) {
       next(error); 
@@ -183,6 +184,6 @@ async function getDailyRevenue (req, res, next) {
 
 const shopController = { create, getAll, getById, update, getWarehouse,
   createProduct, getProductByShopId, getProductById, updateProductById, 
-  getProductNotAddedByShop, getInvoiceToByShopId, getInvoiceFromByShopId, getDailyRevenue, getRequestsByShopId };
+  getProductNotAddedByShop, getInvoiceToByShopId, getInvoiceFromByShopId, getStatistics, getRequestsByShopId };
 
 module.exports = shopController;
