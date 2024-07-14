@@ -1,8 +1,6 @@
 const RequestService = require('../services/request.service');
-const NotificationService = require('../services/notification.service');
-const shopService = require('../services/shop.service');
-const InvoiceService = require('../services/invoice.service');
 const Request = require('../models/request');
+const Notification = require('../models/notification');
 
 async function create(req, res, next) {
     try {
@@ -16,13 +14,6 @@ async function create(req, res, next) {
             created_by: req.body.created_by
         };
 
-        // start notification
-        const warehouse = await shopService.getWarehouse();
-        if (warehouse) {
-            const notification = await NotificationService.pushNotification("You have new request for order product", warehouse ? warehouse._id : null, req.body.created_by);
-        }
-        // end 
-       
         const request = await RequestService.create(requestData);
         res.status(201).json(request);
     } catch (error) {
@@ -56,13 +47,6 @@ async function updateInfo(req, res, next) {
         if(!request) {
             throw new Error('Request not found');
         }
-        
-        if(request.invoice_id) {
-            const invoice = await InvoiceService.getInvoiceById(request.invoice_id);
-            if(invoice.status == "completed") {
-                throw new Error('Invoice is already completed');
-            }
-        }
 
         const requestData = {
             from: req.body.from,
@@ -70,34 +54,6 @@ async function updateInfo(req, res, next) {
         };
 
         const updatedRequest = await RequestService.update(req.params.id, requestData);
-
-        res.status(200).json(updatedRequest);
-    } catch (error) {
-        next(error); 
-    }
-}
-
-async function update(req, res, next) {
-    try {
-        var request = await Request.findById(req.params.id);
-        if(!request) {
-            throw new Error('Request not found');
-        }
-
-        if(request.invoice_id) {
-            const invoice = await InvoiceService.getInvoiceById(request.invoice_id);
-            if(invoice.status == "completed") {
-                throw new Error('Invoice is already completed');
-            }
-        }
-
-        const requestData = {
-            from: req.body.from,
-            details: req.body.details,
-            status: "accepted"
-        };
-
-        const updatedRequest = await RequestService.updateRequest(req.params.id, requestData);
 
         res.status(200).json(updatedRequest);
     } catch (error) {
@@ -148,8 +104,7 @@ const requestController = {
     getAll,
     getById,
     updateInfo,
-    updateStatus,
-    update
+    updateStatus
 };
 
 module.exports = requestController;

@@ -1,19 +1,14 @@
-const socketIo = require('socket.io');
+const socketSingleton = require('./socketSingleton.config');
 
 module.exports = (server) => {
-  const io = socketIo(server, {
-    cors: {
-      origin: "*",
-      methods: "*"
-    }
-  });
+  const io = socketSingleton.init(server);
 
   io.on('connection', (socket) => {
     console.log('User connected');
 
     socket.on('joinShop', (shopId) => {
       socket.join(shopId);
-      console.log(`User joined room: ${shopId}`);   // just for test
+      console.log(`User joined room: ${shopId}`);
     });
 
     socket.on('notify', ({ shopId, notification }) => {

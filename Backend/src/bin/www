@@ -8,7 +8,7 @@ require('dotenv').config();
 var app = require('../app');
 var debug = require('debug')('sdn301:server');
 var http = require('http');
-const socketIo = require('../config/socket.config');
+const socketConfig = require('../config/socket.config');
 
 /**
  * Get port from environment and store in Express.
@@ -26,8 +26,7 @@ var server = http.createServer(app);
 /**
  * Initial socket io.
  */
-
-socketIo(server);
+socketConfig(server);
 
 /**
  * Listen on provided port, on all network interfaces.
