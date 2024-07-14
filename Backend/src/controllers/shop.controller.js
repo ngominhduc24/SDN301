@@ -1,6 +1,7 @@
 const asyncHandler = require('../utils/async-handle');
 const shopService = require('../services/shop.service');
 const ProductService = require("../services/product.service");
+const InvoiceService = require("../services/invoice.service");
 
 // Create a new shop
 const create = asyncHandler(async (req, res, next) => {
@@ -104,6 +105,16 @@ async function getInvoiceFromByShopId(req, res, next) {
   }
 }
 
+// Get all invoice for a specific shop
+async function getRequestsByShopId(req, res, next) {
+  try {
+    const requests = await shopService.getRequestsByShopId(req.params.shopId);
+    res.status(200).send(requests);
+  } catch (error) {
+    next(error);
+  }
+}
+
 // Get all products for a specific shop
 async function getProductNotAddedByShop(req, res, next) {
   try {
@@ -160,7 +171,18 @@ async function getWarehouse(req, res, next) {
   }
 }
 
+//shop revenue
+async function getDailyRevenue (req, res, next) {
+  try {
+      const result = await InvoiceService.getDailyRevenue(req.body.shopId, req.body.year, req.body.month);
+      res.status(200).json(result);
+  } catch (error) {
+      next(error); 
+  }
+};
+
 const shopController = { create, getAll, getById, update, getWarehouse,
-  createProduct, getProductByShopId, getProductById, updateProductById, getProductNotAddedByShop, getInvoiceToByShopId, getInvoiceFromByShopId };
+  createProduct, getProductByShopId, getProductById, updateProductById, 
+  getProductNotAddedByShop, getInvoiceToByShopId, getInvoiceFromByShopId, getDailyRevenue, getRequestsByShopId };
 
 module.exports = shopController;

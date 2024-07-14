@@ -14,7 +14,7 @@ const DetailSchema = new Schema({
   quantity: {
     type: Number,
     default: 1,
-    min: 0
+    min: 1
   },
   unit_price : {
     type : Number,

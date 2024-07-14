@@ -186,9 +186,6 @@ async function updateStatus(req, res, next) {
         || (invoice.status==='cancelled' && newStatus==='completed')) 
             throw new Error(`Invoice ${invoice.status} cannot be updated to ${newStatus}`);
             
-        if (!invoice) 
-            res.status(404).json({ message: 'Invoice not found' });
-
         if (invoice.status === 'pending' && newStatus==='completed' && invoice.details && invoice.details.length > 0) {
             if(invoice.to !=null && invoice.to != undefined  && invoice.to != "") {
                 await Promise.all(invoice.details.map(async (detail) =>{
