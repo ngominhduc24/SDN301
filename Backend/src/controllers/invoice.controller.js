@@ -40,9 +40,12 @@ async function create(req, res, next) {
                     if (productFrom.quantity - detail.quantity < 0) {
                         throw new Error('Invalid quantity for productId: ' + detail.productId);
                     }
+                } 
+                
+                if(detail.unit_price == null) {
+                    detail.unit_price = product.price;
                 }
-
-                detail.unit_price = product.price;
+                
                 sub_total += detail.quantity * detail.unit_price;
             }
         }
