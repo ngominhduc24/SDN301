@@ -1,7 +1,10 @@
 const Notification = require('../models/notification');
 
 class NotificationService {
-    // Authentication login service
+    constructor(io) {
+        this.io = io;
+    }
+
     async pushNotification(content, shopId, createBy) {
         try {
             const newNotification = new Notification({
@@ -9,7 +12,12 @@ class NotificationService {
                 shopId: shopId,
                 created_by: createBy,
             });
-            return await newNotification.save();
+            const savedNotification = await newNotification.save();
+
+            // Emit the notification event
+            this.io.to(shopId).emit('notification', savedNotification);
+
+            return savedNotification;
         } catch (error) {
             throw error;
         }
