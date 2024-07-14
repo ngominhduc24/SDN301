@@ -2,6 +2,7 @@ const asyncHandler = require('../utils/async-handle');
 const shopService = require('../services/shop.service');
 const ProductService = require("../services/product.service");
 const InvoiceService = require("../services/invoice.service");
+const Shop = require('../models/shop');
 
 // Create a new shop
 const create = asyncHandler(async (req, res, next) => {
@@ -174,8 +175,18 @@ async function getWarehouse(req, res, next) {
 //shop revenue
 async function getStatistics (req, res, next) {
   try {
-    console.log('getStatistics');
-      const result = await InvoiceService.getStatistics(req.body.shopId, req.body.year, req.body.month);
+      const shopId = req.body.shopId;
+      let result = {};
+      
+      if(shopId == -1){
+        result = await InvoiceService.getStatisticsForAllShops(req.body.year, req.body.month);
+      } else if(shopId == 0){
+        const warehouse =await shopService.getWarehouse();
+        result = await InvoiceService.getStatisticsForWarehouse(warehouse._id,req.body.year, req.body.month);
+      } else {
+        result = await InvoiceService.getStatisticsForAShop(shopId, req.body.year, req.body.month);
+      }
+      
       res.status(200).json(result);
   } catch (error) {
       next(error); 
