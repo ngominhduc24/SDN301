@@ -22,8 +22,8 @@ async function create(req, res, next) {
         }
         // end 
        
-        // const request = await RequestService.create(requestData);
-        res.status(201).json(null);
+        const request = await RequestService.create(requestData);
+        res.status(201).json(request);
     } catch (error) {
         next(error); 
     }

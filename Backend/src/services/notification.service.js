@@ -1,21 +1,19 @@
 const Notification = require('../models/notification');
+const socketSingleton = require('../config/socketSingleton.config');
 
 class NotificationService {
-    constructor(io) {
-        this.io = io;
-    }
-
-    async pushNotification(content, shopId, createBy) {
+    async pushNotification(content, shopId, createdBy) {
         try {
             const newNotification = new Notification({
                 content: content,
                 shopId: shopId,
-                created_by: createBy,
+                created_by: createdBy,
             });
             const savedNotification = await newNotification.save();
 
             // Emit the notification event
-            this.io.to(shopId).emit('notification', savedNotification);
+            const io = socketSingleton.getIo();
+            io.to(shopId).emit('notification', content);
 
             return savedNotification;
         } catch (error) {
