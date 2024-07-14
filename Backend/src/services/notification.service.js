@@ -4,7 +4,7 @@ class NotificationService {
     // Authentication login service
     async pushNotification(content, shopId, createBy) {
         try {
-            const newNotification = new Request({
+            const newNotification = new Notification({
                 content: content,
                 shopId: shopId,
                 created_by: createBy,

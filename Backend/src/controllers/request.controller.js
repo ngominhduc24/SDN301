@@ -16,15 +16,14 @@ async function create(req, res, next) {
         };
 
         // start notification
-        const warehouseId = shopService.getWarehouse()['_id'];
-        console.log(warehouseId);
-        if(!warehouseId) {
-            NotificationService.pushNotification("You have new request for order product", warehouseId, req.body.created_by);
+        const warehouse = await shopService.getWarehouse();
+        if (warehouse) {
+            const notification = await NotificationService.pushNotification("You have new request for order product", warehouse ? warehouse._id : null, req.body.created_by);
         }
         // end 
        
-        const request = await RequestService.create(requestData);
-        res.status(201).json(request);
+        // const request = await RequestService.create(requestData);
+        res.status(201).json(null);
     } catch (error) {
         next(error); 
     }
