@@ -9,6 +9,10 @@ import useWindowSize from "src/lib/useWindowSize"
 //   default as NotifyService,
 // } from "src/services/NotifyService"
 import NotifyForm from "./components/NotifyForm"
+import io from 'socket.io-client';
+const socket = io('https://sdn301.onrender.com');   // replace with env config
+
+
 const Notification = props => {
   const isLaptop = useWindowSize.isLaptop() || false
   const isDesktop = useWindowSize.isDesktop() || false
@@ -28,6 +32,19 @@ const Notification = props => {
     PageSize: 8,
     TextSearch: "",
   })
+
+  useEffect(() => {
+    const shopId = 0; //  Lấy shopId từ token sau khi backend truyền cho để gán vào đây
+    socket.emit('joinShop', shopId);
+
+    socket.on('notification', (msg) => {
+      alert(msg);   // thông báo mỗi lần tạo đơn hàng ở đây, bạn tự triển khai nhé có thể setListNotify hoặc gì đó
+    });
+
+    return () => {
+      socket.off('notification');
+    };
+  }, []);
 
   // useEffect(() => {
   //   if (!!isLogin) getListNotify()
