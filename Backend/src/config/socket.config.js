@@ -17,7 +17,6 @@ module.exports = (server) => {
     });
 
     socket.on('notify', ({ shopId, notification }) => {
-      console.log('noti ' + notification);
       io.to(shopId).emit('notification', notification);
     });
 

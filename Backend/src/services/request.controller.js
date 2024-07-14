@@ -1,7 +1,6 @@
 const RequestService = require('../services/request.service');
-const NotificationService = require('../services/notification.service');
-const shopService = require('../services/shop.service');
 const Request = require('../models/request');
+const Notification = require('../models/notification');
 
 async function create(req, res, next) {
     try {
@@ -15,14 +14,6 @@ async function create(req, res, next) {
             created_by: req.body.created_by
         };
 
-        // start notification
-        const warehouseId = shopService.getWarehouse()['_id'];
-        console.log(warehouseId);
-        if(!warehouseId) {
-            NotificationService.pushNotification("You have new request for order product", warehouseId, req.body.created_by);
-        }
-        // end 
-       
         const request = await RequestService.create(requestData);
         res.status(201).json(request);
     } catch (error) {

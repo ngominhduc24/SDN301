@@ -4,14 +4,18 @@ const User = require('./user');
 
 // Define the Product schema for embedding
 const NotificationSchema = new Schema({
-    name: {
+    content: {
+        type: String,
+        required: true,
+    },
+    shopId: {
         type: String,
         required: true,
     },
     created_by: {
         type: Schema.Types.ObjectId,
         ref: User,
-        required: true
+        required: false
     }
 }, {
     timestamps: true
