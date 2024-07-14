@@ -45,6 +45,9 @@ const ManagerManageInvoiceToShop = React.lazy(() =>
 const ManagerManageInvoiceToCustomer = React.lazy(() =>
   import("src/pages/Manager/ManageInvoiceShopToCustomer"),
 )
+const ManagerRequestSend = React.lazy(() =>
+  import("src/pages/Manager/RequestSend"),
+)
 // WAREHOUSE MANAGER
 const WarehouseManagerRoutes = React.lazy(() =>
   import("src/pages/WarehouseManager/WarehouseManagerRoutes"),
@@ -66,6 +69,9 @@ const WarehouseManagerStore = React.lazy(() =>
 )
 const WarehouseManagerDashboard = React.lazy(() =>
   import("src/pages/WarehouseManager/WarehouseManageDashboard"),
+)
+const WarehouseManagerRequestReceive = React.lazy(() =>
+  import("src/pages/WarehouseManager/RequestReceive"),
 )
 // STAFF
 const StaffRoutes = React.lazy(() => import("src/pages/Staff/StaffRoutes"))
@@ -232,6 +238,14 @@ const routes = [
         ),
       },
       {
+        path: ROUTER.MANAGER_REQUEST_SEND,
+        element: (
+          <LazyLoadingComponent>
+            <ManagerRequestSend />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
         path: ROUTER.MANAGER_MANAGE_INVOICE_TO_SHOP,
         element: (
           <LazyLoadingComponent>
@@ -310,6 +324,14 @@ const routes = [
         element: (
           <LazyLoadingComponent>
             <WarehouseManagerInvoicesToWarehouse />
+          </LazyLoadingComponent>
+        ),
+      },
+      {
+        path: ROUTER.WAREHOUSE_MANAGER_REQUEST_TO,
+        element: (
+          <LazyLoadingComponent>
+            <WarehouseManagerRequestReceive />
           </LazyLoadingComponent>
         ),
       },
