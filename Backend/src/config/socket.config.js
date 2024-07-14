@@ -1,7 +1,12 @@
 const socketIo = require('socket.io');
 
 module.exports = (server) => {
-  const io = socketIo(server);
+  const io = socketIo(server, {
+    cors: {
+      origin: "*",
+      methods: "*"
+    }
+  });
 
   io.on('connection', (socket) => {
     console.log('User connected');
