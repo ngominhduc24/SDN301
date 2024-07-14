@@ -13,10 +13,11 @@ module.exports = (server) => {
 
     socket.on('joinShop', (shopId) => {
       socket.join(shopId);
-      console.log(`User joined room: ${shopId}`);   // just for test
+      // console.log(`User joined room: ${shopId}`);   // just for test
     });
 
     socket.on('notify', ({ shopId, notification }) => {
+      console.log('noti ' + notification);
       io.to(shopId).emit('notification', notification);
     });
 
