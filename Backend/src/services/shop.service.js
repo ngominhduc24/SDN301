@@ -106,7 +106,7 @@ async function getInvoiceFromWithShopId(shopId) {
 
 async function getRequestsByShopId(shopId) {
   const requests = await Request.find({ from: shopId }).populate({path: 'from', select: '_id name' })
-  .populate('details.productId', '_id name description').populate('created_by', '_id');
+  .populate('details.productId', '_id name description image status').populate('created_by', '_id');
   return requests;
 }
 
@@ -140,6 +140,7 @@ async function updateProductById(shopId, productId, quantity, status) {
   if (!shop) {
     throw new Error('Shop not found');
   }
+
   const product = shop.products.find(prod => prod.productId.toString() === productId.toString());
   if (!product) {
     throw new Error('Product not found for productId: ' + productId);
@@ -147,6 +148,7 @@ async function updateProductById(shopId, productId, quantity, status) {
   
   product.status = status;
   product.quantity = product.quantity + quantity;
+  
   await shop.save();
   return product;
 }

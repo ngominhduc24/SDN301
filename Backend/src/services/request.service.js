@@ -13,7 +13,7 @@ class RequestService {
     async getAllRequests() {
         try {
             return await Request.find().populate({path: 'from', select: '_id name' })
-            .populate('details.productId', '_id name description').populate('created_by', '_id');
+            .populate('details.productId', '_id name description image status').populate('created_by', '_id');
         } catch (error) {
             throw error; 
         }
@@ -22,7 +22,7 @@ class RequestService {
     async getById(id) {
         try {
             return await Request.findById(id).populate({path: 'from', select: '_id name' })
-            .populate('details.productId', '_id name description').populate('created_by', '_id');
+            .populate('details.productId', '_id name description image status').populate('created_by', '_id');
         } catch (error) {
             throw error; 
         }
