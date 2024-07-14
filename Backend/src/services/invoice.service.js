@@ -146,6 +146,6 @@ module.exports = {
   getAllInvoices,
   getInvoiceById,
   updateInvoice,
-  exportInvoiceToPDF,,
-    getDailyRevenue
+  exportInvoiceToPDF,
+  getDailyRevenue
 };
