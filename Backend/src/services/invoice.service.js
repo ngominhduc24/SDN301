@@ -246,45 +246,18 @@ async function getStatisticsForAShop(shopId, year, month) {
       }
     ]);
 
-    const revenueData = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      { $unwind: '$details' }, 
-      {
-        $group: {
-          _id: '$details.productId',
-          totalRevenue: { $sum: { $multiply: ['$details.quantity', '$details.unit_price'] } }
-        }
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'productDetails'
-        }
-      },
-      { $unwind: '$productDetails' },
-      {
-        $project: {
-          _id: 0,
-          totalRevenue: 1,
-          productName: '$productDetails.name'
-        }
-      }
-    ]);
+    const totalInvoices = await Invoice.countDocuments({
+      from: new mongoose.Types.ObjectId(shopId),
+      createdAt: { $gte: startDate, $lt: endDate }
+    });
 
-    const totalRevenue = revenueData.reduce((acc, product) => acc + product.totalRevenue, 0);
+    const cancelledInvoices = await Invoice.countDocuments({
+      from: new mongoose.Types.ObjectId(shopId),
+      createdAt: { $gte: startDate, $lt: endDate },
+      status: "cancelled"
+    });
 
-    var revenueByProduct = revenueData.map(product => ({
-      productName: product.productName,
-      percentage: ((product.totalRevenue / totalRevenue) * 100).toFixed(2) 
-    }));
+    const cancellationRate = (totalInvoices > 0 ? (cancelledInvoices / totalInvoices) * 100 : 0).toFixed(2);
 
     const top5SellingProductsByQuantity = await Invoice.aggregate([
       {
@@ -373,7 +346,11 @@ async function getStatisticsForAShop(shopId, year, month) {
       remainQuantity: (totalImport[0] ? totalImport[0].totalQuantity : 0) - (totalExport[0] ? totalExport[0].totalQuantity : 0),
       remainProductValue: (totalImport[0] ? totalImport[0].totalCost : 0) - (totalExport[0] ? totalExport[0].totalCost : 0),
       revenueByDay,
-      revenueByProduct,
+      cancellationRate: {
+        totalInvoices,
+        cancelledInvoices,
+        cancellationRate 
+      },
       top5SellingProductsByQuantity,
       least5SellingProductsByQuantity
     };
@@ -527,45 +504,18 @@ async function getStatisticsForWarehouse(shopId, year, month) {
       }
     ]);
 
-    const revenueData = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      { $unwind: '$details' }, 
-      {
-        $group: {
-          _id: '$details.productId',
-          totalRevenue: { $sum: { $multiply: ['$details.quantity', '$details.unit_price'] } }
-        }
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'productDetails'
-        }
-      },
-      { $unwind: '$productDetails' },
-      {
-        $project: {
-          _id: 0,
-          totalRevenue: 1,
-          productName: '$productDetails.name'
-        }
-      }
-    ]);
+    const totalInvoices = await Invoice.countDocuments({
+      from: new mongoose.Types.ObjectId(shopId),
+      createdAt: { $gte: startDate, $lt: endDate }
+    });
 
-    const totalRevenue = revenueData.reduce((acc, product) => acc + product.totalRevenue, 0);
+    const cancelledInvoices = await Invoice.countDocuments({
+      from: new mongoose.Types.ObjectId(shopId),
+      createdAt: { $gte: startDate, $lt: endDate },
+      status: "cancelled"
+    });
 
-    var revenueByProduct = revenueData.map(product => ({
-      productName: product.productName,
-      percentage: ((product.totalRevenue / totalRevenue) * 100).toFixed(2) 
-    }));
+    const cancellationRate = (totalInvoices > 0 ? (cancelledInvoices / totalInvoices) * 100 : 0).toFixed(2);
 
     const top5SellingProductsByQuantity = await Invoice.aggregate([
       {
@@ -637,6 +587,114 @@ async function getStatisticsForWarehouse(shopId, year, month) {
       { $limit: 5 } 
     ]);
 
+    const top5ShopsByRevenue = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: 'shops',
+          localField: 'to',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
+        $match: {
+          'shopDetails.inventoryType': 'shop',
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $group: {
+          _id: '$to', 
+          totalRevenue: { $sum: '$total_price' }
+        }
+      },
+      {
+        $sort: {
+          totalRevenue: -1 
+        }
+      },
+      {
+        $limit: 5 
+      },
+      {
+        $lookup: {
+          from: 'shops',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
+        $project: {
+          _id: 0,
+          shopId: '$_id',
+          shopName: '$shopDetails.name',
+          totalRevenue: 1
+        }
+      }
+    ]);
+
+    const bottom5ShopsByRevenue = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: 'shops',
+          localField: 'to',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
+        $match: {
+          'shopDetails.inventoryType': 'shop',
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $group: {
+          _id: '$to', 
+          totalRevenue: { $sum: '$total_price' }
+        }
+      },
+      {
+        $sort: {
+          totalRevenue: 1 
+        }
+      },
+      {
+        $limit: 5 
+      },
+      {
+        $lookup: {
+          from: 'shops',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
+        $project: {
+          _id: 0,
+          shopId: '$_id',
+          shopName: '$shopDetails.name',
+          totalRevenue: 1
+        }
+      }
+    ]);
+
     const revenueFormatted = revenue.length > 0 ? revenue[0] : {
       totalRevenue: 0,
       totalOrders: 0,
@@ -654,9 +712,15 @@ async function getStatisticsForWarehouse(shopId, year, month) {
       remainQuantity: (totalImport[0] ? totalImport[0].totalQuantity : 0) - (totalExport[0] ? totalExport[0].totalQuantity : 0),
       remainProductValue: (totalImport[0] ? totalImport[0].totalCost : 0) - (totalExport[0] ? totalExport[0].totalCost : 0),
       revenueByDay,
-      revenueByProduct,
+      cancellationRate: {
+        totalInvoices,
+        cancelledInvoices,
+        cancellationRate 
+      },
       top5SellingProductsByQuantity,
-      least5SellingProductsByQuantity
+      least5SellingProductsByQuantity,
+      top5ShopsByRevenue,
+      bottom5ShopsByRevenue
     };
     
   } catch (error) {
@@ -668,28 +732,36 @@ async function getStatisticsForAllShops(year, month) {
   try {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month - 0, 1);
+
     //total revenue, total order, total quantity in a specific month
-    const revenue = await Shop.aggregate([
-      {
-        $match: {
-          inventoryType: 'shop'
-        }
-      },
+    const revenue = await Invoice.aggregate([
       {
         $lookup: {
-          from: 'invoices',
-          localField: '_id',
-          foreignField: 'from', 
-          as: 'shopInvoices'
+          from: 'shops',
+          localField: 'from',
+          foreignField: '_id',
+          as: 'shopDetails'
         }
       },
-      { $unwind: '$shopInvoices' },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
+        $match: {
+          'shopDetails.inventoryType': 'shop',
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $unwind: '$details'
+      },
       {
         $group: {
           _id: null,
-          totalRevenue: { $sum: '$shopInvoices.total_price' },
+          totalRevenue: { $sum: '$total_price' },
           totalOrders: { $sum: 1 },
-          totalOrderQuantity: { $sum: "$shopInvoices.details.quantity" }
+          totalOrderQuantity: { $sum: '$details.quantity' }
         }
       },
       {
@@ -705,8 +777,19 @@ async function getStatisticsForAllShops(year, month) {
     //total import money, total quantity in a specific month
     const importProduct = await Invoice.aggregate([
       {
+        $lookup: {
+          from: 'shops',
+          localField: 'to',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
         $match: {
-          to: new mongoose.Types.ObjectId(shopId),
+          'shopDetails.inventoryType': 'shop',
           createdAt: { $gte: startDate, $lt: endDate },
           status: "completed"
         }
@@ -733,8 +816,19 @@ async function getStatisticsForAllShops(year, month) {
     //total remain product quantity
     const totalImport = await Invoice.aggregate([
       {
+        $lookup: {
+          from: 'shops',
+          localField: 'to',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
         $match: {
-          to: new mongoose.Types.ObjectId(shopId),
+          'shopDetails.inventoryType': 'shop',
           createdAt: { $lt: endDate },
           status: "completed"
         }
@@ -760,8 +854,19 @@ async function getStatisticsForAllShops(year, month) {
 
     const totalExport = await Invoice.aggregate([
       {
+        $lookup: {
+          from: 'shops',
+          localField: 'from',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
         $match: {
-          from: new mongoose.Types.ObjectId(shopId),
+          'shopDetails.inventoryType': 'shop',
           createdAt: { $lt: endDate },
           status: "completed"
         }
@@ -785,10 +890,32 @@ async function getStatisticsForAllShops(year, month) {
       }
     ]);
 
+    const revenueFormatted = revenue.length > 0 ? revenue[0] : {
+      totalRevenue: 0,
+      totalOrders: 0,
+      totalOrderQuantity: 0
+    }
+
+    const importProductFormatted = importProduct.length > 0 ? importProduct[0] : {
+      totalQuantity: 0,
+      totalCost: 0
+    }
+
     const revenueByDay = await Invoice.aggregate([
       {
+        $lookup: {
+          from: 'shops',
+          localField: 'from',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
         $match: {
-          from: new mongoose.Types.ObjectId(shopId),
+          'shopDetails.inventoryType': 'shop',
           createdAt: { $gte: startDate, $lt: endDate },
           status: "completed"
         }
@@ -811,50 +938,32 @@ async function getStatisticsForAllShops(year, month) {
       }
     ]);
 
-    const revenueData = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      { $unwind: '$details' }, 
-      {
-        $group: {
-          _id: '$details.productId',
-          totalRevenue: { $sum: { $multiply: ['$details.quantity', '$details.unit_price'] } }
-        }
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'productDetails'
-        }
-      },
-      { $unwind: '$productDetails' },
-      {
-        $project: {
-          _id: 0,
-          totalRevenue: 1,
-          productName: '$productDetails.name'
-        }
-      }
-    ]);
+    const totalInvoices = await Invoice.countDocuments({
+      createdAt: { $gte: startDate, $lt: endDate }
+    });
 
-    const totalRevenue = revenueData.reduce((acc, product) => acc + product.totalRevenue, 0);
+    const cancelledInvoices = await Invoice.countDocuments({
+      createdAt: { $gte: startDate, $lt: endDate },
+      status: "cancelled"
+    });
 
-    var revenueByProduct = revenueData.map(product => ({
-      productName: product.productName,
-      percentage: ((product.totalRevenue / totalRevenue) * 100).toFixed(2) 
-    }));
+    const cancellationRate = (totalInvoices > 0 ? (cancelledInvoices / totalInvoices) * 100 : 0).toFixed(2);
 
     const top5SellingProductsByQuantity = await Invoice.aggregate([
       {
+        $lookup: {
+          from: 'shops',
+          localField: 'from',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
         $match: {
-          from: new mongoose.Types.ObjectId(shopId),
+          'shopDetails.inventoryType': 'shop',
           createdAt: { $gte: startDate, $lt: endDate },
           status: "completed"
         }
@@ -888,8 +997,19 @@ async function getStatisticsForAllShops(year, month) {
 
     const least5SellingProductsByQuantity  = await Invoice.aggregate([
       {
+        $lookup: {
+          from: 'shops',
+          localField: 'from',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
         $match: {
-          from: new mongoose.Types.ObjectId(shopId),
+          'shopDetails.inventoryType': 'shop',
           createdAt: { $gte: startDate, $lt: endDate },
           status: "completed"
         }
@@ -921,26 +1041,129 @@ async function getStatisticsForAllShops(year, month) {
       { $limit: 5 } 
     ]);
 
-    const revenueFormatted = revenue.length > 0 ? revenue[0] : {
-      totalRevenue: 0,
-      totalOrders: 0,
-      totalOrderQuantity: 0
-    }
+    const top5ShopsByRevenue = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: 'shops',
+          localField: 'from',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
+        $match: {
+          'shopDetails.inventoryType': 'shop',
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $group: {
+          _id: '$from', 
+          totalRevenue: { $sum: '$total_price' }
+        }
+      },
+      {
+        $sort: {
+          totalRevenue: -1 
+        }
+      },
+      {
+        $limit: 5 
+      },
+      {
+        $lookup: {
+          from: 'shops',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
+        $project: {
+          _id: 0,
+          shopId: '$_id',
+          shopName: '$shopDetails.name',
+          totalRevenue: 1
+        }
+      }
+    ]);
 
-    const importProductFormatted = importProduct.length > 0 ? importProduct[0] : {
-      totalQuantity: 0,
-      totalCost: 0
-    }
-    
+    const bottom5ShopsByRevenue = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: 'shops',
+          localField: 'from',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
+        $match: {
+          'shopDetails.inventoryType': 'shop',
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $group: {
+          _id: '$from', 
+          totalRevenue: { $sum: '$total_price' }
+        }
+      },
+      {
+        $sort: {
+          totalRevenue: 1 
+        }
+      },
+      {
+        $limit: 5 
+      },
+      {
+        $lookup: {
+          from: 'shops',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'shopDetails'
+        }
+      },
+      {
+        $unwind: '$shopDetails'
+      },
+      {
+        $project: {
+          _id: 0,
+          shopId: '$_id',
+          shopName: '$shopDetails.name',
+          totalRevenue: 1
+        }
+      }
+    ]);
+
     return {
       ...revenueFormatted,
       ...importProductFormatted,
       remainQuantity: (totalImport[0] ? totalImport[0].totalQuantity : 0) - (totalExport[0] ? totalExport[0].totalQuantity : 0),
       remainProductValue: (totalImport[0] ? totalImport[0].totalCost : 0) - (totalExport[0] ? totalExport[0].totalCost : 0),
       revenueByDay,
-      revenueByProduct,
+      cancellationRate: {
+        totalInvoices,
+        cancelledInvoices,
+        cancellationRate 
+      },
       top5SellingProductsByQuantity,
-      least5SellingProductsByQuantity
+      least5SellingProductsByQuantity,
+      top5ShopsByRevenue,
+      bottom5ShopsByRevenue
     };
     
   } catch (error) {
