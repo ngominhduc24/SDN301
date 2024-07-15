@@ -3,6 +3,7 @@ const Invoice = require("../models/invoice");
 const Shop = require("../models/shop");
 const path = require("path");
 const pdfMaster = require("pdf-master");
+const fs = require('fs').promises;
 
 async function createInvoice(data) {
   try {
@@ -50,55 +51,56 @@ async function updateInvoice(id, data) {
 
 async function exportInvoiceToPDF(invoiceId) {
   try {
-    // Fetch invoice data from MongoDB
-    const invoice = await Invoice.findById(invoiceId)
-      .populate('details.productId')
-      .populate('from')
-      .populate('to')
-      .exec();
+      // Fetch invoice data from MongoDB
+      const invoice = await Invoice.findById(invoiceId)
+          .populate('details.productId')
+          .populate('from')
+          .populate('to')
+          .exec();
 
-    if (!invoice) {
-      throw new Error('Invoice not found');
-    }
+      if (!invoice) {
+          throw new Error('Invoice not found');
+      }
 
-    // Prepare data for rendering in Handlebars template
-    const templateData = {
-      invoice_code: invoice.invoice_code,
-      from: invoice.from ? invoice.from.name : 'N/A',
-      to: invoice.to ? invoice.to.name : 'N/A',
-      status: invoice.status,
-      note: invoice.note || 'N/A',
-      discount: invoice.discount,
-      shipping_charge: invoice.shipping_charge,
-      total_price: invoice.total_price,
-      details: invoice.details.map(detail => ({
-        productId: detail.productId._id,
-        quantity: detail.quantity,
-        unit_price: detail.unit_price,
-        total_price_per_item: detail.quantity * detail.unit_price
-      }))
-    };
+      // Prepare data for rendering in Handlebars template
+      const templatePath = path.join(__dirname, '..', 'views', 'export', 'invoice.hbs');
+      const templateData = {
+          invoice_code: invoice.invoice_code,
+          from: invoice.from ? invoice.from.name : 'N/A',
+          to: invoice.to ? invoice.to.name : 'N/A',
+          status: invoice.status,
+          note: invoice.note || 'N/A',
+          discount: invoice.discount,
+          shipping_charge: invoice.shipping_charge,
+          total_price: invoice.total_price,
+          details: invoice.details.map(detail => ({
+              productId: detail.productId._id,
+              quantity: detail.quantity,
+              unit_price: detail.unit_price,
+              total_price_per_item: detail.quantity * detail.unit_price
+          }))
+      };
 
-    // Path to HTML template file
-    const templatePath = path.join(
-      __dirname,
-      "..",
-      "views",
-      "export",
-      "invoice.hbs"
-    );
-    let options = {
-      displayHeaderFooter: true,
-      format: "A4",
-      headerTemplate: `<h3> Invoice </h3>`,
-      footerTemplate: `<h3> Copyright 2024 </h3>`,
-      margin: { top: "80px", bottom: "100px" },
-    };
-    let PDF = await pdfMaster.generatePdf(templatePath, templateData, options);
+      // Path to directory for saving PDF files
+      const saveDir = path.join(__dirname, '..', 'storage');
+      // Ensure the directory exists, create it if not
+      await fs.mkdir(saveDir, { recursive: true });
 
-    return PDF;
+      // Generate PDF using pdfMaster
+      const pdfBuffer = await pdfMaster.generatePdf(templatePath, templateData);
+
+      // Generate a unique filename
+      const fileName = `invoice_${invoiceId}.pdf`;
+      const filePath = path.join(saveDir, fileName);
+
+      // Write the PDF buffer to the file system
+      await fs.writeFile(filePath, pdfBuffer, { flag: 'w' });
+
+      // Return the path to the saved PDF file
+      return filePath;
+
   } catch (error) {
-    throw error;
+      throw error;
   }
 }
 
