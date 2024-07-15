@@ -22,7 +22,7 @@ const ModalNoteStatus = ({ visible, onCancel, request, onOk }) => {
     try {
       setLoading(true)
       const body = {
-        status: "cancelled",
+        status: "rejected",
         note: "/ Lý do hủy yêu cầu bên cửa hàng: " + cancelReason,
       }
       console.log(body)
@@ -46,7 +46,34 @@ const ModalNoteStatus = ({ visible, onCancel, request, onOk }) => {
       setLoading(false)
     }
   }
-
+  const cancelInvoice = async () => {
+    try {
+      setLoading(true)
+      const body = {
+        status: "cancelled",
+        note: "/ Lý do hủy đơn bên cửa hàng: " + cancelReason,
+      }
+      console.log(body)
+      const response = await ManagerService.updateStatusInvoice(
+        request?.invoice_id,
+        body,
+      )
+      if (response?.isError) {
+        console.error("Error creating invoice:", response.message)
+        return
+      }
+      onOk()
+      onCancel()
+      Notice({
+        isSuccess: true,
+        msg: "Hủy đơn hàng thành công",
+      })
+    } catch (error) {
+      console.error("Error in createInvoice:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
   const handleReasonChange = value => {
     setCancelReason(value)
   }
@@ -70,8 +97,17 @@ const ModalNoteStatus = ({ visible, onCancel, request, onOk }) => {
                   icon: "warning-usb",
                   okText: "Có",
                   cancelText: "Không",
-                  onOk: close => {
-                    cancelRequest()
+                  onOk: async close => {
+                    if (request?.status === "pending") {
+                      await cancelRequest()
+                    } else if (request?.status === "updated") {
+                      if (request?.invoice_id === undefined) {
+                        await cancelRequest()
+                      } else {
+                        await cancelRequest()
+                        await cancelInvoice()
+                      }
+                    }
                     close()
                   },
                 })
@@ -118,3 +154,4 @@ const ModalNoteStatus = ({ visible, onCancel, request, onOk }) => {
 }
 
 export default ModalNoteStatus
+

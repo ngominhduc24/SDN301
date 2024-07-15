@@ -21,6 +21,7 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open, onOk }) => {
   const [selectedImage, setSelectedImage] = useState(null)
   const { userInfo } = useSelector(state => state.appGlobal)
   const [cancelModalVisible, setCancelModalVisible] = useState(false)
+  const [requestId, setRequestId] = useState("")
 
   const [pagination, setPagination] = useState({
     PageSize: 10,
@@ -31,9 +32,9 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open, onOk }) => {
   })
 
   useEffect(() => {
+    getRequestByInvoiceID()
     console.log(data)
-    console.log(open)
-  }, [pagination])
+  }, [pagination, data])
 
   const listBtn = record => [
     {
@@ -165,6 +166,53 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open, onOk }) => {
       ),
     },
   ]
+  const getRequestByInvoiceID = async () => {
+    console.log("data ne", data)
+    console.log("id cua invoice,", data?._id)
+    try {
+      setLoading(true)
+      const managerRequest = await ManagerService.getRequestShop(
+        "666da2c059207cb17349144a",
+      )
+
+      console.log("managerRequest:", managerRequest)
+      if (managerRequest?.isError) {
+        console.error("Error fetching warehouse info:", managerRequest.message)
+        return
+      }
+
+      const filteredRequest = managerRequest.find(
+        request => request.invoice_id === data?._id,
+      )
+      console.log("filteredRequest", filteredRequest)
+      setRequestId(filteredRequest?._id)
+    } catch (error) {
+      console.error("Error in getWarehouseInfo:", error)
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+  const updateStatusRequest = async () => {
+    try {
+      setLoading(true)
+      const body = {
+        status: "completed",
+      }
+      console.log(body)
+      const response = await ManagerService.updateStatusRequest(requestId, body)
+      if (response?.isError) {
+        console.error("Error creating invoice:", response.message)
+        return
+      }
+      onOk()
+      onCancel()
+    } catch (error) {
+      console.error("Error in createInvoice:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
   const updateStatusInvoice = async () => {
     try {
       setLoading(true)
@@ -203,7 +251,15 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open, onOk }) => {
                 <Button
                   btntype="third"
                   className="ml-8 mt-12 mb-12"
-                  onClick={updateStatusInvoice}
+                  onClick={() => {
+                    if (requestId === undefined) {
+                      console.log("hello")
+                      updateStatusInvoice()
+                    } else if (requestId !== undefined) {
+                      updateStatusInvoice()
+                      updateStatusRequest()
+                    }
+                  }}
                 >
                   Xác nhận đơn hàng
                 </Button>

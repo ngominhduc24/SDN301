@@ -26,7 +26,7 @@ const ModalNoteStatus = ({ visible, onCancel, invoice, onOk }) => {
         note: "/ Lý do hủy đơn bên kho: " + cancelReason,
       }
       console.log(body)
-      const response = await ManagerService.updateInfoInvoice(
+      const response = await ManagerService.updateStatusInvoice(
         invoice?._id,
         body,
       )
@@ -118,3 +118,4 @@ const ModalNoteStatus = ({ visible, onCancel, invoice, onOk }) => {
 }
 
 export default ModalNoteStatus
+

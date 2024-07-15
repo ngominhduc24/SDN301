@@ -19,9 +19,12 @@ import TableCustom from "src/components/Table/CustomTable"
 import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Button from "src/components/MyButton/Button"
-import WarehouseManagerService from "src/services/WarehouseManagerService"
+// import WarehouseManagerService from "src/services/WarehouseManagerService"
+import ManagerService from "src/services/ManagerService"
 import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
+import STORAGE, { getStorage, setStorage } from "src/lib/storage"
+
 const { Option } = Select
 
 const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
@@ -49,6 +52,7 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
   const [note, setNote] = useState("")
   const [discount, setDiscount] = useState(0)
   const [shippingCharge, setShippingCharge] = useState(0)
+  const managerId = localStorage.getItem(STORAGE.USER_ID)
 
   const listBtn = record => [
     {
@@ -193,11 +197,6 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     }
   }
 
-  const handleShopChange = value => {
-    const selected = shopList.find(shop => shop._id === value)
-    setSelectedShop(selected)
-  }
-
   const handleQuantityChange = (productId, quantity) => {
     setStateBody(prev =>
       prev.map(item =>
@@ -217,28 +216,12 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     setShippingCharge(value)
   }
 
-  const getWarehouse = async () => {
+  const getProductsInShop = async () => {
     try {
       setLoading(true)
-      const wareHouseInfo = await WarehouseManagerService.getInfoWareHouse()
-      console.log(wareHouseInfo)
-      if (wareHouseInfo?.isError) {
-        console.error("Error fetching warehouse info:", wareHouseInfo.message)
-        return
-      }
-      setWareHouse(wareHouseInfo)
-    } catch (error) {
-      console.error("Error in getWarehouseInfo:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const getProductsInWarehouse = async () => {
-    try {
-      setLoading(true)
-      const warehouseProductsInRes =
-        await WarehouseManagerService.getListProductsWarehouse(id)
+      const warehouseProductsInRes = await ManagerService.getListProductsInShop(
+        id,
+      )
       if (warehouseProductsInRes?.isError) {
         console.error(
           "Error fetching warehouse info:",
@@ -250,24 +233,6 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
       setTotal(warehouseProductsInRes.length)
     } catch (error) {
       console.error("Error in getWarehouseInfo:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const getShopList = async () => {
-    try {
-      setLoading(true)
-      const shopListRes = await WarehouseManagerService.getShopList()
-      console.log(shopListRes)
-      if (shopListRes?.isError) {
-        console.error("Error fetching shop list:", shopListRes.message)
-        return
-      }
-      setShopList(shopListRes)
-      console.log(shopListRes)
-    } catch (error) {
-      console.error("Error in getShopList:", error)
     } finally {
       setLoading(false)
     }
@@ -286,10 +251,10 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
         note: note,
         discount: discount,
         shipping_charge: shippingCharge,
-        created_by: wareHouse?.manager?._id,
+        created_by: managerId,
       }
       console.log(invoiceData)
-      const response = await WarehouseManagerService.createInvoice(invoiceData)
+      const response = await ManagerService.createInvoice(invoiceData)
       if (response?.isError) {
         console.error("Error creating invoice:", response.message)
         return
@@ -307,34 +272,8 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     }
   }
   useEffect(() => {
-    getProductsInWarehouse()
-    getShopList()
-    getWarehouse()
+    getProductsInShop()
   }, [id])
-
-  const addProductsToWarehouse = async () => {
-    try {
-      setLoading(true)
-      const response = await WarehouseManagerService.addProductsToWarehouse(
-        id,
-        stateBody,
-      )
-      if (response?.isError) {
-        console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
-        return
-      }
-      getProductsInWarehouse()
-      onOk()
-      onCancel()
-      Notice({
-        msg: "Thêm thành công.",
-      })
-    } catch (error) {
-      console.error("Lỗi trong quá trình thêm sản phẩm vào kho:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const renderFooter = () => (
     <div className="lstBtn d-flex-sb">
@@ -410,25 +349,6 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
                 </Form.Item>
               </Col>
             </Row>
-            <Card title="Thông tin cửa hàng đã nhập" style={{ marginTop: 20 }}>
-              <Title level={5}>{form.getFieldValue("name")}</Title>
-              <div style={{ marginBottom: 10 }}>
-                <Text strong>Email: </Text>
-                <Text>{form.getFieldValue("email")}</Text>
-              </div>
-              <div style={{ marginBottom: 10 }}>
-                <Text strong>Số điện thoại: </Text>
-                <Text>{form.getFieldValue("phone")}</Text>
-              </div>
-              <div style={{ marginBottom: 10 }}>
-                <Text strong>Địa chỉ: </Text>
-                <Text>{form.getFieldValue("location")}</Text>
-              </div>
-              <div style={{ marginBottom: 10 }}>
-                <Text strong>Chủ cửa hàng: </Text>
-                <Text>{form.getFieldValue("managerEmail")}</Text>
-              </div>
-            </Card>
           </Form>
         </PatentRegistrationChildBorder>
       ),

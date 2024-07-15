@@ -3,7 +3,8 @@ import Button from "src/components/MyButton/Button"
 import { useEffect, useState } from "react"
 import Notice from "src/components/Notice"
 import CB1 from "src/components/Modal/CB1"
-import ManagerService from "src/services/ManagerService"
+// import ManagerService from "src/services/ManagerService"
+import WarehouseManagerService from "src/services/WarehouseManagerService"
 const { TextArea } = Input
 const { Option } = Select
 
@@ -22,12 +23,40 @@ const ModalNoteStatus = ({ visible, onCancel, request, onOk }) => {
     try {
       setLoading(true)
       const body = {
-        status: "cancelled",
-        note: "/ Lý do hủy yêu cầu bên cửa hàng: " + cancelReason,
+        status: "rejected",
+        note: "/ Lý do hủy yêu cầu bên kho hàng: " + cancelReason,
       }
       console.log(body)
-      const response = await ManagerService.updateStatusRequest(
+      const response = await WarehouseManagerService.updateStatusRequest(
         request?._id,
+        body,
+      )
+      if (response?.isError) {
+        console.error("Error creating invoice:", response.message)
+        return
+      }
+      onOk()
+      onCancel()
+      Notice({
+        isSuccess: true,
+        msg: "Hủy yêu cầu thành công",
+      })
+    } catch (error) {
+      console.error("Error in createInvoice:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const cancelInvoice = async () => {
+    try {
+      setLoading(true)
+      const body = {
+        status: "cancelled",
+        note: "/ Lý do hủy đơn bên kho: " + cancelReason,
+      }
+      console.log(body)
+      const response = await WarehouseManagerService.updateStatusInvoice(
+        request?.invoice_id,
         body,
       )
       if (response?.isError) {
@@ -46,7 +75,6 @@ const ModalNoteStatus = ({ visible, onCancel, request, onOk }) => {
       setLoading(false)
     }
   }
-
   const handleReasonChange = value => {
     setCancelReason(value)
   }
@@ -70,8 +98,17 @@ const ModalNoteStatus = ({ visible, onCancel, request, onOk }) => {
                   icon: "warning-usb",
                   okText: "Có",
                   cancelText: "Không",
-                  onOk: close => {
-                    cancelRequest()
+                  onOk: async close => {
+                    if (request?.status === "pending") {
+                      await cancelRequest()
+                    } else if (request?.status === "updated") {
+                      if (request?.invoice_id === undefined) {
+                        await cancelRequest()
+                      } else {
+                        await cancelRequest()
+                        await cancelInvoice()
+                      }
+                    }
                     close()
                   },
                 })
@@ -118,3 +155,4 @@ const ModalNoteStatus = ({ visible, onCancel, request, onOk }) => {
 }
 
 export default ModalNoteStatus
+

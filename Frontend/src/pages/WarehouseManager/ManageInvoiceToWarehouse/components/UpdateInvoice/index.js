@@ -45,22 +45,18 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     Status: 0,
   })
   const { Title, Text } = Typography
-  const [shopList, setShopList] = useState([])
-  const [selectedShop, setSelectedShop] = useState(null)
   const [note, setNote] = useState("")
   const [discount, setDiscount] = useState(0)
   const [shippingCharge, setShippingCharge] = useState(0)
   const [cancelModalVisible, setCancelModalVisible] = useState(false)
   useEffect(() => {
     getProductsInWarehouse()
-    getShopList()
     getWarehouse()
     console.log(invoice)
   }, [id])
   useEffect(() => {
     if (open && invoice) {
       form.setFieldsValue({
-        shop: invoice.to._id,
         note: invoice.note,
         discount: invoice.discount,
         shippingCharge: invoice.shipping_charge,
@@ -68,7 +64,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       setNote(invoice.note)
       setDiscount(invoice.discount)
       setShippingCharge(invoice.shipping_charge)
-      setSelectedShop(invoice.to)
       setStateBody(
         invoice.details.map(item => ({
           productId: item.productId._id,
@@ -230,11 +225,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     }
   }
 
-  const handleShopChange = value => {
-    const selected = shopList.find(shop => shop._id === value)
-    setSelectedShop(selected)
-  }
-
   const handleQuantityChange = (productId, quantity) => {
     setStateBody(prev =>
       prev.map(item =>
@@ -292,31 +282,13 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     }
   }
 
-  const getShopList = async () => {
-    try {
-      setLoading(true)
-      const shopListRes = await WarehouseManagerService.getShopList()
-      console.log(shopListRes)
-      if (shopListRes?.isError) {
-        console.error("Error fetching shop list:", shopListRes.message)
-        return
-      }
-      setShopList(shopListRes)
-      console.log(shopListRes)
-    } catch (error) {
-      console.error("Error in getShopList:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const updateInvoice = async () => {
     console.log(stateBody)
     try {
       setLoading(true)
       const invoiceData = {
-        from: id,
-        to: selectedShop._id,
+        from: null,
+        to: id,
         details: stateBody.map(item => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -386,7 +358,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
         >
           Lưu
         </Button>
-        {/* <Button
+        <Button
           btntype="danger"
           className="ml-8 mt-12 mb-12"
           loading={loading}
@@ -395,7 +367,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           }}
         >
           Hủy Đơn Hàng
-        </Button> */}
+        </Button>
         <Button btntype="third" className="ml-8 mt-12 mb-12" onClick={onCancel}>
           Đóng
         </Button>

@@ -35,7 +35,7 @@ const ManageInvoiceManager = () => {
   const [openViewWarehouse, setOpenViewWarehouse] = useState(false)
   const [openViewStore, setOpenViewStore] = useState(false)
   const { userInfo } = useSelector(state => state.appGlobal)
-  const [managerId, setManagerId] = useState(null)
+  const [shopId, setShopId] = useState(null)
   const [infoShop, setInfoShop] = useState(null)
   const [pagination, setPagination] = useState({
     PageSize: 10,
@@ -56,7 +56,7 @@ const ManageInvoiceManager = () => {
       const res = await ManagerService.getShop("666da2c059207cb17349144a")
       if (res?.isError) return
       setInfoShop(res)
-      setManagerId("666da2c059207cb17349144a")
+      setShopId("666da2c059207cb17349144a")
     } catch (error) {
       console.error("Error fetching warehouse info:", error)
     } finally {
@@ -98,7 +98,7 @@ const ManageInvoiceManager = () => {
       },
     ]
 
-    if (record.status !== "cancelled") {
+    if (record.status !== "cancelled" && record.status !== "completed") {
       buttons.push({
         isEnable: true,
         name: "Chỉnh sửa",
@@ -213,6 +213,29 @@ const ManageInvoiceManager = () => {
       key: "total_price",
       render: value =>
         value.toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      width: 200,
+      align: "center",
+      key: "createdAt",
+      render: value => moment(value).format("DD-MM-YYYY HH:mm:ss"),
+    },
+    {
+      title: "Ngày cập nhật",
+      dataIndex: "updatedAt",
+      width: 200,
+      align: "center",
+      key: "updatedAt",
+      render: value => moment(value).format("DD-MM-YYYY HH:mm:ss"),
+      // render: value => (
+      //   <span>
+      //     {value && dayjs(value).isValid()
+      //       ? dayjs(value).format("DD/MM/YYYY")
+      //       : "N/A"}
+      //   </span>
+      // ),
     },
     {
       title: "Ghi chú",
@@ -341,7 +364,7 @@ const ManageInvoiceManager = () => {
       )}
       {!!openInsertUpdateInvoices && (
         <InsertUpdateInvoice
-          id={managerId}
+          id={shopId}
           open={openInsertUpdateInvoices}
           onCancel={() => setOpenInsertUpdateInvoices(false)}
           onOk={() => getAllInvoice()}
@@ -353,7 +376,7 @@ const ManageInvoiceManager = () => {
           onCancel={() => setOpenUpdateInvoices(false)}
           onOk={() => getAllInvoice()}
           invoice={selectedInvoice}
-          id={managerId}
+          id={shopId}
         />
       )}
     </SpinCustom>

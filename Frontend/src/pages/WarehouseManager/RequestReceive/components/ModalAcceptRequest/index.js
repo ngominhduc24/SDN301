@@ -24,6 +24,7 @@ const ModalAcceptRequest = ({ visible, onCancel, request, onOk }) => {
   const [shippingCharge, setShippingCharge] = useState(0)
   const { Title, Text } = Typography
   const warehouseManagerId = localStorage.getItem(STORAGE.USER_ID)
+  const [invoices, setInvoices] = useState({})
 
   const updateStatusRequest = async () => {
     try {
@@ -63,6 +64,7 @@ const ModalAcceptRequest = ({ visible, onCancel, request, onOk }) => {
         discount: discount,
         shipping_charge: shippingCharge,
         created_by: warehouseManagerId,
+        requestId: request?._id,
       }
       console.log(invoiceData)
       const response = await WarehouseManagerService.createInvoice(invoiceData)
@@ -82,7 +84,77 @@ const ModalAcceptRequest = ({ visible, onCancel, request, onOk }) => {
       setLoading(false)
     }
   }
-
+  const createInvoiceAfter = async () => {
+    try {
+      setLoading(true)
+      const invoiceData = {
+        from: "6673f4e2269dee716af9db92",
+        to: request?.from?._id,
+        details: request?.details?.map(item => ({
+          productId: item?.productId?._id,
+          quantity: item?.updateQuantity,
+        })),
+        note: note,
+        discount: discount,
+        shipping_charge: shippingCharge,
+        created_by: warehouseManagerId,
+        requestId: request?._id,
+      }
+      console.log(invoiceData)
+      const response = await WarehouseManagerService.createInvoice(invoiceData)
+      if (response?.isError) {
+        console.error("Error creating invoice:", response.message)
+        return
+      }
+      onOk()
+      onCancel()
+      Notice({
+        isSuccess: true,
+        msg: "Tạo hóa đơn thành công",
+      })
+    } catch (error) {
+      console.error("Error in createInvoice:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const updateInvoice = async () => {
+    try {
+      setLoading(true)
+      const invoiceData = {
+        from: "6673f4e2269dee716af9db92",
+        to: request?.from?._id,
+        details: request?.details?.map(item => ({
+          productId: item?.productId?._id,
+          quantity: item?.updateQuantity,
+        })),
+        note: note,
+        discount: discount,
+        shipping_charge: shippingCharge,
+        created_by: warehouseManagerId,
+        requestId: request?._id,
+      }
+      console.log(invoiceData)
+      const response = await WarehouseManagerService.updateInfoInvoice(
+        request?.invoice_id,
+        invoiceData,
+      )
+      if (response?.isError) {
+        console.error("Error creating invoice:", response.message)
+        return
+      }
+      onOk()
+      onCancel()
+      Notice({
+        isSuccess: true,
+        msg: "Chỉnh sửa đơn hàng thành công",
+      })
+    } catch (error) {
+      console.error("Error in createInvoice:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
   return (
     <Modal
       visible={visible}
@@ -102,9 +174,19 @@ const ModalAcceptRequest = ({ visible, onCancel, request, onOk }) => {
                   icon: "warning-usb",
                   okText: "Có",
                   cancelText: "Không",
-                  onOk: close => {
-                    updateStatusRequest()
-                    createInvoice()
+                  onOk: async close => {
+                    if (request?.status === "pending") {
+                      await createInvoice()
+                      await updateStatusRequest()
+                    } else if (request?.status === "updated") {
+                      if (request?.invoice_id === undefined) {
+                        await createInvoiceAfter()
+                        await updateStatusRequest()
+                      } else {
+                        await updateStatusRequest()
+                        await updateInvoice()
+                      }
+                    }
                     close()
                   },
                 })
@@ -165,3 +247,4 @@ const ModalAcceptRequest = ({ visible, onCancel, request, onOk }) => {
 }
 
 export default ModalAcceptRequest
+

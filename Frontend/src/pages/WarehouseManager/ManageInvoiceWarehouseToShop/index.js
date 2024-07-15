@@ -148,7 +148,7 @@ const ManageInvoiceWarehouse = () => {
         </>
       ),
       dataIndex: ["from", "name"],
-      width: 300,
+      width: 250,
       align: "center",
       key: "from_name",
       render: (val, record) => (
@@ -170,7 +170,7 @@ const ManageInvoiceWarehouse = () => {
         </>
       ),
       dataIndex: ["to", "name"],
-      width: 300,
+      width: 250,
       align: "center",
       key: "to_name",
       render: (val, record) => (
@@ -219,9 +219,32 @@ const ManageInvoiceWarehouse = () => {
         value.toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
     },
     {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      width: 200,
+      align: "center",
+      key: "createdAt",
+      render: value => moment(value).format("DD-MM-YYYY HH:mm:ss"),
+    },
+    {
+      title: "Ngày cập nhật",
+      dataIndex: "updatedAt",
+      width: 200,
+      align: "center",
+      key: "updatedAt",
+      render: value => moment(value).format("DD-MM-YYYY HH:mm:ss"),
+      // render: value => (
+      //   <span>
+      //     {value && dayjs(value).isValid()
+      //       ? dayjs(value).format("DD/MM/YYYY")
+      //       : "N/A"}
+      //   </span>
+      // ),
+    },
+    {
       title: "Ghi chú",
       dataIndex: "note",
-      width: 200,
+      width: 150,
       key: "note",
       render: text => (
         <Tooltip title={text}>

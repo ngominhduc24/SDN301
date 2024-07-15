@@ -20,6 +20,7 @@ import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
 import Button from "src/components/MyButton/Button"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
+import ManagerService from "src/services/ManagerService"
 import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
 import ModalNoteStatus from "../ModalNoteStatus"
@@ -137,6 +138,20 @@ const UpdateRequest = ({ open, onCancel, onOk, id, request, managerId }) => {
         <InputNumber
           min={0}
           defaultValue={record.quantity}
+          // onChange={value => handleQuantityChange(record.productId._id, value)}
+          disabled
+        />
+      ),
+    },
+    {
+      title: "Số lượng thay đổi",
+      dataIndex: "updateQuantity",
+      width: 120,
+      key: "updateQuantity",
+      render: (_, record) => (
+        <InputNumber
+          min={0}
+          defaultValue={record.updateQuantity}
           onChange={value => handleQuantityChange(record.productId._id, value)}
         />
       ),
@@ -272,7 +287,7 @@ const UpdateRequest = ({ open, onCancel, onOk, id, request, managerId }) => {
         })),
       }
       console.log(requestData)
-      const response = await WarehouseManagerService.updateInfoRequest(
+      const response = await ManagerService.updateInfoRequest(
         request?._id,
         requestData,
       )
@@ -284,7 +299,7 @@ const UpdateRequest = ({ open, onCancel, onOk, id, request, managerId }) => {
       onCancel()
       Notice({
         isSuccess: true,
-        msg: "Chỉnh sửa đơn hàng thành công",
+        msg: "Chỉnh sửa yêu cầu thành công",
       })
     } catch (error) {
       console.error("Error in createInvoice:", error)
@@ -292,14 +307,14 @@ const UpdateRequest = ({ open, onCancel, onOk, id, request, managerId }) => {
       setLoading(false)
     }
   }
-  const cancelInvoice = async () => {
+  const updateStatusRequest = async () => {
     try {
       setLoading(true)
       const body = {
-        status: "cancelled",
+        status: "updated",
       }
       console.log(body)
-      const response = await WarehouseManagerService.updateInfoInvoice(
+      const response = await ManagerService.updateStatusRequest(
         request?._id,
         body,
       )
@@ -311,7 +326,7 @@ const UpdateRequest = ({ open, onCancel, onOk, id, request, managerId }) => {
       onCancel()
       Notice({
         isSuccess: true,
-        msg: "Chỉnh sửa đơn hàng thành công",
+        msg: "Chỉnh sửa trạng thái yêu cầu thành công",
       })
     } catch (error) {
       console.error("Error in createInvoice:", error)
@@ -327,7 +342,10 @@ const UpdateRequest = ({ open, onCancel, onOk, id, request, managerId }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={updateRequest}
+          onClick={() => {
+            updateRequest()
+            updateStatusRequest()
+          }}
         >
           Lưu
         </Button>

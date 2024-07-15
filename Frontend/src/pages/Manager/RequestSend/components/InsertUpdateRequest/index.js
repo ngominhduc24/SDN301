@@ -114,6 +114,7 @@ const InsertUpdateRequest = ({ open, onCancel, onOk, id, managerId }) => {
         />
       ),
     },
+
     {
       title: "Ảnh",
       dataIndex: ["productId", "image"],

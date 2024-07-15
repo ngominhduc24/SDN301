@@ -214,7 +214,7 @@ const WarehouseManagerRequestReceive = () => {
       // ),
     },
     {
-      title: "Trạng thái hoá đơn",
+      title: "Trạng thái yêu cầu",
       dataIndex: "status",
       align: "center",
       width: 150,
@@ -223,21 +223,29 @@ const WarehouseManagerRequestReceive = () => {
         <span
           className={[
             "no-color",
-            record?.status === "pending"
+            record?.status === "pending" ? "blue-text" : "",
+            record?.status === "completed" ? "green-text" : "",
+            record?.status === "rejected" ? "red" : "",
+            record?.status === "accepted" || record?.status === "updated"
               ? "blue-text"
-              : record?.status === "completed"
-              ? "green-text"
-              : "red",
+              : "", // Đặt màu xanh cho trạng thái "accepted" và "updated"
           ].join(" ")}
         >
           {record?.status === "pending"
             ? "Đang chờ xác nhận"
             : record?.status === "completed"
             ? "Đã hoàn thành"
-            : "Đã hủy"}
+            : record?.status === "rejected"
+            ? "Đã hủy"
+            : record?.status === "accepted"
+            ? "Đã chấp nhận"
+            : record?.status === "updated"
+            ? "Đã cập nhật"
+            : "Không xác định"}
         </span>
       ),
     },
+
     {
       title: "Chức năng",
       align: "center",

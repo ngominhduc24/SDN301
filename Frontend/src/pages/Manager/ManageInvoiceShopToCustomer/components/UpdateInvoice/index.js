@@ -18,10 +18,12 @@ import { PatentRegistrationChildBorder, StylesTabPattern } from "./styled"
 import TableCustom from "src/components/Table/CustomTable"
 import CB1 from "src/components/Modal/CB1"
 import ButtonCircle from "src/components/MyButton/ButtonCircle"
+import ManagerService from "src/services/ManagerService"
 import Button from "src/components/MyButton/Button"
-import WarehouseManagerService from "src/services/WarehouseManagerService"
 import Notice from "src/components/Notice"
 import ModalViewProduct from "./components/modal/ModalViewProduct"
+import STORAGE, { getStorage, setStorage } from "src/lib/storage"
+import ModalNoteStatus from "../ModalNoteStatus"
 const { Option } = Select
 
 const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
@@ -36,6 +38,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
   const [loading, setLoading] = useState(false)
   const [imageModalVisible, setImageModalVisible] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
+  const [cancelModalVisible, setCancelModalVisible] = useState(false)
   const [pagination, setPagination] = useState({
     PageSize: 10,
     CurrentPage: 1,
@@ -44,21 +47,18 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     Status: 0,
   })
   const { Title, Text } = Typography
-  const [shopList, setShopList] = useState([])
-  const [selectedShop, setSelectedShop] = useState(null)
   const [note, setNote] = useState("")
   const [discount, setDiscount] = useState(0)
   const [shippingCharge, setShippingCharge] = useState(0)
+  const managerId = localStorage.getItem(STORAGE.USER_ID)
+
   useEffect(() => {
-    getProductsInWarehouse()
-    getShopList()
-    getWarehouse()
-    console.log(invoice)
+    getProductShop()
+    console.log("invoice ne", invoice)
   }, [id])
   useEffect(() => {
     if (open && invoice) {
       form.setFieldsValue({
-        shop: invoice.to._id,
         note: invoice.note,
         discount: invoice.discount,
         shippingCharge: invoice.shipping_charge,
@@ -66,16 +66,15 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       setNote(invoice.note)
       setDiscount(invoice.discount)
       setShippingCharge(invoice.shipping_charge)
-      setSelectedShop(invoice.to)
       setStateBody(
         invoice.details.map(item => ({
-          productId: item.product._id,
+          productId: item.productId._id,
           quantity: item.quantity,
         })),
       )
       setSelectedProducts(
         invoice.details.map(item => ({
-          ...item.product,
+          ...item,
           quantity: item.quantity,
         })),
       )
@@ -224,11 +223,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     }
   }
 
-  const handleShopChange = value => {
-    const selected = shopList.find(shop => shop._id === value)
-    setSelectedShop(selected)
-  }
-
   const handleQuantityChange = (productId, quantity) => {
     setStateBody(prev =>
       prev.map(item =>
@@ -248,28 +242,12 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     setShippingCharge(value)
   }
 
-  const getWarehouse = async () => {
+  const getProductShop = async () => {
     try {
       setLoading(true)
-      const wareHouseInfo = await WarehouseManagerService.getInfoWareHouse()
-      console.log(wareHouseInfo)
-      if (wareHouseInfo?.isError) {
-        console.error("Error fetching warehouse info:", wareHouseInfo.message)
-        return
-      }
-      setWareHouse(wareHouseInfo)
-    } catch (error) {
-      console.error("Error in getWarehouseInfo:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const getProductsInWarehouse = async () => {
-    try {
-      setLoading(true)
-      const warehouseProductsInRes =
-        await WarehouseManagerService.getListProductsWarehouse(id)
+      const warehouseProductsInRes = await ManagerService.getListProductsInShop(
+        id,
+      )
       if (warehouseProductsInRes?.isError) {
         console.error(
           "Error fetching warehouse info:",
@@ -286,24 +264,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
     }
   }
 
-  const getShopList = async () => {
-    try {
-      setLoading(true)
-      const shopListRes = await WarehouseManagerService.getShopList()
-      console.log(shopListRes)
-      if (shopListRes?.isError) {
-        console.error("Error fetching shop list:", shopListRes.message)
-        return
-      }
-      setShopList(shopListRes)
-      console.log(shopListRes)
-    } catch (error) {
-      console.error("Error in getShopList:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const updateInvoice = async () => {
     try {
       setLoading(true)
@@ -311,16 +271,16 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
         from: id,
         to: null,
         details: stateBody.map(item => ({
-          product: item.productId,
+          productId: item.productId,
           quantity: item.quantity,
         })),
         note: note,
         discount: discount,
         shipping_charge: shippingCharge,
-        created_by: wareHouse?.manager?._id,
+        created_by: managerId,
       }
       console.log(invoiceData)
-      const response = await WarehouseManagerService.updateInfoInvoice(
+      const response = await ManagerService.updateInfoInvoice(
         invoice?._id,
         invoiceData,
       )
@@ -340,33 +300,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       setLoading(false)
     }
   }
-  const cancelInvoice = async () => {
-    try {
-      setLoading(true)
-      const body = {
-        status: "cancelled",
-      }
-      console.log(body)
-      const response = await WarehouseManagerService.updateInfoInvoice(
-        invoice?._id,
-        body,
-      )
-      if (response?.isError) {
-        console.error("Error creating invoice:", response.message)
-        return
-      }
-      onOk()
-      onCancel()
-      Notice({
-        isSuccess: true,
-        msg: "Chỉnh sửa đơn hàng thành công",
-      })
-    } catch (error) {
-      console.error("Error in createInvoice:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+
   const renderFooter = () => (
     <div className="lstBtn d-flex-sb">
       <div className="lstBtn-right d-flex-end">
@@ -383,16 +317,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           className="ml-8 mt-12 mb-12"
           loading={loading}
           onClick={() => {
-            CB1({
-              title: `Bạn chắc chắn muốn hủy đơn hàng này không?`,
-              icon: "warning-usb",
-              okText: "Có",
-              cancelText: "Không",
-              onOk: close => {
-                cancelInvoice()
-                close()
-              },
-            })
+            setCancelModalVisible(true)
           }}
         >
           Hủy Đơn Hàng
@@ -406,85 +331,6 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
   const items = [
     {
       key: 1,
-      label: <div>Cửa hàng</div>,
-      children: (
-        <PatentRegistrationChildBorder>
-          <Form form={form}>
-            <Row gutter={16} style={{ marginBottom: 16 }}>
-              <Col span={12}>
-                <Form.Item name="name" label="Tên khách hàng">
-                  <Input
-                    placeholder="Nhập tên khách hàng"
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16} style={{ marginBottom: 16 }}>
-              <Col span={12}>
-                <Form.Item name="email" label="Email khách hàng">
-                  <Input
-                    placeholder="Nhập email khách hàng"
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16} style={{ marginBottom: 16 }}>
-              <Col span={12}>
-                <Form.Item name="phone" label="Số điện thoại khách hàng">
-                  <Input
-                    placeholder="Nhập số điện thoại khách hàng"
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16} style={{ marginBottom: 16 }}>
-              <Col span={12}>
-                <Form.Item name="location" label="Địa chỉ khách hàng">
-                  <Input
-                    placeholder="Nhập địa chỉ khách hàng"
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16} style={{ marginBottom: 16 }}>
-              <Col span={12}>
-                <Form.Item name="managerEmail" label="Email chủ cửa hàng">
-                  <Input
-                    placeholder="Nhập email chủ cửa hàng"
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Card title="Thông tin cửa hàng đã nhập" style={{ marginTop: 20 }}>
-              <Title level={5}>{form.getFieldValue("name")}</Title>
-              <div style={{ marginBottom: 10 }}>
-                <Text strong>Email: </Text>
-                <Text>{form.getFieldValue("email")}</Text>
-              </div>
-              <div style={{ marginBottom: 10 }}>
-                <Text strong>Số điện thoại: </Text>
-                <Text>{form.getFieldValue("phone")}</Text>
-              </div>
-              <div style={{ marginBottom: 10 }}>
-                <Text strong>Địa chỉ: </Text>
-                <Text>{form.getFieldValue("location")}</Text>
-              </div>
-              <div style={{ marginBottom: 10 }}>
-                <Text strong>Chủ cửa hàng: </Text>
-                <Text>{form.getFieldValue("managerEmail")}</Text>
-              </div>
-            </Card>
-          </Form>
-        </PatentRegistrationChildBorder>
-      ),
-    },
-    {
-      key: 2,
       label: <div>Sản phẩm</div>,
       children: (
         <PatentRegistrationChildBorder>
@@ -537,7 +383,7 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
       ),
     },
     {
-      key: 3,
+      key: 2,
       label: <div>Ghi chú</div>,
       children: (
         <Card>
@@ -598,6 +444,12 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
           product={selectedProductView}
         />
       </CustomModal>
+      <ModalNoteStatus
+        visible={cancelModalVisible}
+        onCancel={onCancel}
+        invoice={invoice}
+        onOk={onOk}
+      />
       <Modal
         visible={imageModalVisible}
         onCancel={() => setImageModalVisible(false)}

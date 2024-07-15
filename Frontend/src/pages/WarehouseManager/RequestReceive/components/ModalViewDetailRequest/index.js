@@ -155,12 +155,12 @@ const ModalViewDetailRequest = ({ visible, onCancel, data, open, onOk }) => {
     <Modal
       visible={visible}
       onCancel={onCancel}
-      title="Chi tiết hóa đơn"
+      title="Chi tiết yêu cầu"
       width="120vw"
       footer={
         <div className="lstBtn d-flex-sb">
           <div className="lstBtn-right d-flex-end">
-            {data.status !== "cancelled" && data.status !== "completed" && (
+            {data.status !== "rejected" && data.status !== "completed" && (
               <>
                 <Button
                   btntype="danger"
