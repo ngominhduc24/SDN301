@@ -1,6 +1,7 @@
 var productRouter = require('express').Router();
 const ProductController = require("../controllers/product.controller");
-const verifyTokenHandle = require("../middlewares/verifyToken.middleware");
+const verifyFileExtension = require("../middlewares/fileExtension.middleware");
+const { allowedExcelFileExtensions } = require("../const/const");
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -196,6 +197,49 @@ productRouter.post('/', ProductController.CreateProduct);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-productRouter.post('/import', upload.single('file'), ProductController.ImportProductsFromExcel);
+productRouter.post('/import', upload.single('file'), verifyFileExtension(allowedExcelFileExtensions), ProductController.ImportProductsFromExcel);
+
+/**
+ * @swagger
+ * /products/import:
+ *   post:
+ *     summary: Get list product, quantity by import file.
+ *     description: Get list product, quantity by import file.
+ *     tags:
+ *       - Products
+ *     requestBody:
+ *       description: Excel file containing products to import
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: List products from import file
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Invalid file or input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+productRouter.post('/get-list-import', upload.single('file'), verifyFileExtension(allowedExcelFileExtensions), ProductController.GetDataFromImportFile);
 
 module.exports = productRouter;

@@ -260,8 +260,8 @@ async function exportInvoiceToPDF(req, res) {
         });
         res.status(200).send(pdfFile);
     } catch (error) {
-        console.error('Error exporting invoice:', error);
-        res.status(500).json({ error: 'Error exporting invoice' });
+        console.error('Error exporting invoice:', error.message, error.stack);
+        res.status(500).json({ message: 'Error exporting invoice', errors: error.message });
     }
 }
 

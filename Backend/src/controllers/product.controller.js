@@ -52,4 +52,19 @@ module.exports = {
       res.status(500).json({ error: error.message });
     }
   }),
+
+  GetDataFromImportFile: asyncHandler(async (req, res, next) => {
+    try {
+      const fileBuffer = req.file.buffer;
+      if (!fileBuffer) {
+        return res
+          .status(400)
+          .json({ error: "No file uploaded or file is invalid" });
+      }
+      const products = await ProductService.getDataFromImportFile(fileBuffer);
+      res.status(200).json(products);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }),
 };
