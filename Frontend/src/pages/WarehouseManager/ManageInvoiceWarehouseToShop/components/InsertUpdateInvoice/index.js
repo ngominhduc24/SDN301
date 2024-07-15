@@ -12,6 +12,8 @@ import {
   Typography,
   Input,
 } from "antd"
+import { Upload, message } from "antd"
+import { UploadOutlined } from "@ant-design/icons"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
 import { PatentRegistrationChildBorder, StylesTabPattern } from "./styled"
@@ -178,11 +180,23 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     )
   }
 
+  // const handleProductChange = value => {
+  //   const selected = wareHouseProductsIn.find(
+  //     product => product.productId._id === value,
+  //   )
+  //   console.log(selected)
+  //   if (selected) {
+  //     setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
+  //     setStateBody(prev => [
+  //       ...prev,
+  //       { productId: selected.productId._id, quantity: 0 },
+  //     ])
+  //   }
+  // }
   const handleProductChange = value => {
     const selected = wareHouseProductsIn.find(
       product => product.productId._id === value,
     )
-    console.log(selected)
     if (selected) {
       setSelectedProducts(prev => [...prev, { ...selected, quantity: 0 }])
       setStateBody(prev => [
@@ -192,18 +206,30 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     }
   }
 
-  const handleShopChange = value => {
-    const selected = shopList.find(shop => shop._id === value)
-    setSelectedShop(selected)
-  }
-
   const handleQuantityChange = (productId, quantity) => {
+    setSelectedProducts(prev =>
+      prev.map(item =>
+        item.productId._id === productId ? { ...item, quantity } : item,
+      ),
+    )
     setStateBody(prev =>
       prev.map(item =>
         item.productId === productId ? { ...item, quantity } : item,
       ),
     )
   }
+  const handleShopChange = value => {
+    const selected = shopList.find(shop => shop._id === value)
+    setSelectedShop(selected)
+  }
+
+  // const handleQuantityChange = (productId, quantity) => {
+  //   setStateBody(prev =>
+  //     prev.map(item =>
+  //       item.productId === productId ? { ...item, quantity } : item,
+  //     ),
+  //   )
+  // }
   const handleNoteChange = e => {
     setNote(e.target.value)
   }
@@ -312,25 +338,35 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
     getWarehouse()
   }, [id])
 
-  const addProductsToWarehouse = async () => {
+  const handleImportProduct = async file => {
+    const formData = new FormData()
+    formData.append("file", file)
+
     try {
       setLoading(true)
-      const response = await WarehouseManagerService.addProductsToWarehouse(
-        id,
-        stateBody,
-      )
+      const response = await WarehouseManagerService.importInvoice(formData)
       if (response?.isError) {
-        console.error("Lỗi khi thêm sản phẩm vào kho:", response.message)
+        console.error("Error importing products:", response.message)
         return
       }
-      getProductsInWarehouse()
-      onOk()
-      onCancel()
-      Notice({
-        msg: "Thêm thành công.",
+      console.log(response)
+
+      // Extract productId and quantity from response
+      const importedProducts = response.map(item => ({
+        productId: item.productId,
+        quantity: item.qunatity,
+      }))
+
+      // Update selected products and state body
+      importedProducts.forEach(product => {
+        handleProductChange(product.productId)
+        handleQuantityChange(product.productId, product.quantity)
       })
+
+      // Refresh products in warehouse list
+      getProductsInWarehouse()
     } catch (error) {
-      console.error("Lỗi trong quá trình thêm sản phẩm vào kho:", error)
+      console.error("Error in importInvoice:", error)
     } finally {
       setLoading(false)
     }
@@ -410,9 +446,9 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
       label: <div>Sản phẩm</div>,
       children: (
         <PatentRegistrationChildBorder>
-          <Form form={form}>
-            <Row gutter={16} style={{ marginBottom: 16 }}>
-              <Col span={12}>
+          <Row gutter={16} justify="start" style={{ marginBottom: 16 }}>
+            <Col span={12}>
+              <Form form={form}>
                 <Select
                   showSearch
                   placeholder="Chọn sản phẩm"
@@ -429,26 +465,48 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
                     </Option>
                   ))}
                 </Select>
-              </Col>
-            </Row>
-            <TableCustom
-              isPrimary
-              rowKey={record => record.productId._id}
-              columns={columns}
-              dataSource={selectedProducts}
-              scroll={{ x: "800px" }}
-              pagination={{
-                hideOnSinglePage: total <= 10,
-                current: pagination?.CurrentPage,
-                pageSize: pagination?.PageSize,
-                responsive: true,
-                total: total,
-                locale: { items_per_page: "" },
-                showSizeChanger: total > 10,
-                pageSizeOptions: ["10", "20", "50", "100"],
-              }}
-            />
-          </Form>
+              </Form>
+            </Col>
+            <Col span={12}>
+              {/* <Button onClick={""} className="btn-hover-shadow" btntype="third">
+                Import Product
+              </Button>
+               */}
+              <Upload
+                accept=".xlsx,.xls"
+                beforeUpload={file => {
+                  handleImportProduct(file)
+                  return false
+                }}
+                showUploadList={false}
+              >
+                <Button
+                  className="btn-hover-shadow"
+                  btntype="third"
+                  icon={<UploadOutlined />}
+                >
+                  Import Product
+                </Button>
+              </Upload>
+            </Col>
+          </Row>
+          <TableCustom
+            isPrimary
+            rowKey={record => record.productId._id}
+            columns={columns}
+            dataSource={selectedProducts}
+            scroll={{ x: "800px" }}
+            pagination={{
+              hideOnSinglePage: total <= 10,
+              current: pagination?.CurrentPage,
+              pageSize: pagination?.PageSize,
+              responsive: true,
+              total: total,
+              locale: { items_per_page: "" },
+              showSizeChanger: total > 10,
+              pageSizeOptions: ["10", "20", "50", "100"],
+            }}
+          />
         </PatentRegistrationChildBorder>
       ),
     },

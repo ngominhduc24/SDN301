@@ -1,3 +1,4 @@
+// Product
 export const apiGetShopById = id => `api/shop/${id}`
 export const apiGetListProductsInShop = id => `api/shop/${id}/product`
 export const apiGetListProductsNotInShop = id =>
@@ -8,13 +9,13 @@ export const apiUpdateProductsToShop = (shopId, productId) =>
 export const apiGetDetailProductsInShop = (shopId, productId) =>
   `api/shop/${shopId}/product/${productId}`
 
+// Staff
+export const apiUpdateStatusStaff = id => `api/admin/users/${id}`
+export const apiGetStaffDetail = id => `api/admin/users/${id}`
 export const apiGetShopList = `api/shop`
 export const apiGetListStaff = `api/manager/staff`
 
-//
-export const apiUpdateStatusStaff = id => `api/admin/users/${id}`
-export const apiGetStaffDetail = id => `api/admin/users/${id}`
-
+// Invoice
 export const apiGetAllInvoice = `api/invoice`
 export const apiGetInvoiceById = id => `api/invoice/${id}`
 export const apiCreateInvoice = `api/invoice`

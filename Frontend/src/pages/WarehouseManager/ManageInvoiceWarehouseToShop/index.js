@@ -20,7 +20,7 @@ import {
   SubTableData,
   SubTableHeader,
 } from "src/components/Table/CustomTable/styled"
-
+import { saveAs } from "file-saver"
 const ManageInvoiceWarehouse = () => {
   const [invoices, setInvoices] = useState([])
   const [selectedInvoice, setSelectedInvoice] = useState(null)
@@ -101,6 +101,12 @@ const ManageInvoiceWarehouse = () => {
           console.log("Products:", record)
         },
       },
+      {
+        isEnable: true,
+        name: "Xuất hóa đơn",
+        icon: "dowload-export",
+        onClick: () => exportInvoice(record._id),
+      },
     ]
 
     if (record.status !== "cancelled" && record.status !== "completed") {
@@ -126,6 +132,18 @@ const ManageInvoiceWarehouse = () => {
   const handleViewStore = record => {
     setSelectedStore(record.to)
     setOpenViewStore(true)
+  }
+
+  const exportInvoice = async id => {
+    try {
+      const response = await WarehouseManagerService.exportInvoice(id)
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      })
+      saveAs(blob, `invoice_${id}.pdf`)
+    } catch (error) {
+      console.error("Error exporting invoice:", error)
+    }
   }
 
   const columns = [
@@ -281,7 +299,7 @@ const ManageInvoiceWarehouse = () => {
     },
     {
       title: "Chức năng",
-      align: "center",
+      align: "",
       key: "action",
       width: 100,
       render: (_, record) => (

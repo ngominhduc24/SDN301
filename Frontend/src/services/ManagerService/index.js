@@ -25,7 +25,7 @@ import {
   apiGetRequestById,
 } from "./urls"
 import QueryString from "qs"
-
+// Products
 const getShop = id => http.get(apiGetShopById(id))
 const getListProductsInShop = id => http.get(apiGetListProductsInShop(id))
 const getListProductsNotInShop = id => http.get(apiGetListProductsNotInShop(id))
@@ -35,10 +35,14 @@ const updateProductsToShop = (shopId, productId, body) =>
   http.put(apiUpdateProductsToShop(shopId, productId), body)
 const getProductsToShop = (shopId, productId, body) =>
   http.get(apiUpdateProductsToShop(shopId, productId), body)
+
+//Staff
 const getListStaff = () => http.get(apiGetListStaff)
 const createStaff = body => http.post(apiGetListStaff, body)
 const updateStatusStaff = (id, body) => http.put(apiUpdateStatusStaff(id), body)
 const getDetailStaff = (id, body) => http.put(apiGetStaffDetail(id), body)
+
+// Invoice
 const getAllInvoice = () => http.get(apiGetAllInvoice)
 const getInvoiceById = id => http.get(apiGetInvoiceById(id))
 const updateInfoInvoice = (id, body) => http.put(apiUpdateInfoInvoice(id), body)
