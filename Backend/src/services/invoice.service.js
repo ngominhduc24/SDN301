@@ -271,7 +271,7 @@ async function getStatisticsForAShop(shopId, year, month) {
       {
         $group: {
           _id: '$details.productId',
-          totalQuantity: { $sum: '$details.quantity' } 
+          totalQuantity: { $sum: '$details.quantity' }
         }
       },
       {
@@ -287,7 +287,12 @@ async function getStatisticsForAShop(shopId, year, month) {
         $project: {
           _id: 0,
           totalQuantity: 1,
-          productName: '$productDetails.name' 
+          prductId: '$_id',
+          productName: '$productDetails.name',
+          image: '$productDetails.image',
+          percentage: {
+            $round: [{ $multiply: [{ $divide: ["$totalQuantity", revenue[0].totalOrderQuantity] }, 100] }, 2]
+          } 
         }
       },
       { $sort: { totalQuantity: -1 } }, 
@@ -306,7 +311,7 @@ async function getStatisticsForAShop(shopId, year, month) {
       {
         $group: {
           _id: '$details.productId',
-          totalQuantity: { $sum: '$details.quantity' } 
+          totalQuantity: { $sum: '$details.quantity' }
         }
       },
       {
@@ -322,11 +327,16 @@ async function getStatisticsForAShop(shopId, year, month) {
         $project: {
           _id: 0,
           totalQuantity: 1,
-          productName: '$productDetails.name' 
+          prductId: '$_id',
+          productName: '$productDetails.name',
+          image: '$productDetails.image',
+          percentage: {
+            $round: [{ $multiply: [{ $divide: ["$totalQuantity", revenue[0].totalOrderQuantity] }, 100] }, 2]
+          } 
         }
       },
       { $sort: { totalQuantity: 1 } }, 
-      { $limit: 5 } 
+      { $limit: 5 }
     ]);
 
     const revenueFormatted = revenue.length > 0 ? revenue[0] : {
@@ -545,7 +555,12 @@ async function getStatisticsForWarehouse(shopId, year, month) {
         $project: {
           _id: 0,
           totalQuantity: 1,
-          productName: '$productDetails.name' 
+          prductId: '$_id',
+          productName: '$productDetails.name',
+          image: '$productDetails.image',
+          percentage: {
+            $round: [{ $multiply: [{ $divide: ["$totalQuantity", revenue[0].totalOrderQuantity] }, 100] }, 2]
+          } 
         }
       },
       { $sort: { totalQuantity: -1 } }, 
@@ -580,7 +595,12 @@ async function getStatisticsForWarehouse(shopId, year, month) {
         $project: {
           _id: 0,
           totalQuantity: 1,
-          productName: '$productDetails.name' 
+          prductId: '$_id',
+          productName: '$productDetails.name',
+          image: '$productDetails.image',
+          percentage: {
+            $round: [{ $multiply: [{ $divide: ["$totalQuantity", revenue[0].totalOrderQuantity] }, 100] }, 2]
+          } 
         }
       },
       { $sort: { totalQuantity: 1 } }, 
@@ -636,7 +656,10 @@ async function getStatisticsForWarehouse(shopId, year, month) {
           _id: 0,
           shopId: '$_id',
           shopName: '$shopDetails.name',
-          totalRevenue: 1
+          totalRevenue: 1,
+          percentage: {
+            $round: [{ $multiply: [{ $divide: ["$totalRevenue", revenue[0].totalRevenue] }, 100] }, 2]
+          } 
         }
       }
     ]);
@@ -690,7 +713,10 @@ async function getStatisticsForWarehouse(shopId, year, month) {
           _id: 0,
           shopId: '$_id',
           shopName: '$shopDetails.name',
-          totalRevenue: 1
+          totalRevenue: 1,
+          percentage: {
+            $round: [{ $multiply: [{ $divide: ["$totalRevenue", revenue[0].totalRevenue] }, 100] }, 2]
+          } 
         }
       }
     ]);
@@ -988,7 +1014,13 @@ async function getStatisticsForAllShops(year, month) {
         $project: {
           _id: 0,
           totalQuantity: 1,
-          productName: '$productDetails.name' 
+          prductId: '$_id',
+          productName: '$productDetails.name',
+          image: '$productDetails.image',
+          percentage: {
+            $round: [{ $multiply: [{ $divide: ["$totalQuantity", revenue[0].totalOrderQuantity] }, 100] }, 2]
+          } 
+
         }
       },
       { $sort: { totalQuantity: -1 } }, 
@@ -1034,7 +1066,13 @@ async function getStatisticsForAllShops(year, month) {
         $project: {
           _id: 0,
           totalQuantity: 1,
-          productName: '$productDetails.name' 
+          prductId: '$_id',
+          productName: '$productDetails.name',
+          image: '$productDetails.image',
+          percentage: {
+            $round: [{ $multiply: [{ $divide: ["$totalQuantity", revenue[0].totalOrderQuantity] }, 100] }, 2]
+          } 
+
         }
       },
       { $sort: { totalQuantity: 1 } }, 
@@ -1090,7 +1128,10 @@ async function getStatisticsForAllShops(year, month) {
           _id: 0,
           shopId: '$_id',
           shopName: '$shopDetails.name',
-          totalRevenue: 1
+          totalRevenue: 1,
+          percentage: {
+            $round: [{ $multiply: [{ $divide: ["$totalRevenue", revenue[0].totalRevenue] }, 100] }, 2]
+          } 
         }
       }
     ]);
@@ -1144,7 +1185,10 @@ async function getStatisticsForAllShops(year, month) {
           _id: 0,
           shopId: '$_id',
           shopName: '$shopDetails.name',
-          totalRevenue: 1
+          totalRevenue: 1,
+          percentage: {
+            $round: [{ $multiply: [{ $divide: ["$totalRevenue", revenue[0].totalRevenue] }, 100] }, 2]
+          } 
         }
       }
     ]);
