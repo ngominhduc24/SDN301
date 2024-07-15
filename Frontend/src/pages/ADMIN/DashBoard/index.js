@@ -155,91 +155,53 @@ const DashBoard = () => {
     },
     series: [
       {
-        name: "Sales",
-        type: "bar",
-        data: data[selectedShop].topProducts.map(product => product.sales),
-      },
-    ],
-  }
-
-  return (
-    <div>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={8}>
-          <Select
-            showSearch
-            placeholder="Select a shop or all"
-            optionFilterProp="children"
-            onChange={handleShopChange}
-            style={{ width: "100%" }}
-          >
-            <Option value="all">All Shops</Option>
-            <Option value="shop1">Shop 1</Option>
-            <Option value="shop2">Shop 2</Option>
-            {/* Add more shops as needed */}
-          </Select>
-        </Col>
-      </Row>
-      <Row gutter={16}>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Active Users"
-              value={data[selectedShop].activeUsers}
-              valueStyle={{ color: "#3f8600" }}
-              suffix="/ 5000"
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Bounce Rate"
-              value={data[selectedShop].bounceRate}
-              precision={2}
-              valueStyle={{ color: "#cf1322" }}
-              suffix="%"
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="New Users"
-              value={data[selectedShop].newUsers}
-              valueStyle={{ color: "#3f8600" }}
-            />
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={24}>
-          <Card>
-            <ReactECharts option={lineChartOptions} />
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={24}>
-          <Card>
-            <ReactECharts option={pieChartOptions} />
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={12}>
-          <Card>
-            <ReactECharts option={barChartOptions} />
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card>
-            <ReactECharts option={barChartOptions} />
-          </Card>
-        </Col>
-      </Row>
-    </div>
-  )
+        name: 'Fake Data',
+        type: 'bar',
+        data: [5, 20, 36, 10, 10, 20, 30]
+      }
+    ]
+  };
+  return  <div>
+  <Row gutter={16}>
+    <Col span={8}>
+      <Card>
+        <Statistic
+          title="Active Users"
+          value={1128}
+          valueStyle={{ color: '#3f8600' }}
+          suffix="/ 2000"
+        />
+      </Card>
+    </Col>
+    <Col span={8}>
+      <Card>
+        <Statistic
+          title="Bounce Rate"
+          value={2.8}
+          precision={2}
+          valueStyle={{ color: '#cf1322' }}
+          suffix="%"
+        />
+      </Card>
+    </Col>
+    <Col span={8}>
+      <Card>
+        <Statistic
+          title="New Users"
+          value={93}
+          valueStyle={{ color: '#3f8600' }}
+        />
+      </Card>
+    </Col>
+  </Row>
+  <Row gutter={16} style={{ marginTop: 16 }}>
+    <Col span={24}>
+      <Card title="Chart Example">
+        <ReactECharts option={lineChartOptions} />
+      </Card>
+    </Col>
+  </Row>
+</div>
 }
 
 export default DashBoard

@@ -462,4 +462,3 @@ const UpdateInvoice = ({ open, onCancel, onOk, id, invoice }) => {
 }
 
 export default UpdateInvoice
-

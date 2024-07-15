@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   Col,
   Form,
@@ -474,3 +475,6 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
 }
 
 export default InsertUpdateInvoice
+
+=======
+>>>>>>> 6e85df84515f3df48f08b356a424d2129bffd3f9
