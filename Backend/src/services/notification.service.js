@@ -24,7 +24,8 @@ class NotificationService {
               };
               console.log(notificationDataEmit);
             const io = socketSingleton.getIo();
-            io.to(shopId).emit('notification', notificationDataEmit);
+            console.log("warehouseId = " + shopId);
+            io.to(0).emit('notification', notificationDataEmit);
 
             return savedNotification;
         } catch (error) {
