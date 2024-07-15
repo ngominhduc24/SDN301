@@ -474,3 +474,4 @@ const InsertUpdateInvoice = ({ open, onCancel, onOk, id }) => {
 }
 
 export default InsertUpdateInvoice
+

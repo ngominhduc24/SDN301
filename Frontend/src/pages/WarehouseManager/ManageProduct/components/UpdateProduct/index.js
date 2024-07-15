@@ -194,7 +194,7 @@ const UpdateProduct = ({ open, onCancel, onOk, product, id, managerId }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={createInvoice}
+          onClick={updateProductsToWarehouse}
         >
           Lưu
         </Button>
