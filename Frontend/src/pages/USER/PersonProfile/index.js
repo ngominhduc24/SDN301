@@ -185,7 +185,7 @@ console.log("userid: ", userID);
                             </div>
                           </div>
                           <div className="d-flex">
-                            {/* {!!avatarUpload && ( */}
+                            {!!avatarUpload && (
                               <>
                                 <Button
                                   btntype="third"
@@ -211,7 +211,7 @@ console.log("userid: ", userID);
                                   Lưu ảnh
                                 </Button>
                               </>
-                            {/* )} */}
+                             )}
                           </div>
                         </div>
                       </div>

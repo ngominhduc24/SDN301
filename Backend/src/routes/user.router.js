@@ -179,7 +179,7 @@ userRouter.get('/admin/users', verifyTokenHandle.verifyToken, UserController.Lis
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRouter.put('/admin/users/:id', upload.single('image'), UserController.updateUserById);
+userRouter.post('/admin/users/:id', upload.single('image'), UserController.updateUserById);
 
 userRouter.get('/admin/users/:id', UserController.getUserById);
 

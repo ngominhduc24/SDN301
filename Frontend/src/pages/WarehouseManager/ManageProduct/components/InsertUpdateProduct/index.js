@@ -8,6 +8,9 @@ import {
   Tooltip,
   InputNumber,
   Modal,
+  Card,
+  Typography,
+  Input,
 } from "antd"
 import { useEffect, useState } from "react"
 import CustomModal from "src/components/Modal/CustomModal"
@@ -22,7 +25,7 @@ import ModalViewProduct from "./components/modal/ModalViewProduct"
 
 const { Option } = Select
 
-const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
+const InsertUpdateProduct = ({ open, onCancel, onOk, id, managerId }) => {
   const [form] = Form.useForm()
   const [shopProductsNotIn, setShopProductsNotIn] = useState([])
   const [selectedProducts, setSelectedProducts] = useState([])
@@ -40,6 +43,10 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     ApproveStatus: 0,
     Status: 0,
   })
+  const [note, setNote] = useState("")
+  const [discount, setDiscount] = useState(0)
+  const [shippingCharge, setShippingCharge] = useState(0)
+  const { Title, Text } = Typography
 
   const listBtn = record => [
     {
@@ -188,6 +195,17 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
       ),
     )
   }
+  const handleNoteChange = e => {
+    setNote(e.target.value)
+  }
+
+  const handleDiscountChange = value => {
+    setDiscount(value)
+  }
+
+  const handleShippingChargeChange = value => {
+    setShippingCharge(value)
+  }
 
   const getProductsNotInShop = async () => {
     try {
@@ -210,7 +228,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
     }
   }
 
-  const addProductsToShop = async () => {
+  const addProductsToWarehouse = async () => {
     try {
       setLoading(true)
       const response = await ManagerService.addProductsToShop(id, stateBody)
@@ -251,7 +269,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
       label: <div>Sản phẩm</div>,
       children: (
         <PatentRegistrationChildBorder>
-          <Form form={form} onFinish={addProductsToShop}>
+          <Form form={form} onFinish={addProductsToWarehouse}>
             <Row gutter={16} style={{ marginBottom: 16 }}>
               <Col span={12}>
                 <Select
@@ -321,6 +339,48 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
         </PatentRegistrationChildBorder>
       ),
     },
+    {
+      key: 2,
+      label: <div>Ghi chú</div>,
+      children: (
+        <Card>
+          <Form form={form} layout="vertical">
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item label="Ghi chú">
+                  <Input.TextArea
+                    onChange={handleNoteChange}
+                    rows={4}
+                    placeholder="Nhập ghi chú"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="Chiết khấu (%)">
+                  <InputNumber
+                    min={0}
+                    value={discount}
+                    onChange={handleDiscountChange}
+                    placeholder="Chiết khấu"
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="Phí vận chuyển">
+                  <InputNumber
+                    min={0}
+                    value={shippingCharge}
+                    onChange={handleShippingChargeChange}
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </Card>
+      ),
+    },
   ]
 
   const renderFooter = () => (
@@ -330,7 +390,7 @@ const InsertUpdateProduct = ({ open, onCancel, onOk, id }) => {
           btntype="primary"
           className="ml-8 mt-12 mb-12"
           loading={loading}
-          onClick={addProductsToShop}
+          onClick={addProductsToWarehouse}
         >
           Lưu
         </Button>
