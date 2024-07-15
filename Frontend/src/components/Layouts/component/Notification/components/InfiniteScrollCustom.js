@@ -1,15 +1,15 @@
-import { LoadingOutlined } from "@ant-design/icons"
-import { Spin } from "antd"
-import React from "react"
-import InfiniteScroll from "react-infinite-scroll-component"
+import { LoadingOutlined } from "@ant-design/icons";
+import { Spin } from "antd";
+import React from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 
-const InfiniteScrollCustom = props => {
-  const { children } = props
+const InfiniteScrollCustom = (props) => {
+  const { children, ...rest } = props;
   return (
     <InfiniteScroll
-      {...props}
+      {...rest}
       loader={
-        <div className="d-flex-center pt-15 ">
+        <div className="d-flex-center pt-15">
           <Spin
             indicator={
               <LoadingOutlined
@@ -22,12 +22,12 @@ const InfiniteScrollCustom = props => {
           />
         </div>
       }
-      endMessage={<h4 className="d-flex-center pt-15 ">Không còn thông báo</h4>}
+      endMessage={<h4 className="d-flex-center pt-15">Không còn thông báo</h4>}
       height={"400px"}
     >
       {children}
     </InfiniteScroll>
-  )
-}
+  );
+};
 
-export default InfiniteScrollCustom
+export default InfiniteScrollCustom;

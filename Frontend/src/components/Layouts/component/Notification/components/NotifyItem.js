@@ -1,9 +1,13 @@
-import { UserOutlined } from "@ant-design/icons"
-import { Avatar, Tooltip } from "antd"
-import React from "react"
-import { WrapNotifyItem } from "../styled"
+import { UserOutlined } from "@ant-design/icons";
+import { Avatar, Tooltip } from "antd";
+import React from "react";
+import { WrapNotifyItem } from "../styled";
 
 const NotifyItem = ({ notify, handleClick }) => {
+  const contentParts = notify?.Content ? notify.Content.split(":") : [];
+  const contentPart1 = contentParts[0] || "";
+  const contentPart2 = contentParts[1] || notify?.PackageName || "";
+
   return (
     <WrapNotifyItem
       className={!notify?.IsRead ? "unread" : ""}
@@ -20,18 +24,18 @@ const NotifyItem = ({ notify, handleClick }) => {
         <div className="hidden-text">
           <span className="account-name">{notify?.Title}</span>
           <br />
-          <Tooltip title={`${notify?.AccountName} - ${notify?.Content}`}>
+          <Tooltip title={`${notify?.AccountName} - ${notify?.Content || ""}`}>
             <span className="account-name">{notify?.AccountName}</span>{" "}
-            <span>{notify?.Content?.split(": ")[0]}</span>{" "}
+            <span>{contentPart1}</span>{" "}
             <span className="package-name">
-              {notify?.Content?.split(":")[1] || notify?.PackageName}
+              {contentPart2}
             </span>
           </Tooltip>
         </div>
         <div className="time"> {notify?.TimeAgo}</div>
       </div>
     </WrapNotifyItem>
-  )
-}
+  );
+};
 
-export default NotifyItem
+export default NotifyItem;
