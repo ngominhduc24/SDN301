@@ -1,6 +1,7 @@
 const RequestService = require('../services/request.service');
 const NotificationService = require('../services/notification.service');
 const shopService = require('../services/shop.service');
+const InvoiceService = require('../services/invoice.service');
 const Request = require('../models/request');
 
 async function create(req, res, next) {
@@ -55,6 +56,13 @@ async function updateInfo(req, res, next) {
         if(!request) {
             throw new Error('Request not found');
         }
+        
+        if(request.invoice_id) {
+            const invoice = await InvoiceService.getInvoiceById(request.invoice_id);
+            if(invoice.status == "completed") {
+                throw new Error('Invoice is already completed');
+            }
+        }
 
         const requestData = {
             from: req.body.from,
@@ -62,6 +70,34 @@ async function updateInfo(req, res, next) {
         };
 
         const updatedRequest = await RequestService.update(req.params.id, requestData);
+
+        res.status(200).json(updatedRequest);
+    } catch (error) {
+        next(error); 
+    }
+}
+
+async function update(req, res, next) {
+    try {
+        var request = await Request.findById(req.params.id);
+        if(!request) {
+            throw new Error('Request not found');
+        }
+
+        if(request.invoice_id) {
+            const invoice = await InvoiceService.getInvoiceById(request.invoice_id);
+            if(invoice.status == "completed") {
+                throw new Error('Invoice is already completed');
+            }
+        }
+
+        const requestData = {
+            from: req.body.from,
+            details: req.body.details,
+            status: "accepted"
+        };
+
+        const updatedRequest = await RequestService.updateRequest(req.params.id, requestData);
 
         res.status(200).json(updatedRequest);
     } catch (error) {
@@ -112,7 +148,8 @@ const requestController = {
     getAll,
     getById,
     updateInfo,
-    updateStatus
+    updateStatus,
+    update
 };
 
 module.exports = requestController;

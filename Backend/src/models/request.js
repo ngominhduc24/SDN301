@@ -28,7 +28,7 @@ const requestSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'accepted', 'rejected', 'completed', 'cancelled'],
+        enum: ['pending', 'accepted', 'rejected', 'completed', 'cancelled', 'updated'],
         default: 'pending'
     },
     details: [requestItemSchema],
@@ -36,6 +36,10 @@ const requestSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: User,
         required: true
+    },
+    invoice_id: {
+        type: Schema.Types.ObjectId,
+        ref: 'Invoice'
     }
 }, {
     timestamps: true

@@ -1,6 +1,9 @@
 const invoiceService = require('../services/invoice.service');
 const ProductService = require("../services/product.service");
 const ShopService = require('../services/shop.service');
+const RequestService = require('../services/request.service');
+
+const Request = require('../models/request');
 const Invoice = require('../models/invoice');
 const fs = require('fs');
 
@@ -65,6 +68,10 @@ async function create(req, res, next) {
                     ShopService.updateProductById(invoiceData.from, detail.productId, -detail.quantity)
                 ));
             }
+        }
+
+        if(req.body.requestId){
+            request = await RequestService.updateRequest(req.body.requestId, {invoice_id: newInvoice._id, status: 'accepted'});
         }
 
         res.status(201).json(newInvoice);
@@ -201,6 +208,7 @@ async function updateStatus(req, res, next) {
                     }
                 }));
             }
+            await Request.findOneAndUpdate({invoice_id: invoice._id}, {status: 'completed'})
         }
 
         if (invoice.status === 'pending' && newStatus==='cancelled' && invoice.details && invoice.details.length > 0) {

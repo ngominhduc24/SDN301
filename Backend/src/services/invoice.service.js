@@ -102,356 +102,7 @@ async function exportInvoiceToPDF(invoiceId) {
   }
 }
 
-async function getDailyRevenue2(shopId, year, month) {
-  try {
-    // Xác định khoảng thời gian từ đầu tháng đến cuối tháng
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month - 0, 1);
-
-    // Lấy dữ liệu doanh thu từ MongoDB
-    const revenueData = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      {
-        $group: {
-          _id: { $dayOfMonth: "$createdAt" },
-          totalRevenue: { $sum: "$total_price" }
-        }
-      },
-      {
-        $sort: { "_id": 1 }
-      },
-      {
-        $project: {
-          _id: 0,
-          day: "$_id",
-          totalRevenue: 1
-        }
-      }
-    ]);
-
-    //total revenue, total order
-    const revenueData2 = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$total_price" },
-          totalOrders: { $sum: 1 }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          totalRevenue: 1,
-          totalOrders: 1
-        }
-      }
-    ]);
-
-    //total product quantity
-    const revenueData4 = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      {
-        $unwind: "$details"
-      },
-      {
-        $group: {
-          _id: null,
-          totalQuantity: { $sum: "$details.quantity" }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          totalQuantity: 1
-        }
-      }
-    ]);
-
-    //total product cost in this month
-    const revenueData3 = await Invoice.aggregate([
-      {
-        $match: {
-          to: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$total_price" }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          totalRevenue: 1
-        }
-      }
-    ]);
-
-    //total import product quantity in this month
-    const revenueData7 = await Invoice.aggregate([
-      {
-        $match: {
-          to: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      {
-        $unwind: "$details"
-      },
-      {
-        $group: {
-          _id: null,
-          totalQuantity: { $sum: "$details.quantity" }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          totalQuantity: 1
-        }
-      }
-    ]);
-
-    //total remain product quantity
-    const revenueData5 = await Invoice.aggregate([
-      {
-        $match: {
-          to: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $lt: endDate },
-          status: "completed"
-        }
-      },
-      {
-        $unwind: "$details"
-      },
-      {
-        $group: {
-          _id: null,
-          totalQuantity: { $sum: "$details.quantity" }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          totalQuantity: 1
-        }
-      }
-    ]);
-
-    const revenueData6 = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $lt: endDate },
-          status: "completed"
-        }
-      },
-      {
-        $unwind: "$details"
-      },
-      {
-        $group: {
-          _id: null,
-          totalQuantity: { $sum: "$details.quantity" }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          totalQuantity: 1
-        }
-      }
-    ]);
-
-    //value of remain products 
-
-    const revenueData8 = await Invoice.aggregate([
-      {
-        $match: {
-          to: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $lt: endDate },
-          status: "completed"
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: "$sub_total" }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          total: 1
-        }
-      }
-    ]);
-
-    const revenueData9 = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $lt: endDate },
-          status: "completed"
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: "$sub_total" }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          total: 1
-        }
-      }
-    ]);
-    
-    // return (revenueData8[0] ? revenueData8[0].total : 0) - (revenueData9[0] ? revenueData9[0].total : 0);
-    // return revenueData7;
-    // return (revenueData5[0] ? revenueData5[0].totalQuantity : 0) - (revenueData6[0] ? revenueData6[0].totalQuantity : 0);
-
-    const revenueData10 = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      { $unwind: '$details' }, 
-      {
-        $group: {
-          _id: '$details.productId',
-          totalRevenue: { $sum: { $multiply: ['$details.quantity', '$details.unit_price'] } }
-        }
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'productDetails'
-        }
-      },
-      { $unwind: '$productDetails' },
-      {
-        $project: {
-          _id: 0,
-          totalRevenue: 1,
-          productName: '$productDetails.name'
-        }
-      }
-    ]);
-    // return revenueData10.map(product => ({
-    //   productName: product.productName,
-    //   percentage: ((product.totalRevenue / revenueData2[0].totalRevenue) * 100).toFixed(2) 
-    // }));
-
-    const topSellingProductsByQuantity = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      { $unwind: '$details' },
-      {
-        $group: {
-          _id: '$details.productId',
-          totalQuantity: { $sum: '$details.quantity' } 
-        }
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'productDetails'
-        }
-      },
-      { $unwind: '$productDetails' },
-      {
-        $project: {
-          _id: 0,
-          totalQuantity: 1,
-          productName: '$productDetails.name' 
-        }
-      },
-      { $sort: { totalQuantity: -1 } }, 
-      { $limit: 5 } 
-    ]);
-
-    const leastSellingProductsByQuantity  = await Invoice.aggregate([
-      {
-        $match: {
-          from: new mongoose.Types.ObjectId(shopId),
-          createdAt: { $gte: startDate, $lt: endDate },
-          status: "completed"
-        }
-      },
-      { $unwind: '$details' },
-      {
-        $group: {
-          _id: '$details.productId',
-          totalQuantity: { $sum: '$details.quantity' } 
-        }
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'productDetails'
-        }
-      },
-      { $unwind: '$productDetails' },
-      {
-        $project: {
-          _id: 0,
-          totalQuantity: 1,
-          productName: '$productDetails.name' 
-        }
-      },
-      { $sort: { totalQuantity: 1 } }, 
-      { $limit: 5 } 
-    ]);
-    
-    return leastSellingProductsByQuantity;
-    
-    
-  } catch (error) {
-    throw error;
-  }
-};
-
-async function getStatistics(shopId, year, month) {
+async function getStatisticsForAShop(shopId, year, month) {
   try {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month - 0, 1);
@@ -704,10 +355,586 @@ async function getStatistics(shopId, year, month) {
       { $sort: { totalQuantity: 1 } }, 
       { $limit: 5 } 
     ]);
+
+    const revenueFormatted = revenue.length > 0 ? revenue[0] : {
+      totalRevenue: 0,
+      totalOrders: 0,
+      totalOrderQuantity: 0
+    }
+
+    const importProductFormatted = importProduct.length > 0 ? importProduct[0] : {
+      totalQuantity: 0,
+      totalCost: 0
+    }
     
     return {
-      ...revenue[0],
-      ...importProduct[0],
+      ...revenueFormatted,
+      ...importProductFormatted,
+      remainQuantity: (totalImport[0] ? totalImport[0].totalQuantity : 0) - (totalExport[0] ? totalExport[0].totalQuantity : 0),
+      remainProductValue: (totalImport[0] ? totalImport[0].totalCost : 0) - (totalExport[0] ? totalExport[0].totalCost : 0),
+      revenueByDay,
+      revenueByProduct,
+      top5SellingProductsByQuantity,
+      least5SellingProductsByQuantity
+    };
+    
+  } catch (error) {
+    throw error;
+  }
+};
+
+async function getStatisticsForWarehouse(shopId, year, month) {
+  try {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month - 0, 1);
+
+    //total revenue, total order, total quantity in a specific month
+    const revenue = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $unwind: "$details"
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$total_price" },
+          totalOrders: { $sum: 1 },
+          totalOrderQuantity: { $sum: "$details.quantity" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalRevenue: 1,
+          totalOrders: 1,
+          totalOrderQuantity: 1
+        }
+      }
+    ]);
+
+    //total import money, total quantity in a specific month
+    const importProduct = await Invoice.aggregate([
+      {
+        $match: {
+          to: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $unwind: "$details"
+      },
+      {
+        $group: {
+          _id: null,
+          totalImportCost: { $sum: "$total_price" },
+          totalImportQuantity: { $sum: "$details.quantity" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalImportCost: 1,
+          totalImportQuantity: 1
+        }
+      }
+    ]);
+
+    //total remain product quantity
+    const totalImport = await Invoice.aggregate([
+      {
+        $match: {
+          to: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $unwind: "$details"
+      },
+      {
+        $group: {
+          _id: null,
+          totalQuantity: { $sum: "$details.quantity" },
+          totalCost: { $sum: "$sub_total" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalQuantity: 1,
+          totalCost: 1
+        }
+      }
+    ]);
+
+    const totalExport = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $unwind: "$details"
+      },
+      {
+        $group: {
+          _id: null,
+          totalQuantity: { $sum: "$details.quantity" },
+          totalCost: { $sum: "$sub_total" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalQuantity: 1,
+          totalCost: 1
+        }
+      }
+    ]);
+
+    const revenueByDay = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $group: {
+          _id: { $dayOfMonth: "$createdAt" },
+          revenue: { $sum: "$total_price" }
+        }
+      },
+      {
+        $sort: { "_id": 1 }
+      },
+      {
+        $project: {
+          _id: 0,
+          day: "$_id",
+          revenue: 1
+        }
+      }
+    ]);
+
+    const revenueData = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      { $unwind: '$details' }, 
+      {
+        $group: {
+          _id: '$details.productId',
+          totalRevenue: { $sum: { $multiply: ['$details.quantity', '$details.unit_price'] } }
+        }
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'productDetails'
+        }
+      },
+      { $unwind: '$productDetails' },
+      {
+        $project: {
+          _id: 0,
+          totalRevenue: 1,
+          productName: '$productDetails.name'
+        }
+      }
+    ]);
+
+    const totalRevenue = revenueData.reduce((acc, product) => acc + product.totalRevenue, 0);
+
+    var revenueByProduct = revenueData.map(product => ({
+      productName: product.productName,
+      percentage: ((product.totalRevenue / totalRevenue) * 100).toFixed(2) 
+    }));
+
+    const top5SellingProductsByQuantity = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      { $unwind: '$details' },
+      {
+        $group: {
+          _id: '$details.productId',
+          totalQuantity: { $sum: '$details.quantity' } 
+        }
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'productDetails'
+        }
+      },
+      { $unwind: '$productDetails' },
+      {
+        $project: {
+          _id: 0,
+          totalQuantity: 1,
+          productName: '$productDetails.name' 
+        }
+      },
+      { $sort: { totalQuantity: -1 } }, 
+      { $limit: 5 } 
+    ]);
+
+    const least5SellingProductsByQuantity  = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      { $unwind: '$details' },
+      {
+        $group: {
+          _id: '$details.productId',
+          totalQuantity: { $sum: '$details.quantity' } 
+        }
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'productDetails'
+        }
+      },
+      { $unwind: '$productDetails' },
+      {
+        $project: {
+          _id: 0,
+          totalQuantity: 1,
+          productName: '$productDetails.name' 
+        }
+      },
+      { $sort: { totalQuantity: 1 } }, 
+      { $limit: 5 } 
+    ]);
+
+    const revenueFormatted = revenue.length > 0 ? revenue[0] : {
+      totalRevenue: 0,
+      totalOrders: 0,
+      totalOrderQuantity: 0
+    }
+
+    const importProductFormatted = importProduct.length > 0 ? importProduct[0] : {
+      totalQuantity: 0,
+      totalCost: 0
+    }
+    
+    return {
+      ...revenueFormatted,
+      ...importProductFormatted,
+      remainQuantity: (totalImport[0] ? totalImport[0].totalQuantity : 0) - (totalExport[0] ? totalExport[0].totalQuantity : 0),
+      remainProductValue: (totalImport[0] ? totalImport[0].totalCost : 0) - (totalExport[0] ? totalExport[0].totalCost : 0),
+      revenueByDay,
+      revenueByProduct,
+      top5SellingProductsByQuantity,
+      least5SellingProductsByQuantity
+    };
+    
+  } catch (error) {
+    throw error;
+  }
+};
+
+async function getStatisticsForAllShops(year, month) {
+  try {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month - 0, 1);
+    //total revenue, total order, total quantity in a specific month
+    const revenue = await Shop.aggregate([
+      {
+        $match: {
+          inventoryType: 'shop'
+        }
+      },
+      {
+        $lookup: {
+          from: 'invoices',
+          localField: '_id',
+          foreignField: 'from', 
+          as: 'shopInvoices'
+        }
+      },
+      { $unwind: '$shopInvoices' },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$shopInvoices.total_price' },
+          totalOrders: { $sum: 1 },
+          totalOrderQuantity: { $sum: "$shopInvoices.details.quantity" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalRevenue: 1,
+          totalOrders: 1,
+          totalOrderQuantity: 1
+        }
+      }
+    ]);
+
+    //total import money, total quantity in a specific month
+    const importProduct = await Invoice.aggregate([
+      {
+        $match: {
+          to: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $unwind: "$details"
+      },
+      {
+        $group: {
+          _id: null,
+          totalImportCost: { $sum: "$total_price" },
+          totalImportQuantity: { $sum: "$details.quantity" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalImportCost: 1,
+          totalImportQuantity: 1
+        }
+      }
+    ]);
+
+    //total remain product quantity
+    const totalImport = await Invoice.aggregate([
+      {
+        $match: {
+          to: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $unwind: "$details"
+      },
+      {
+        $group: {
+          _id: null,
+          totalQuantity: { $sum: "$details.quantity" },
+          totalCost: { $sum: "$sub_total" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalQuantity: 1,
+          totalCost: 1
+        }
+      }
+    ]);
+
+    const totalExport = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $unwind: "$details"
+      },
+      {
+        $group: {
+          _id: null,
+          totalQuantity: { $sum: "$details.quantity" },
+          totalCost: { $sum: "$sub_total" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalQuantity: 1,
+          totalCost: 1
+        }
+      }
+    ]);
+
+    const revenueByDay = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      {
+        $group: {
+          _id: { $dayOfMonth: "$createdAt" },
+          revenue: { $sum: "$total_price" }
+        }
+      },
+      {
+        $sort: { "_id": 1 }
+      },
+      {
+        $project: {
+          _id: 0,
+          day: "$_id",
+          revenue: 1
+        }
+      }
+    ]);
+
+    const revenueData = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      { $unwind: '$details' }, 
+      {
+        $group: {
+          _id: '$details.productId',
+          totalRevenue: { $sum: { $multiply: ['$details.quantity', '$details.unit_price'] } }
+        }
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'productDetails'
+        }
+      },
+      { $unwind: '$productDetails' },
+      {
+        $project: {
+          _id: 0,
+          totalRevenue: 1,
+          productName: '$productDetails.name'
+        }
+      }
+    ]);
+
+    const totalRevenue = revenueData.reduce((acc, product) => acc + product.totalRevenue, 0);
+
+    var revenueByProduct = revenueData.map(product => ({
+      productName: product.productName,
+      percentage: ((product.totalRevenue / totalRevenue) * 100).toFixed(2) 
+    }));
+
+    const top5SellingProductsByQuantity = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      { $unwind: '$details' },
+      {
+        $group: {
+          _id: '$details.productId',
+          totalQuantity: { $sum: '$details.quantity' } 
+        }
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'productDetails'
+        }
+      },
+      { $unwind: '$productDetails' },
+      {
+        $project: {
+          _id: 0,
+          totalQuantity: 1,
+          productName: '$productDetails.name' 
+        }
+      },
+      { $sort: { totalQuantity: -1 } }, 
+      { $limit: 5 } 
+    ]);
+
+    const least5SellingProductsByQuantity  = await Invoice.aggregate([
+      {
+        $match: {
+          from: new mongoose.Types.ObjectId(shopId),
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "completed"
+        }
+      },
+      { $unwind: '$details' },
+      {
+        $group: {
+          _id: '$details.productId',
+          totalQuantity: { $sum: '$details.quantity' } 
+        }
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'productDetails'
+        }
+      },
+      { $unwind: '$productDetails' },
+      {
+        $project: {
+          _id: 0,
+          totalQuantity: 1,
+          productName: '$productDetails.name' 
+        }
+      },
+      { $sort: { totalQuantity: 1 } }, 
+      { $limit: 5 } 
+    ]);
+
+    const revenueFormatted = revenue.length > 0 ? revenue[0] : {
+      totalRevenue: 0,
+      totalOrders: 0,
+      totalOrderQuantity: 0
+    }
+
+    const importProductFormatted = importProduct.length > 0 ? importProduct[0] : {
+      totalQuantity: 0,
+      totalCost: 0
+    }
+    
+    return {
+      ...revenueFormatted,
+      ...importProductFormatted,
       remainQuantity: (totalImport[0] ? totalImport[0].totalQuantity : 0) - (totalExport[0] ? totalExport[0].totalQuantity : 0),
       remainProductValue: (totalImport[0] ? totalImport[0].totalCost : 0) - (totalExport[0] ? totalExport[0].totalCost : 0),
       revenueByDay,
@@ -727,5 +954,7 @@ module.exports = {
   getInvoiceById,
   updateInvoice,
   exportInvoiceToPDF,
-  getStatistics
+  getStatisticsForAShop,
+  getStatisticsForWarehouse,
+  getStatisticsForAllShops
 };

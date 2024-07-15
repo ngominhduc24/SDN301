@@ -9,6 +9,7 @@ router.post('/', RequestController.create);
 router.get('/', RequestController.getAll);
 router.get('/:id', RequestController.getById);
 router.put('/:id', RequestController.updateInfo);
+router.put('/:id/accept', RequestController.update);
 router.put('/status/:id', RequestController.updateStatus);
 
 module.exports = router;
