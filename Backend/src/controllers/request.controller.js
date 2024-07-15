@@ -1,6 +1,7 @@
 const RequestService = require('../services/request.service');
 const NotificationService = require('../services/notification.service');
 const shopService = require('../services/shop.service');
+const userService = require('../services/user.service');
 const InvoiceService = require('../services/invoice.service');
 const Request = require('../models/request');
 
@@ -17,9 +18,10 @@ async function create(req, res, next) {
         };
 
         // start notification
+        const userCreate = await userService.getUserById(req.body.created_by);
         const warehouse = await shopService.getWarehouse();
-        if (warehouse) {
-            const notification = await NotificationService.pushNotification("You have new request for order product", warehouse ? warehouse._id : null, req.body.created_by);
+        if (warehouse && userCreate) {
+            const notification = await NotificationService.pushNotification("You have new request for order product", warehouse ? warehouse._id : null, userCreate);
         }
         // end 
        
