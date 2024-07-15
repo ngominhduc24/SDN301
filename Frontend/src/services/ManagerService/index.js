@@ -17,6 +17,12 @@ import {
   apiGetAllInvoice,
   apiGetInvoicesByShopId,
   apiGetOrdersByShopId,
+  apiUpdateInfoRequest,
+  apiUpdateStatusRequest,
+  apiCreateRequest,
+  apiGetRequestWarehouse,
+  apiGetRequestShop,
+  apiGetRequestById,
 } from "./urls"
 import QueryString from "qs"
 
@@ -38,9 +44,18 @@ const getInvoiceById = id => http.get(apiGetInvoiceById(id))
 const updateInfoInvoice = (id, body) => http.put(apiUpdateInfoInvoice(id), body)
 const updateStatusInvoice = (id, body) =>
   http.put(apiUpdateStatusInvoice(id), body)
-const createInvoice = () => http.post(apiCreateInvoice)
+const createInvoice = body => http.post(apiCreateInvoice, body)
 const getInvoicesByShopId = id => http.get(apiGetInvoicesByShopId(id))
 const getOrdersByShopId = id => http.get(apiGetOrdersByShopId(id))
+
+// Request
+const updateInfoRequest = (id, body) => http.put(apiUpdateInfoRequest(id), body)
+const updateStatusRequest = (id, body) =>
+  http.put(apiUpdateStatusRequest(id), body)
+const createRequest = body => http.post(apiCreateRequest, body)
+const getRequestWarehouse = () => http.get(apiGetRequestWarehouse)
+const getRequestShop = id => http.get(apiGetRequestShop(id))
+const getRequestById = id => http.get(apiGetRequestById(id))
 
 const ManagerService = {
   getShop,
@@ -60,6 +75,12 @@ const ManagerService = {
   createInvoice,
   getInvoicesByShopId,
   getOrdersByShopId,
+  updateInfoRequest,
+  updateStatusRequest,
+  createRequest,
+  getRequestWarehouse,
+  getRequestShop,
+  getRequestById,
 }
 
 export default ManagerService

@@ -29,6 +29,7 @@ const ROUTER = {
   MANAGER_MANAGE_STAFF: "/manager/manage-staffs",
   MANAGER_MANAGE_PRODUCTS: "/manager/manage-products",
   MANAGER_PROFILE: `/manager/thong-tin-ca-nhan`,
+  MANAGER_REQUEST_SEND: "/manager/request-send",
   // WAREHOUSE MANAGER
   WAREHOUSE_MANAGER_DASHBOARD: "/warehouse-manager/dashboard",
   WAREHOUSE_MANAGER_MANAGE_INVOICE_TO_SHOP:
@@ -39,5 +40,6 @@ const ROUTER = {
   WAREHOUSE_MANAGER_PROFILE: `/warehouse-manager-thong-tin-ca-nhan`,
   WAREHOUSE_MANAGER_MANAGE_PRODUCT: "/warehouse-manager/manage-product",
   WAREHOUSE_MANAGER_MANAGE_STORE: "/warehouse-manager/manage-store",
+  WAREHOUSE_MANAGER_REQUEST_TO: "/warehouse-manager/request-to",
 }
 export default ROUTER
