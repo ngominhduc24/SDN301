@@ -6,7 +6,7 @@ class ProductService {
     // List all products
     async listAllProducts() {
         try {
-            return await Product.find();
+            return await Product.find().cache(250).exec();
         } catch (error) {
             throw error;
         }
@@ -14,7 +14,7 @@ class ProductService {
 
     async listAllActiveProducts() {
         try {
-            return await Product.find({status: 'active'});
+            return await Product.find({status: 'active'}).cache(250).exec();
         } catch (error) {
             throw error;
         }
