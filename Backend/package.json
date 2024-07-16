@@ -9,6 +9,7 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
+    "aws-sdk": "^2.1659.0",
     "cloudinary": "^1.21.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
@@ -16,6 +17,7 @@
     "dotenv": "^16.4.5",
     "exceljs": "^4.4.0",
     "express": "~4.16.1",
+    "express-fileupload": "^1.5.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "joi": "^17.13.1",

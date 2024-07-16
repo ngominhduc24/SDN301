@@ -4,6 +4,7 @@ const Shop = require("../models/shop");
 const path = require("path");
 const pdfMaster = require("pdf-master");
 const fs = require('fs').promises;
+const {uploadToS3} = require("../utils/s3");
 
 async function createInvoice(data) {
   try {
@@ -93,11 +94,28 @@ async function exportInvoiceToPDF(invoiceId) {
       const fileName = `invoice_${invoiceId}.pdf`;
       const filePath = path.join(saveDir, fileName);
 
-      // Write the PDF buffer to the file system
-      await fs.writeFile(filePath, pdfBuffer, { flag: 'w' });
+     // Write the PDF buffer to the file system
+     await fs.writeFile(filePath, pdfBuffer, { flag: 'w' });
 
-      // Return the path to the saved PDF file
-      return filePath;
+     // Upload PDF to S3
+     const s3UploadPromise = new Promise((resolve, reject) => {
+         uploadToS3(filePath, (error, data) => {
+             if (error) {
+                 reject(error);
+             } else {
+                 resolve(data.Location);
+             }
+         });
+     });
+
+     const s3Url = await s3UploadPromise;
+
+     // Clean up the local file after uploading to S3
+     await fs.unlink(filePath);
+
+     // Return the URL of the uploaded PDF
+     return s3Url;
+
 
   } catch (error) {
       throw error;
