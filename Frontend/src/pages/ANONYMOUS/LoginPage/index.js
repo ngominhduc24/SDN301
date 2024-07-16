@@ -22,7 +22,7 @@ import login from "src/assets/images/modalLogin/login.png"
 import useWindowSize from "src/lib/useWindowSize"
 import { jwtDecode } from "jwt-decode"
 import Notice from "src/components/Notice"
-
+import UserService from "src/services/UserService"
 const LoginPage = () => {
   const isLogin = getStorage(STORAGE.TOKEN)
   const [loading, setLoading] = useState(false)
@@ -58,6 +58,33 @@ const LoginPage = () => {
       place: "topRight",
     })
   }
+  const loginSuccess = data => {
+    console.log(data)
+
+    handleSuccess()
+    const userID = getStorage(STORAGE.USER_ID)
+    console.log("userid after success logged in:", userID)
+
+    if (routerBeforeLogin) navigate(routerBeforeLogin)
+
+    if (data) {
+      if (data.role === "ADMIN") {
+        dispatch(setIsAdmin(true))
+        navigate(ROUTER.DASHBOARD)
+      } else if (data.role === "STAFF") {
+        navigate(ROUTER.STAFF_DASHBOARD)
+      } else if (data.role === "MANAGER") {
+        navigate(ROUTER.MANAGER_MANAGE_STAFF)
+      } else if (data.role === "WAREHOUSE MANAGER") {
+        navigate(ROUTER.WAREHOUSE_MANAGER_DASHBOARD)
+      }
+      if (data.IsFirstLogin) {
+        dispatch(setOpenChangePassModal(true))
+      }
+    } else {
+      console.error("User data is undefined.")
+    }
+  }
 
   const onLogin = async () => {
     try {
@@ -69,8 +96,8 @@ const LoginPage = () => {
       console.log(decodedToken.payload)
       if (res) {
         setStorage(STORAGE.TOKEN, res?.token)
-        setStorage(STORAGE.USER_INFO, decodedToken.payload)
         setStorage(STORAGE.USER_ID, decodedToken.payload.id)
+        const userInfo = await getInfo(decodedToken.payload.id)
         dispatch(setUserInfo(decodedToken.payload))
         setRouterBeforeLogin(undefined)
         loginSuccess(decodedToken.payload)
@@ -88,27 +115,15 @@ const LoginPage = () => {
     }
   }
 
-  const loginSuccess = data => {
-    console.log(userInfo)
-
-    handleSuccess()
-    const userID = getStorage(STORAGE.USER_ID)
-    console.log("userid after success logged in:", userID);
-
-    if (routerBeforeLogin) navigate(routerBeforeLogin)
-
-    if (data?.role === "ADMIN") {
-      dispatch(setIsAdmin(true))
-      navigate(ROUTER.DASHBOARD)
-    } else if (data?.role === "STAFF") {
-      navigate(ROUTER.STAFF_DASHBOARD)
-    } else if (data?.role === "MANAGER") {
-      navigate(ROUTER.MANAGER_MANAGE_STAFF)
-    } else if (data?.role === "WAREHOUSE MANAGER") {
-      navigate(ROUTER.WAREHOUSE_MANAGER_DASHBOARD)
-    }
-    if (data?.IsFirstLogin) {
-      dispatch(setOpenChangePassModal(true))
+  const getInfo = async id => {
+    try {
+      const res = await UserService.getUserById(id)
+      console.log("res", res)
+      setStorage(STORAGE.USER_INFO, res)
+      if (res?.isError) return
+      return res
+    } catch (error) {
+      console.error("Error fetching warehouse info:", error)
     }
   }
 

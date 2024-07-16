@@ -57,7 +57,7 @@ const MainLayout = ({
   const { openLoginModal, openChangePassModal } = useSelector(
     state => state.loginModal,
   )
-  const { listTabs, userInfo } = useSelector(state => state?.appGlobal)
+  const { listTabs } = useSelector(state => state?.appGlobal)
   const isLogin = getStorage(STORAGE.TOKEN)
   let isUser = location.pathname.includes(ROUTER.CA_NHAN)
   const [open, setOpen] = useState(false)
@@ -69,7 +69,7 @@ const MainLayout = ({
   const [openRegisterModal, setOpenRegisterModal] = useState(false)
   const [openModalVoting, setOpenModalVoting] = useState({})
   const role = getStorage(STORAGE.USER_INFO)
-
+  const userInfo = getStorage(STORAGE.USER_INFO)
   const handleLogout = async () => {
     if (isLogin) {
       // await AuthService.logout()
@@ -344,14 +344,13 @@ const MainLayout = ({
                                             maxWidth: 180,
                                             color: "#333",
                                           }}
-                                          title={userInfo?.FullName}
+                                          title={userInfo?.email}
                                         >
-                                          {/* {userInfo?.FullName} */}
-                                          <span>MR A</span>
+                                          {userInfo?.email}
                                         </div>
                                         <div
                                           className="max-line1 fs-12"
-                                          title={userInfo?.RoleName}
+                                          title={userInfo?.role}
                                         >
                                           {/* {
                                           ROLE_NAME.find(
@@ -359,7 +358,7 @@ const MainLayout = ({
                                               i.value === userInfo?.AccountType,
                                           ).title
                                         } */}
-                                          {userInfo?.RoleName}
+                                          {userInfo?.role}
                                         </div>
                                       </div>
                                       <SvgIcon name="arrow-down-primary" />
@@ -433,7 +432,7 @@ const MainLayout = ({
             <Col span={6}>
               <div className="text-center">
                 <Avatar
-                  src={userInfo?.Avatar}
+                  src={userInfo?.avatar}
                   size={74}
                   icon={<UserOutlined style={{ fontSize: "36px" }} />}
                 />
@@ -441,7 +440,7 @@ const MainLayout = ({
             </Col>
             <Col span={18}>
               <div className="sumary-infor-user">
-                {!!userInfo?.FullName && (
+                {!!userInfo?.email && (
                   <div
                     className="fullname max-line2 mb-8 fs-16 fw-600"
                     style={{
@@ -449,7 +448,7 @@ const MainLayout = ({
                       color: "#262626",
                     }}
                   >
-                    {userInfo?.FullName}
+                    {userInfo?.email}
                   </div>
                 )}
                 {!!userInfo?.Username && (
