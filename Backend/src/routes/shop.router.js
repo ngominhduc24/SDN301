@@ -352,6 +352,6 @@ shopRouter.get('/warehouse/getinfo', ShopController.getWarehouse);
 shopRouter.get('/:shopId/invoiceTo', ShopController.getInvoiceToByShopId); // get invoice by shopId
 shopRouter.get('/:shopId/invoiceFrom', ShopController.getInvoiceFromByShopId); // get invoice by shopId
 shopRouter.get('/:shopId/request', ShopController.getRequestsByShopId);
-shopRouter.get('/statistics/dashboard', ShopController.getStatistics);
+shopRouter.post('/statistics/dashboard', ShopController.getStatistics);
 
 module.exports = shopRouter;

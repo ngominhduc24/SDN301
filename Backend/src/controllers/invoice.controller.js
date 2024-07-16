@@ -252,7 +252,7 @@ async function exportInvoiceToPDF(req, res) {
     try {
         const { id } = req.params;
         const pdfFilePath = await invoiceService.exportInvoiceToPDF(id);
-
+        console.log("file path: ", pdfFilePath);
         res.status(200).json({filePath: pdfFilePath});
     } catch (error) {
         console.error('Error exporting invoice:', error);
