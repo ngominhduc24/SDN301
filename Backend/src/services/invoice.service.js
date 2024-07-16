@@ -63,31 +63,6 @@ async function updateInvoice(id, data) {
 //           throw new Error('Invoice not found');
 //       }
 
-<<<<<<< HEAD
-      // Prepare data for rendering in Handlebars template
-      const templatePath = path.join('../views/export/invoice.hbs');
-      const templateData = {
-          invoice_code: invoice.invoice_code,
-          from: invoice.from ? invoice.from.name : 'N/A',
-          to: invoice.to ? invoice.to.name : 'N/A',
-          status: invoice.status,
-          note: invoice.note || 'N/A',
-          discount: invoice.discount,
-          shipping_charge: invoice.shipping_charge,
-          total_price: invoice.total_price,
-          details: invoice.details.map(detail => ({
-              productId: detail.productId._id,
-              quantity: detail.quantity,
-              unit_price: detail.unit_price,
-              total_price_per_item: detail.quantity * detail.unit_price
-          }))
-      };
-
-      // Path to directory for saving PDF files
-      const saveDir = path.join('../storage');
-      // Ensure the directory exists, create it if not
-      await fs.mkdir(saveDir, { recursive: true });
-=======
 //       // Prepare data for rendering in Handlebars template
 //       const templatePath = path.join(__dirname, '..', 'views', 'export', 'invoice.hbs');
 //       const templateData = {
@@ -111,7 +86,6 @@ async function updateInvoice(id, data) {
 //       const saveDir = path.join(__dirname, '..', 'storage');
 //       // Ensure the directory exists, create it if not
 //       await fs.mkdir(saveDir, { recursive: true });
->>>>>>> b76f100e485a315e7fffe02d85ec99cc2f07179d
 
 //       // Generate PDF using pdfMaster
 //       const pdfBuffer = await pdfMaster.generatePdf(templatePath, templateData);
