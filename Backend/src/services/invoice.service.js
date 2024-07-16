@@ -50,19 +50,20 @@ async function updateInvoice(id, data) {
   }
 }
 
-async function exportInvoiceToPDF(invoiceId) {
-  try {
-      // Fetch invoice data from MongoDB
-      const invoice = await Invoice.findById(invoiceId)
-          .populate('details.productId')
-          .populate('from')
-          .populate('to')
-          .exec();
+// async function exportInvoiceToPDF(invoiceId) {
+//   try {
+//       // Fetch invoice data from MongoDB
+//       const invoice = await Invoice.findById(invoiceId)
+//           .populate('details.productId')
+//           .populate('from')
+//           .populate('to')
+//           .exec();
 
-      if (!invoice) {
-          throw new Error('Invoice not found');
-      }
+//       if (!invoice) {
+//           throw new Error('Invoice not found');
+//       }
 
+<<<<<<< HEAD
       // Prepare data for rendering in Handlebars template
       const templatePath = path.join('../views/export/invoice.hbs');
       const templateData = {
@@ -86,41 +87,66 @@ async function exportInvoiceToPDF(invoiceId) {
       const saveDir = path.join('../storage');
       // Ensure the directory exists, create it if not
       await fs.mkdir(saveDir, { recursive: true });
+=======
+//       // Prepare data for rendering in Handlebars template
+//       const templatePath = path.join(__dirname, '..', 'views', 'export', 'invoice.hbs');
+//       const templateData = {
+//           invoice_code: invoice.invoice_code,
+//           from: invoice.from ? invoice.from.name : 'N/A',
+//           to: invoice.to ? invoice.to.name : 'N/A',
+//           status: invoice.status,
+//           note: invoice.note || 'N/A',
+//           discount: invoice.discount,
+//           shipping_charge: invoice.shipping_charge,
+//           total_price: invoice.total_price,
+//           details: invoice.details.map(detail => ({
+//               productId: detail.productId._id,
+//               quantity: detail.quantity,
+//               unit_price: detail.unit_price,
+//               total_price_per_item: detail.quantity * detail.unit_price
+//           }))
+//       };
 
-      // Generate PDF using pdfMaster
-      const pdfBuffer = await pdfMaster.generatePdf(templatePath, templateData);
+//       // Path to directory for saving PDF files
+//       const saveDir = path.join(__dirname, '..', 'storage');
+//       // Ensure the directory exists, create it if not
+//       await fs.mkdir(saveDir, { recursive: true });
+>>>>>>> b76f100e485a315e7fffe02d85ec99cc2f07179d
 
-      // Generate a unique filename
-      const fileName = `invoice_${invoiceId}.pdf`;
-      const filePath = path.join(saveDir, fileName);
+//       // Generate PDF using pdfMaster
+//       const pdfBuffer = await pdfMaster.generatePdf(templatePath, templateData);
 
-     // Write the PDF buffer to the file system
-     await fs.writeFile(filePath, pdfBuffer, { flag: 'w' });
+//       // Generate a unique filename
+//       const fileName = `invoice_${invoiceId}.pdf`;
+//       const filePath = path.join(saveDir, fileName);
 
-     // Upload PDF to S3
-     const s3UploadPromise = new Promise((resolve, reject) => {
-         uploadToS3(filePath, (error, data) => {
-             if (error) {
-                 reject(error);
-             } else {
-                 resolve(data.Location);
-             }
-         });
-     });
+//      // Write the PDF buffer to the file system
+//      await fs.writeFile(filePath, pdfBuffer, { flag: 'w' });
 
-     const s3Url = await s3UploadPromise;
+//      // Upload PDF to S3
+//      const s3UploadPromise = new Promise((resolve, reject) => {
+//          uploadToS3(filePath, (error, data) => {
+//              if (error) {
+//                  reject(error);
+//              } else {
+//                  resolve(data.Location);
+//              }
+//          });
+//      });
 
-     // Clean up the local file after uploading to S3
-     await fs.unlink(filePath);
+//      const s3Url = await s3UploadPromise;
 
-     // Return the URL of the uploaded PDF
-     return s3Url;
+//      // Clean up the local file after uploading to S3
+//      await fs.unlink(filePath);
+
+//      // Return the URL of the uploaded PDF
+//      return s3Url;
 
 
-  } catch (error) {
-      throw error;
-  }
-}
+//   } catch (error) {
+//       throw error;
+//   }
+// }
 
 async function getStatisticsForAShop(shopId, year, month) {
   try {
@@ -1240,7 +1266,7 @@ module.exports = {
   getAllInvoices,
   getInvoiceById,
   updateInvoice,
-  exportInvoiceToPDF,
+  // exportInvoiceToPDF,
   getStatisticsForAShop,
   getStatisticsForWarehouse,
   getStatisticsForAllShops
