@@ -64,7 +64,7 @@ async function exportInvoiceToPDF(invoiceId) {
       }
 
       // Prepare data for rendering in Handlebars template
-      const templatePath = path.join(__dirname, '..', 'views', 'export', 'invoice.hbs');
+      const templatePath = path.join('../views/export/invoice.hbs');
       const templateData = {
           invoice_code: invoice.invoice_code,
           from: invoice.from ? invoice.from.name : 'N/A',
@@ -83,7 +83,7 @@ async function exportInvoiceToPDF(invoiceId) {
       };
 
       // Path to directory for saving PDF files
-      const saveDir = path.join(__dirname, '..', 'storage');
+      const saveDir = path.join('../storage');
       // Ensure the directory exists, create it if not
       await fs.mkdir(saveDir, { recursive: true });
 
