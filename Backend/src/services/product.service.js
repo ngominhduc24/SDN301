@@ -107,6 +107,33 @@ class ProductService {
             throw error;
         }
     }
+
+    async getDataFromImportFile(excelFile) {
+        const workbook = new excelJS.Workbook();
+
+        try {
+            await workbook.xlsx.load(excelFile);
+            const worksheet = workbook.getWorksheet(1);
+
+            const products = [];
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return;
+
+                const productData = {
+                    productId: row.getCell(1).value,
+                    qunatity: row.getCell(2).value,
+                };
+
+
+                products.push(productData);
+            });
+            
+            return products;
+
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = new ProductService();

@@ -2,10 +2,8 @@ const invoiceService = require('../services/invoice.service');
 const ProductService = require("../services/product.service");
 const ShopService = require('../services/shop.service');
 const RequestService = require('../services/request.service');
-
 const Request = require('../models/request');
 const Invoice = require('../models/invoice');
-const fs = require('fs');
 
 async function create(req, res, next) {
     try {
@@ -252,18 +250,21 @@ async function updateStatus(req, res, next) {
 async function exportInvoiceToPDF(req, res) {
     try {
         const { id } = req.params;
-        const pdfFile = await invoiceService.exportInvoiceToPDF(id);
+        const pdfFilePath = await invoiceService.exportInvoiceToPDF(id);
 
-         res.set({
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename=invoice.pdf'
+        // Respond with the file for download
+        res.download(pdfFilePath, 'invoice.pdf', (err) => {
+            if (err) {
+                console.error('Error downloading invoice:', err);
+                res.status(500).json({ message: 'Error downloading invoice', errors: err.message });
+            }
         });
-        res.status(200).send(pdfFile);
     } catch (error) {
         console.error('Error exporting invoice:', error);
-        res.status(500).json({ error: 'Error exporting invoice' });
+        res.status(500).json({ message: 'Error exporting invoice', errors: error.message });
     }
 }
+
 
 const invoiceController = {
     create,
