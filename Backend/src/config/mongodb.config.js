@@ -18,7 +18,7 @@ const connectMongoDB = async () => {
       host: process.env.REDIS_HOST || "localhost",
       port: 6379,
       // Optional: Uncomment and set the password if you have set one
-      // password: 'your_redis_password'
+      password: process.env.REDIS_PASSWORD || "",
     });
 
     console.log("Cachegoose configured successfully!");
