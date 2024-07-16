@@ -248,17 +248,17 @@ async function updateStatus(req, res, next) {
     }
 }
 
-async function exportInvoiceToPDF(req, res) {
-    try {
-        const { id } = req.params;
-        const pdfFilePath = await invoiceService.exportInvoiceToPDF(id);
-
-        res.status(200).json({filePath: pdfFilePath});
-    } catch (error) {
-        console.error('Error exporting invoice:', error);
-        res.status(500).json({ message: 'Error exporting invoice', errors: error.message });
-    }
-}
+// async function exportInvoiceToPDF(req, res) {
+//     try {
+//         const { id } = req.params;
+//         const pdfFilePath = await invoiceService.exportInvoiceToPDF(id);
+//         console.log("file path: ", pdfFilePath);
+//         res.status(200).json({filePath: pdfFilePath});
+//     } catch (error) {
+//         console.error('Error exporting invoice:', error);
+//         res.status(500).json({ message: 'Error exporting invoice', errors: error.message });
+//     }
+// }
 
 
 const invoiceController = {
@@ -267,7 +267,7 @@ const invoiceController = {
     getById,
     updateInfo,
     updateStatus,
-    exportInvoiceToPDF
+    // exportInvoiceToPDF
 };
 
 module.exports = invoiceController;
