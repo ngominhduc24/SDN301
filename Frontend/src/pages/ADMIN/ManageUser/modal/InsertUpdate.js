@@ -35,6 +35,7 @@ import SvgIcon from "src/components/SvgIcon"
 import dayjs from "dayjs"
 import AdminServices from "src/services/AdminService"
 import STORAGE, { getStorage } from "src/lib/storage"
+import UserService from "src/services/UserService"
 // import SelectAddress from "src/components/SelectAddress"
 const { Option } = Select
 const Styled = styled.div`
@@ -53,9 +54,9 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const token = getStorage(STORAGE.TOKEN)
+  const [avatarUpload, setAvatarUpload] = useState("")
   useEffect(() => {
-    if (detailInfo && props?.open)
-       getUserDetail()
+    if (detailInfo && props?.open) getUserDetail()
   }, [detailInfo, props?.open])
 
   useEffect(() => {
@@ -64,55 +65,36 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
     // getListSelectSept()
   }, [])
 
-
   const getUserDetail = async () => {
     try {
       setLoading(true)
-      const res = await AdminServices.getUserDetail(detailInfo?._id);
-      if(res?.isError){
-        return;
+      const res = await AdminServices.getUserDetail(detailInfo?._id)
+      if (res?.isError) {
+        return
       }
       form.setFieldsValue({
         ...res,
-        dob: res?.dob && moment(res.dob, "DD/MM/YYYY").isValid() ? moment(res.dob, "DD/MM/YYYY"): null
+        dob:
+          res?.dob && moment(res.dob, "DD/MM/YYYY").isValid()
+            ? moment(res.dob, "DD/MM/YYYY")
+            : null,
+        image: res?.image
+          ? [
+              {
+                uid: "-1",
+                name: "image",
+                status: "done",
+                url: res?.image,
+              },
+            ]
+          : [],
       })
     } catch (error) {
-      console.log("error");
-    }finally{
+      console.log("error")
+    } finally {
       setLoading(false)
     }
   }
-  // const getUserDetail = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const res = await UserService.detailUser(detailInfo?.UserID)
-  //     if (res?.isError) return
-  //     form.setFieldsValue({
-  //       ...res?.Object,
-  //       Birthday: !!res?.Object?.Birthday && moment(res?.Object?.Birthday),
-  //       DateParty: !!res?.Object?.DateParty && moment(res?.Object?.DateParty),
-  //       RoleID: res?.Object?.ListRole[0]?.RoleID || undefined,
-  //       Avatar: !!res?.Object?.Avatar ? [{ url: res?.Object?.Avatar }] : [],
-  //       Sex: !!res?.Object?.Sex ? res?.Object?.Sex : undefined,
-  //       DepartmentID: !!res?.Object?.ListUserManager?.length
-  //         ? res?.Object?.ListUserManager?.map(item => item?.DepartmentID)
-  //         : [],
-  //       MaccanType: !!res?.Object?.MaccanType
-  //         ? +res?.Object?.MaccanType
-  //         : undefined,
-  //     })
-
-  //     setRegionCode({
-  //       ProvinceID: res?.Object?.ProvinceID,
-  //       DistrictID: res?.Object?.DistrictID,
-  //       WardID: res?.Object?.WardID,
-  //     })
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
-
-
 
   const onContinue = async () => {
     try {
@@ -120,18 +102,35 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
 
       const values = await form.validateFields()
       let urlAvatar = ""
-      if (values?.Avatar?.length && values?.Avatar[0]?.name) {
+      if (values?.image) {
         const formData = new FormData()
-        values?.Avatar?.map(img => formData.append("file", img?.originFileObj))
+        values?.image?.map(img => formData.append("image", img?.originFileObj))
         // const resUpload = await FileService.uploadFile(formData)
         // urlAvatar = resUpload?.Object
+        const uploadFile = await UserService.uploadFile(formData)
+        urlAvatar = uploadFile?.image
       } else {
-        if (!!values?.Avatar) urlAvatar = values?.Avatar[0]?.url
+        if (!!values?.image) urlAvatar = values?.image
       }
-      const res = detailInfo ? await AdminServices.updateStatusUsers(detailInfo?._id, {...values}) : await AdminServices.addnewUsers({
-        ...values,
-        dob: values.dob ? values.dob.format("DD/MM/YYYY") : null
-      })
+      const res = detailInfo
+        ? await AdminServices.updateStatusUsers(detailInfo?._id, {
+            ...values,
+            image: urlAvatar,
+          })
+        : await AdminServices.addnewUsers({
+            ...values,
+            dob: values.dob ? values.dob.format("DD/MM/YYYY") : null,
+            image: urlAvatar
+              ? [
+                  {
+                    uid: "-1",
+                    name: values?.image,
+                    status: "done",
+                    url: res?.image,
+                  },
+                ]
+              : [],
+          })
 
       if (res?.isError) return
       onOk && onOk()
@@ -144,13 +143,60 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
     }
   }
 
+  const uploadImg = async file => {
+    try {
+      setLoading(true)
+      const formData = new FormData()
+      formData.append("image", file)
+      const res = await UserService.uploadFile(formData)
+      form.setFieldValue({
+        image: [
+          {
+            uid: "-1",
+            name: file.name,
+            status: "done",
+            url: res?.image,
+          },
+        ],
+      })
+      setAvatarUpload(file)
+    } catch {
+      console.log("upload file error")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // const changeAvatar = async () => {
+  //   try {
+  //     setLoading(true)
+  //     // setShowCancelButton(false)
+  //     const formData = new FormData();
+  //     formData.append("image", avatarUpload);
+  //     const res = await UserService.changeAvatar(detailInfo._id, formData);
+  //     if (res?.status === 200) {
+  //       setUser(prevUser => ({
+  //         ...prevUser,
+  //         image: res?.image
+  //       }));
+  //       Notice({ msg: "Cập nhật thành công!" })
+  //       setAvatarUpload("")
+  //     }else {
+  //       throw new Error('Failed to update avatar');
+  //     }
+
+  // }catch{
+  //     console.log("change ava error");
+  //   }
+  //    finally {
+  //     setLoading(false)
+  //   }
+  // }
+
   const renderFooter = () => (
     <div className={!!detailInfo ? "d-flex-sb" : "d-flex-end"}>
       {!detailInfo && (
-        <Button
-          btntype="primary"
-          className="btn-hover-shadow"
-        >
+        <Button btntype="primary" className="btn-hover-shadow">
           Reset mật khẩu mặc định
         </Button>
       )}
@@ -172,15 +218,12 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
     >
       <SpinCustom spinning={loading}>
         <Styled>
-          <Form
-            form={form}
-            layout="vertical"
-          >
+          <Form form={form} layout="vertical">
             <Row gutter={[16]}>
               <Col span={24}>
                 <Form.Item
                   label="Hình đại diện"
-                  name="Avatar"
+                  name="image"
                   valuePropName="fileList"
                   getValueFromEvent={normFile}
                   rules={[
@@ -196,30 +239,42 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                     }),
                   ]}
                 >
-                  <Upload
-                    accept="image/*"
-                    multiple={false}
-                    maxCount={1}
-                    beforeUpload={() => false}
-                    listType="picture-card"
-                  >
-                    <Row className="align-items-center">
-                      <ButtonUploadStyle>
-                        <Button className="account-button-upload ">
-                          <Row className="account-background-upload d-flex align-items-center">
-                            <SvgIcon name="add-media-video" />
-                            <div className="account-text-upload ml-16">
-                              Chọn ảnh
-                            </div>
-                          </Row>
-                        </Button>
-                      </ButtonUploadStyle>
-                      <div className="sub-color fs-12 ml-16">
-                        Dung lượng file tối đa 5MB, định dạng: .JPG, .JPEG,
-                        .PNG, .SVG
-                      </div>
-                    </Row>
-                  </Upload>
+                  {form.getFieldValue("image") &&
+                  form.getFieldValue("image").length > 0 ? (
+                    <img
+                      src={form.getFieldValue("image")[0].url}
+                      alt="avatar"
+                      style={{ width: "30%" }}
+                    />
+                  ) : (
+                    <Upload
+                      accept="image/*"
+                      multiple={false}
+                      maxCount={1}
+                      beforeUpload={file => {
+                        uploadImg(file)
+                        return false
+                      }}
+                      listType="picture-card"
+                    >
+                      <Row className="align-items-center">
+                        <ButtonUploadStyle>
+                          <Button className="account-button-upload ">
+                            <Row className="account-background-upload d-flex align-items-center">
+                              <SvgIcon name="add-media-video" />
+                              <div className="account-text-upload ml-16">
+                                Chọn ảnh
+                              </div>
+                            </Row>
+                          </Button>
+                        </ButtonUploadStyle>
+                        <div className="sub-color fs-12 ml-16">
+                          Dung lượng file tối đa 5MB, định dạng: .JPG, .JPEG,
+                          .PNG, .SVG
+                        </div>
+                      </Row>
+                    </Upload>
+                  )}
                 </Form.Item>
               </Col>
               <Col md={24} xs={24}>
@@ -276,7 +331,7 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
                   </Form.Item>
                 </Col>
               )}
-       {!detailInfo ? (
+              {!detailInfo ? (
                 <>
                   <Col md={12} xs={24}>
                     <Form.Item
@@ -440,4 +495,3 @@ const ModalInsertUpdate = ({ onOk, detailInfo, ...props }) => {
 }
 
 export default ModalInsertUpdate
-

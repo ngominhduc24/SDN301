@@ -57,8 +57,8 @@ const ManageUser = () => {
     },
     {
       title: "Ảnh",
-      dataIndex: "Avatar",
-      key: "Avatar",
+      dataIndex: "image",
+      key: "image",
       render: value => <Avatar src={value} icon={<UserOutlined />} size={40} />,
       width: 60,
       align: "center",

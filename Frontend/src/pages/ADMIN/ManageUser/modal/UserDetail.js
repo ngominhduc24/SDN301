@@ -139,7 +139,7 @@ const UserDetail = ({ open, onCancel, onOk, data }) => {
         <Row gutter={[20, 8]}>
           <Col span={10}>
             <Image
-              src={data?.avatar || FAILBACK}
+              src={data?.image || FAILBACK}
               fallback={FAILBACK}
               alt={"ảnh tài khoản"}
               className="img-user"

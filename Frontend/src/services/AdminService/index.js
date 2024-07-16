@@ -10,6 +10,7 @@ import {
   apiGetCategoryById,
   apiGetProductById,
   apiGetProductInStore,
+  apiGetStatistics,
   apiGetStoreById,
   apiGetUserDetail,
   apiUpdateProducts,
@@ -37,6 +38,7 @@ const getCategoryById = id => http.get(apiGetCategoryById(id))
 const getProductInStore = id => http.get(apiGetProductInStore(id))
 const updateStores = (id, body) => http.put(apiUpdateStores(id), body)
 const addStores = body => http.post(apiAddNewStores, body)
+const getStatistics = (body) => http.post(apiGetStatistics, body)
 const AdminServices = {
   getAllProducts,
   getAllStores,
@@ -54,6 +56,7 @@ const AdminServices = {
   getProductInStore,
   updateStores,
   addStores,
+  getStatistics
 }
 
 export default AdminServices

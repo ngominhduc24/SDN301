@@ -27,6 +27,7 @@ const PersonProfile = () => {
   const [user, setUser] = useState({})
   const [avatarUpload, setAvatarUpload] = useState("")
   const [showCancelButton, setShowCancelButton] = useState(false)
+  const [avatarUpdated, setAvatarUpdated] = useState(false)
   const userID = getStorage(STORAGE.USER_ID);
 console.log("userid: ", userID);
   const uploadImg = async file => {
@@ -60,7 +61,7 @@ console.log("userid: ", userID);
 
   useEffect(() => {
     getInfo();
-  }, []);
+  }, [avatarUpdated]);
 
   const changeAvatar = async () => {
     try {
@@ -76,6 +77,7 @@ console.log("userid: ", userID);
         }));
         Notice({ msg: "Cập nhật thành công!" })
         setAvatarUpload("")
+        setAvatarUpdated(!avatarUpdated);
       }else {
         throw new Error('Failed to update avatar');
       }
