@@ -73,6 +73,13 @@ async function updateInfo(req, res, next) {
 
         const updatedRequest = await RequestService.update(req.params.id, requestData);
 
+        // start notification
+        const userCreate = await userService.getUserById(request.created_by);
+        const warehouse = await shopService.getWarehouse();
+        if (warehouse && userCreate) {
+            const notification = await NotificationService.pushNotification("A request for order product has been updated", warehouse ? warehouse._id : null, userCreate);
+        }
+
         res.status(200).json(updatedRequest);
     } catch (error) {
         next(error); 
