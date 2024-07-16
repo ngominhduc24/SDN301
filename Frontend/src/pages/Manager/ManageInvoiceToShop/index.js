@@ -15,6 +15,7 @@ import InsertUpdateInvoice from "./components/InsertUpdateInvoice"
 import ModalViewWarehouse from "./components/ModalViewWarehouse"
 import ModalViewStore from "./components/ModalViewStore"
 import UpdateInvoice from "./components/UpdateInvoice"
+import { saveAs } from "file-saver"
 import {
   MainTableData,
   MainTableHeader,
@@ -68,6 +69,17 @@ const ManageInvoiceManager = () => {
       setLoading(false)
     }
   }
+  const exportInvoice = async id => {
+    try {
+      const response = await ManagerService.exportInvoice(id)
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      })
+      saveAs(blob, `invoice_${id}.pdf`)
+    } catch (error) {
+      console.error("Error exporting invoice:", error)
+    }
+  }
 
   const listBtn = record => {
     const buttons = [
@@ -80,6 +92,12 @@ const ManageInvoiceManager = () => {
           setOpenViewInvoice(true)
           console.log("Products:", record)
         },
+      },
+      {
+        isEnable: true,
+        name: "Xuất hóa đơn",
+        icon: "dowload-export",
+        onClick: () => exportInvoice(record._id),
       },
     ]
 

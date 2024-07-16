@@ -11,6 +11,9 @@ import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import WarehouseManagerService from "src/services/WarehouseManagerService"
 import ModalViewProduct from "../ModalViewProduct"
+import { DownloadOutlined } from "@ant-design/icons"
+import { saveAs } from "file-saver"
+
 const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
   const [openViewProducts, setOpenViewProducts] = useState(false)
   const [total, setTotal] = useState(0)
@@ -162,7 +165,17 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
       ),
     },
   ]
-
+  const exportInvoice = async id => {
+    try {
+      const response = await WarehouseManagerService.exportInvoice(id)
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      })
+      saveAs(blob, `invoice_${id}.pdf`)
+    } catch (error) {
+      console.error("Error exporting invoice:", error)
+    }
+  }
   return (
     <Modal
       visible={visible}
@@ -178,6 +191,14 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
               onClick={onCancel}
             >
               Đóng
+            </Button>
+            <Button
+              className="btn-hover-shadow ml-8 mt-12 mb-12"
+              btntype="third"
+              icon={<DownloadOutlined />}
+              onClick={() => exportInvoice(data?._id)}
+            >
+              Export Invoice
             </Button>
           </div>
         </div>

@@ -30,7 +30,6 @@ export const ModalWrapper = styled.div`
   .ant-modal-body {
     background-color: red;
   }
- 
 `
 
 export const ModalStyled = styled(Modal)`

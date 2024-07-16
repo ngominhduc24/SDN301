@@ -23,6 +23,8 @@ import {
   apiGetRequestWarehouse,
   apiGetRequestShop,
   apiGetRequestById,
+  apiExportInvoice,
+  apiImportInvoice,
 } from "./urls"
 import QueryString from "qs"
 // Products
@@ -51,6 +53,13 @@ const updateStatusInvoice = (id, body) =>
 const createInvoice = body => http.post(apiCreateInvoice, body)
 const getInvoicesByShopId = id => http.get(apiGetInvoicesByShopId(id))
 const getOrdersByShopId = id => http.get(apiGetOrdersByShopId(id))
+const exportInvoice = id => http.get(apiExportInvoice(id))
+const importInvoice = body =>
+  http.post(apiImportInvoice, body, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  })
 
 // Request
 const updateInfoRequest = (id, body) => http.put(apiUpdateInfoRequest(id), body)
@@ -85,6 +94,8 @@ const ManagerService = {
   getRequestWarehouse,
   getRequestShop,
   getRequestById,
+  exportInvoice,
+  importInvoice,
 }
 
 export default ManagerService

@@ -11,7 +11,10 @@ import moment from "moment"
 import SpinCustom from "src/components/Spin"
 import ModalViewProduct from "../ModalViewProduct"
 import ModalNoteStatus from "../ModalNoteStatus"
-import ManagerService from "src/services/ManagerService"
+import { DownloadOutlined } from "@ant-design/icons"
+import WarehouseManagerService from "src/services/WarehouseManagerService"
+import { saveAs } from "file-saver"
+
 const ModalViewDetailInvoice = ({ visible, onCancel, data, open, onOk }) => {
   const [openViewProducts, setOpenViewProducts] = useState(false)
   const [total, setTotal] = useState(0)
@@ -172,7 +175,10 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open, onOk }) => {
         status: "completed",
       }
       console.log(body)
-      const response = await ManagerService.updateStatusInvoice(data?._id, body)
+      const response = await WarehouseManagerService.updateStatusInvoice(
+        data?._id,
+        body,
+      )
       if (response?.isError) {
         console.error("Error creating invoice:", response.message)
         return
@@ -187,6 +193,17 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open, onOk }) => {
       console.error("Error in createInvoice:", error)
     } finally {
       setLoading(false)
+    }
+  }
+  const exportInvoice = async id => {
+    try {
+      const response = await WarehouseManagerService.exportInvoice(id)
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      })
+      saveAs(blob, `invoice_${id}.pdf`)
+    } catch (error) {
+      console.error("Error exporting invoice:", error)
     }
   }
   return (
@@ -225,6 +242,14 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open, onOk }) => {
               onClick={onCancel}
             >
               Đóng
+            </Button>
+            <Button
+              className="btn-hover-shadow ml-8 mt-12 mb-12"
+              btntype="third"
+              icon={<DownloadOutlined />}
+              onClick={() => exportInvoice(data?._id)}
+            >
+              Export Invoice
             </Button>
           </div>
         </div>
