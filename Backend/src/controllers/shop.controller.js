@@ -177,14 +177,17 @@ async function getStatistics (req, res, next) {
   try {
       const shopId = req.body.shopId;
       let result = {};
+
+      const month = req.body.month ? req.body.month : new Date().getMonth();
+      const year = req.body.year ? req.body.year : new Date().getFullYear();
       
       if(shopId == -1){
-        result = await InvoiceService.getStatisticsForAllShops(req.body.year, req.body.month);
+        result = await InvoiceService.getStatisticsForAllShops(year, month);
       } else if(shopId == 0){
         const warehouse =await shopService.getWarehouse();
-        result = await InvoiceService.getStatisticsForWarehouse(warehouse._id,req.body.year, req.body.month);
+        result = await InvoiceService.getStatisticsForWarehouse(warehouse._id,year, month);
       } else {
-        result = await InvoiceService.getStatisticsForAShop(shopId, req.body.year, req.body.month);
+        result = await InvoiceService.getStatisticsForAShop(shopId, year, month);
       }
       
       res.status(200).json(result);
