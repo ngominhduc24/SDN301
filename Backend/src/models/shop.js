@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const Schema = mongoose.Schema;
 const Product = require('./product');
 const User = require('./user');
 
@@ -12,12 +12,12 @@ const productSchema = new Schema({
     },
   quantity: { 
     type: Number, 
-    required: true, 
+    default: 0,
     min: 0 
   }, 
   status: { 
     type: String, 
-    enum: ['active', 'deactive'], 
+    enum: ['active', 'inactive'], 
     default: 'active' 
   }
 }); 

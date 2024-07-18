@@ -1,13 +1,18 @@
+const asyncHandler = require('../utils/async-handle');
 const shopService = require('../services/shop.service');
+const ProductService = require("../services/product.service");
+const InvoiceService = require("../services/invoice.service");
+const Shop = require('../models/shop');
 
 // Create a new shop
-async function create(req, res, next) {
+const create = asyncHandler(async (req, res, next) => {
   try {
     const shopData = {
       name: req.body.name,
       location: req.body.location,
       phone : req.body.phone,
       email : req.body.email,
+      inventoryType : req.body.inventoryType,
       manager : req.body.manager
       };
     const newShop = await shopService.create(shopData);
@@ -15,7 +20,7 @@ async function create(req, res, next) {
   } catch (error) {
     next(error);
   }
-}
+});
 
 // Get all shops
 async function getAll(req, res, next) {
@@ -81,6 +86,61 @@ async function getProductByShopId(req, res, next) {
   }
 }
 
+// Get all invoice for a specific shop
+async function getInvoiceToByShopId(req, res, next) {
+  try {
+    const invoices = await shopService.getInvoiceToWithShopId(req.params.shopId);
+    res.status(200).send(invoices);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Get all invoice for a specific shop
+async function getInvoiceFromByShopId(req, res, next) {
+  try {
+    const invoices = await shopService.getInvoiceFromWithShopId(req.params.shopId);
+    res.status(200).send(invoices);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Get all invoice for a specific shop
+async function getRequestsByShopId(req, res, next) {
+  try {
+    const requests = await shopService.getRequestsByShopId(req.params.shopId);
+    res.status(200).send(requests);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Get all products for a specific shop
+async function getProductNotAddedByShop(req, res, next) {
+  try {
+    // Get products added by the shop
+    const productsAdded = await shopService.getProductByShopId(req.params.shopId);
+    
+    // Get all products
+    const allProducts = await ProductService.listAllActiveProducts();
+
+    if(productsAdded != null) {
+      // Filter products not added by the shop
+      const productsNotAdded = allProducts.filter(product => {
+        return !productsAdded.some(addedProduct => addedProduct.productId.equals(product._id));
+      });
+
+      res.status(200).json(productsNotAdded);
+    } else {
+      res.status(200).json(allProducts);
+    }
+   
+  } catch (error) {
+    next(error);
+  }
+}
+
 // Get a specific product by its ID within a specific shop
 async function getProductById(req, res, next) {
   try {
@@ -94,14 +154,50 @@ async function getProductById(req, res, next) {
 // Update a product for a specific product in a specific shop
 async function updateProductById(req, res, next) {
   try {
-    const product = await shopService.updateProductById(req.params.shopId, req.params.id, req.body.quantity);
+    const product = await shopService.updateProductById(req.params.shopId, req.params.id, req.body.quantity, res.body.status);
     res.status(200).send(product);
   } catch (error) {
     next(error);
   }
 }
 
-const shopController = { create, getAll, getById, update, 
-  createProduct, getProductByShopId, getProductById, updateProductById };
+// get warehouse info
+async function getWarehouse(req, res, next) {
+  try {
+    console.log('getWarehouse');
+    const warehouse = await shopService.getWarehouse();
+    res.status(200).send(warehouse);
+  } catch (error) {
+    next(error);
+  }
+}
+
+//shop revenue
+async function getStatistics (req, res, next) {
+  try {
+      const shopId = req.body.shopId;
+      let result = {};
+
+      const month = req.body.month ? req.body.month : new Date().getMonth();
+      const year = req.body.year ? req.body.year : new Date().getFullYear();
+      
+      if(shopId == -1){
+        result = await InvoiceService.getStatisticsForAllShops(year, month);
+      } else if(shopId == 0){
+        const warehouse =await shopService.getWarehouse();
+        result = await InvoiceService.getStatisticsForWarehouse(warehouse._id,year, month);
+      } else {
+        result = await InvoiceService.getStatisticsForAShop(shopId, year, month);
+      }
+      
+      res.status(200).json(result);
+  } catch (error) {
+      next(error); 
+  }
+};
+
+const shopController = { create, getAll, getById, update, getWarehouse,
+  createProduct, getProductByShopId, getProductById, updateProductById, 
+  getProductNotAddedByShop, getInvoiceToByShopId, getInvoiceFromByShopId, getStatistics, getRequestsByShopId };
 
 module.exports = shopController;

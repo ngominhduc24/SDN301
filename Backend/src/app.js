@@ -11,9 +11,15 @@ const setupSwagger = require('./config/swagger');
 var connectMongoDB =  require("./config/mongodb.config.js");
 const categoryRouter = require("./routes/category.router.js");
 const shopRouter = require("./routes/shop.router.js");
-const warehouseRouter = require("./routes/warehouse.router.js");
 const productRouter = require("./routes/product.router.js");
-const orderRouter = require("./routes/order.router.js");
+const invoiceRouter = require("./routes/invoice.router.js");
+const requestRouter = require("./routes/request.router.js");
+const notifyRouter = require("./routes/notification.router.js");
+// const fileUpload = require("express-fileupload");
+
+const { storage } = require('./config/storage');
+const multer = require('multer');
+const upload = multer({ storage });
 
 require("dotenv").config();
 
@@ -32,15 +38,25 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
+// app.use(fileUpload({
+//   useTempFiles:true,
+//   tempFileDir:"/storage"
+// }));
 
+app.post('/upload', upload.single('image'), (req, res) => {
+  console.log(req.file);
+  console.log(req);
+  res.send('Done');
+});
 // routers controller
 app.use("/", indexRouter);
 app.use("/api", userRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/shop", shopRouter);
-app.use("/api/warehouse", warehouseRouter);
 app.use("/api/product", productRouter);
-app.use("/api/order", orderRouter);
+app.use("/api/invoice", invoiceRouter);
+app.use("/api/request", requestRouter);
+app.use("/api/notification", notifyRouter);
 
 // swagger config
 setupSwagger(app);
