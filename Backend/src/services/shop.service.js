@@ -1,6 +1,8 @@
 const Shop = require('../models/shop');
 const Invoice = require('../models/invoice');
 const Product = require('../models/product');
+const Request = require('../models/request');
+
 
 // Create a new shop
 async function create(data) {
@@ -91,19 +93,21 @@ async function getProductByShopId(shopId) {
 
 // Get all invoice for a specific shop
 async function getInvoiceToWithShopId(shopId) {
-  const invoice = await Invoice.find({ to: shopId });
-  if (!invoice) {
-    throw new Error('Invoice not found');
-  }
+  const invoice = await Invoice.find({ to: shopId }).populate({path: 'from', select: '-products' }).populate({path: 'to', select: '-products' })
+  .populate('details.productId').populate('created_by');
   return invoice;
 }
 
 async function getInvoiceFromWithShopId(shopId) {
-  const invoice = await Invoice.find({ from: shopId });
-  if (!invoice) {
-    throw new Error('Invoice not found');
-  }
+  const invoice = await Invoice.find({ from: shopId }).populate({path: 'from', select: '-products' }).populate({path: 'to', select: '-products' })
+  .populate('details.productId').populate('created_by');
   return invoice;
+}
+
+async function getRequestsByShopId(shopId) {
+  const requests = await Request.find({ from: shopId }).populate({path: 'from', select: '_id name' })
+  .populate('details.productId', '_id name description image status').populate('created_by', '_id');
+  return requests;
 }
 
 // Get a specific product by its ID within a specific shop
@@ -120,12 +124,23 @@ async function getProductById(shopId, productId) {
   return product;
 }
 
+async function getProById(shopId, productId) {
+  const shop = await Shop.findById(shopId);
+  if (!shop) {
+    throw new Error('Shop not found');
+  }
+
+  var product = shop.products.find(prod => prod.productId.toString() === productId.toString());
+  return product || null;
+}
+
 // Add quantity to a specific product in a specific shop
 async function updateProductById(shopId, productId, quantity, status) {
   const shop = await Shop.findById(shopId);
   if (!shop) {
     throw new Error('Shop not found');
   }
+
   const product = shop.products.find(prod => prod.productId.toString() === productId.toString());
   if (!product) {
     throw new Error('Product not found for productId: ' + productId);
@@ -133,6 +148,7 @@ async function updateProductById(shopId, productId, quantity, status) {
   
   product.status = status;
   product.quantity = product.quantity + quantity;
+  
   await shop.save();
   return product;
 }
@@ -149,5 +165,7 @@ module.exports = {
   updateProductById,
   getWarehouse,
   getInvoiceToWithShopId,
-  getInvoiceFromWithShopId
+  getInvoiceFromWithShopId,
+  getProById,
+  getRequestsByShopId
 };

@@ -14,7 +14,7 @@ const DetailSchema = new Schema({
   quantity: {
     type: Number,
     default: 1,
-    min: 0
+    min: 1
   },
   unit_price : {
     type : Number,
@@ -31,11 +31,14 @@ const InvoiceSchema = new Schema({
   },
   from: {
     type: Schema.Types.ObjectId,
-    ref: Shop
+    ref: Shop,
+    default: null
+
   },
   to: {
     type: Schema.Types.ObjectId,
-    ref: Shop
+    ref: Shop,
+    default: null
   },
   details: [DetailSchema],
   sub_total: {

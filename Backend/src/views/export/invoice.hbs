@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        /* Define your CSS styles inline or link external CSS files */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .invoice-details {
+            margin-bottom: 20px;
+        }
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .invoice-table th, .invoice-table td {
+            border: 1px solid #dddddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .invoice-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-header">
+        <h1>Invoice</h1>
+    </div>
+    <div class="invoice-details">
+        <p>Invoice Code: {{ invoice_code }}</p>
+        <p>From: {{ from }}</p>
+        <p>To: {{ to }}</p>
+        <p>Status: {{ status }}</p>
+        <p>Note: {{ note }}</p>
+        <p>Discount: {{ discount }}%</p>
+        <p>Shipping Charge: ${{ shipping_charge }}</p>
+        <p>Total Price: ${{ total_price }}</p>
+    </div>
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each details }}
+                <tr>
+                    <td>{{ productId }}</td>
+                    <td>{{ quantity }}</td>
+                    <td>${{ unit_price }}</td>
+                    <td>${{ total_price_per_item }}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</body>
+</html>

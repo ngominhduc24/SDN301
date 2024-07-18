@@ -1,6 +1,8 @@
 const asyncHandler = require('../utils/async-handle');
 const shopService = require('../services/shop.service');
 const ProductService = require("../services/product.service");
+const InvoiceService = require("../services/invoice.service");
+const Shop = require('../models/shop');
 
 // Create a new shop
 const create = asyncHandler(async (req, res, next) => {
@@ -104,6 +106,16 @@ async function getInvoiceFromByShopId(req, res, next) {
   }
 }
 
+// Get all invoice for a specific shop
+async function getRequestsByShopId(req, res, next) {
+  try {
+    const requests = await shopService.getRequestsByShopId(req.params.shopId);
+    res.status(200).send(requests);
+  } catch (error) {
+    next(error);
+  }
+}
+
 // Get all products for a specific shop
 async function getProductNotAddedByShop(req, res, next) {
   try {
@@ -111,7 +123,7 @@ async function getProductNotAddedByShop(req, res, next) {
     const productsAdded = await shopService.getProductByShopId(req.params.shopId);
     
     // Get all products
-    const allProducts = await ProductService.listAllProducts();
+    const allProducts = await ProductService.listAllActiveProducts();
 
     if(productsAdded != null) {
       // Filter products not added by the shop
@@ -160,7 +172,32 @@ async function getWarehouse(req, res, next) {
   }
 }
 
+//shop revenue
+async function getStatistics (req, res, next) {
+  try {
+      const shopId = req.body.shopId;
+      let result = {};
+
+      const month = req.body.month ? req.body.month : new Date().getMonth();
+      const year = req.body.year ? req.body.year : new Date().getFullYear();
+      
+      if(shopId == -1){
+        result = await InvoiceService.getStatisticsForAllShops(year, month);
+      } else if(shopId == 0){
+        const warehouse =await shopService.getWarehouse();
+        result = await InvoiceService.getStatisticsForWarehouse(warehouse._id,year, month);
+      } else {
+        result = await InvoiceService.getStatisticsForAShop(shopId, year, month);
+      }
+      
+      res.status(200).json(result);
+  } catch (error) {
+      next(error); 
+  }
+};
+
 const shopController = { create, getAll, getById, update, getWarehouse,
-  createProduct, getProductByShopId, getProductById, updateProductById, getProductNotAddedByShop, getInvoiceToByShopId, getInvoiceFromByShopId };
+  createProduct, getProductByShopId, getProductById, updateProductById, 
+  getProductNotAddedByShop, getInvoiceToByShopId, getInvoiceFromByShopId, getStatistics, getRequestsByShopId };
 
 module.exports = shopController;

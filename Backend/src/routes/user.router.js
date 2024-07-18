@@ -130,7 +130,6 @@ userRouter.post('/admin/users', verifyTokenHandle.verifyTokenAdmin, UserControll
  */
 userRouter.get('/admin/users', verifyTokenHandle.verifyToken, UserController.ListAllUsers);
 
-
 /**
  * @swagger
  * /admin/user/{id}:
@@ -179,7 +178,7 @@ userRouter.get('/admin/users', verifyTokenHandle.verifyToken, UserController.Lis
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRouter.post('/admin/users/:id', upload.single('image'), UserController.updateUserById);
+userRouter.put('/admin/users/:id', upload.single('image'), UserController.updateUserById);
 
 userRouter.get('/admin/users/:id', UserController.getUserById);
 
