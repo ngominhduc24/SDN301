@@ -168,10 +168,17 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
   const exportInvoice = async id => {
     try {
       const response = await WarehouseManagerService.exportInvoice(id)
-      const blob = new Blob([response.data], {
-        type: response.headers["content-type"],
-      })
-      saveAs(blob, `invoice_${id}.pdf`)
+      const filePath = response.filePath
+      if (filePath) {
+        const link = document.createElement("a")
+        link.href = filePath
+        link.download = `invoice_${id}.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      } else {
+        console.error("No file path returned from the API")
+      }
     } catch (error) {
       console.error("Error exporting invoice:", error)
     }
@@ -261,4 +268,3 @@ const ModalViewDetailInvoice = ({ visible, onCancel, data, open }) => {
 }
 
 export default ModalViewDetailInvoice
-
